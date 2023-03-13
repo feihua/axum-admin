@@ -1,0 +1,31 @@
+[package]
+name = "axum-admin"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+axum ={ version = "0.6"}
+tokio ={ version = "1",features = ["full"]}
+tower = { version = "0.4", features = ["util", "timeout"] }
+tower-http = { version = "0.4.0" }
+
+json = "0.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+rbs = { version = "0.1"}
+rbatis = { version = "4.0"}
+#rbatis = { version = "4.0",features = ["debug_mode"]}
+rbdc-mysql={version="0.1"}
+
+log = "0.4"
+log4rs = "1.0"
+
+jsonwebtoken = "8"
+
+redis = "0.22.1"
+
+futures = { version = "0.3", default-features = false }
+thiserror = "1.0"
