@@ -101,8 +101,6 @@ pub struct UserListReq {
 pub struct UserListResp {
     pub msg: String,
     pub code: i32,
-    pub page_no: u64,
-    pub page_size: u64,
     pub success: bool,
     pub total: u64,
     pub data: Option<Vec<UserListData>>,
@@ -114,7 +112,7 @@ pub struct UserListData {
     pub sort: i32,
     pub status_id: i32,
     pub mobile: String,
-    pub real_name: String,
+    pub user_name: String,
     pub remark: String,
     pub create_time: String,
     pub update_time: String,
@@ -123,8 +121,10 @@ pub struct UserListData {
 #[derive(Debug, Deserialize)]
 pub struct UserSaveReq {
     pub mobile: String,
-    pub real_name: String,
-    pub remark: String,
+    pub user_name: String,
+    pub status_id: i32,
+    pub sort: i32,
+    pub remark: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -133,8 +133,8 @@ pub struct UserUpdateReq {
     pub sort: i32,
     pub status_id: i32,
     pub mobile: String,
-    pub real_name: String,
-    pub remark: String,
+    pub user_name: String,
+    pub remark: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

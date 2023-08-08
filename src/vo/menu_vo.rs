@@ -34,12 +34,12 @@ pub struct MenuListData {
 pub struct MenuSaveReq {
     pub sort: i32,
     pub status_id: i32,
-    pub parent_id: Option<i32>,
+    pub parent_id: i32,
     pub menu_name: String,
-    pub menu_url: String,
-    pub icon: String,
-    pub api_url: String,
-    pub remark: String,
+    pub menu_url: Option<String>,
+    pub icon: Option<String>,
+    pub api_url: Option<String>,
+    pub remark: Option<String>,
     pub menu_type: i32,
 }
 
@@ -50,14 +50,14 @@ pub struct MenuUpdateReq {
     pub status_id: i32,
     pub parent_id: i32,
     pub menu_name: String,
-    pub menu_url: String,
-    pub icon: String,
-    pub api_url: String,
-    pub remark: String,
+    pub menu_url: Option<String>,
+    pub icon: Option<String>,
+    pub api_url: Option<String>,
+    pub remark: Option<String>,
     pub menu_type: i32,
 }
 
 #[derive(Debug, Deserialize)]
 pub struct MenuDeleteReq {
-    pub ids: Vec<i32>,
+    pub id: i32,
 }

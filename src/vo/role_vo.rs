@@ -14,8 +14,6 @@ pub struct RoleListReq {
 pub struct RoleListResp {
     pub msg: String,
     pub code: i32,
-    pub page_no: u64,
-    pub page_size: u64,
     pub success: bool,
     pub total: u64,
     pub data: Option<Vec<RoleListData>>,
@@ -36,7 +34,8 @@ pub struct RoleListData {
 pub struct RoleSaveReq {
     pub role_name: String,
     pub sort: i32,
-    pub remark: String,
+    pub status_id: i32,
+    pub remark: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -45,7 +44,7 @@ pub struct RoleUpdateReq {
     pub sort: i32,
     pub status_id: i32,
     pub role_name: String,
-    pub remark: String,
+    pub remark: Option<String>,
 }
 
 
