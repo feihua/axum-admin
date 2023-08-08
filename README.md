@@ -8,6 +8,13 @@
 https://github.com/feihua/antd-admin.git
 ```
 
+# 相关rust web框架项目
+```
+https://github.com/feihua/actix-admin.git # actix-web框架
+https://github.com/feihua/rocket-admin.git # rocket框架
+https://github.com/feihua/salvo-admin.git # salvo-web框架
+```
+
 # 预览地址
 
 http://139.159.180.129:81/salvo 账号：18613030352 密码：123456
