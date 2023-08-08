@@ -2,10 +2,12 @@ use std::sync::Arc;
 use axum::extract::State;
 use axum::Json;
 use axum::response::IntoResponse;
-use rbatis::rbdc::datetime::FastDateTime;
+use rbatis::rbdc::datetime::DateTime;
 use rbatis::sql::{PageRequest};
 use crate::{AppState};
-use crate::model::entity::{SysRole, query_menu_by_role, SysMenu, SysMenuRole};
+use crate::model::role::{SysRole};
+use crate::model::menu::{SysMenu};
+use crate::model::role_menu::{query_menu_by_role, SysRoleMenu};
 use crate::vo::handle_result;
 use crate::vo::role_vo::*;
 
@@ -23,28 +25,24 @@ pub async fn role_list(State(state): State<Arc<AppState>>, Json(item): Json<Role
     let resp = match result {
         Ok(d) => {
             let total = d.total;
-            let page_no = d.page_no;
-            let page_size = d.page_size;
 
             let mut role_list: Vec<RoleListData> = Vec::new();
 
             for x in d.records {
                 role_list.push(RoleListData {
                     id: x.id.unwrap(),
-                    sort: x.sort.unwrap(),
-                    status_id: x.status_id.unwrap(),
-                    role_name: x.role_name.unwrap_or_default(),
+                    sort: x.sort,
+                    status_id: x.status_id,
+                    role_name: x.role_name,
                     remark: x.remark.unwrap_or_default(),
-                    create_time: x.gmt_create.unwrap().0.to_string(),
-                    update_time: x.gmt_modified.unwrap().0.to_string(),
+                    create_time: x.create_time.unwrap().0.to_string(),
+                    update_time: x.update_time.unwrap().0.to_string(),
                 })
             }
 
             RoleListResp {
                 msg: "successful".to_string(),
                 code: 0,
-                page_no,
-                page_size,
                 success: true,
                 total,
                 data: Some(role_list),
@@ -54,8 +52,6 @@ pub async fn role_list(State(state): State<Arc<AppState>>, Json(item): Json<Role
             RoleListResp {
                 msg: err.to_string(),
                 code: 1,
-                page_no: 0,
-                page_size: 0,
                 success: true,
                 total: 0,
                 data: None,
@@ -73,12 +69,12 @@ pub async fn role_save(State(state): State<Arc<AppState>>, Json(item): Json<Role
 
     let sys_role = SysRole {
         id: None,
-        gmt_create: Some(FastDateTime::now()),
-        gmt_modified: Some(FastDateTime::now()),
-        status_id: Some(1),
-        sort: Some(item.sort),
-        role_name: Some(item.role_name),
-        remark: Some(item.remark),
+        create_time: Some(DateTime::now()),
+        update_time: Some(DateTime::now()),
+        status_id: item.status_id,
+        sort: item.sort,
+        role_name: item.role_name,
+        remark: item.remark,
     };
 
     let result = SysRole::insert(&mut rb, &sys_role).await;
@@ -93,12 +89,12 @@ pub async fn role_update(State(state): State<Arc<AppState>>, Json(item): Json<Ro
 
     let sys_role = SysRole {
         id: Some(item.id),
-        gmt_create: None,
-        gmt_modified: Some(FastDateTime::now()),
-        status_id: Some(item.status_id),
-        sort: Some(item.sort),
-        role_name: Some(item.role_name),
-        remark: Some(item.remark),
+        create_time: None,
+        update_time: Some(DateTime::now()),
+        status_id: item.status_id,
+        sort: item.sort,
+        role_name: item.role_name,
+        remark: item.remark,
     };
 
     let result = SysRole::update_by_column(&mut rb, &sys_role, "id").await;
@@ -121,36 +117,41 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     log::info!("query_role_menu params: {:?}", &item);
     let mut rb = &state.batis;
 
-    let role_menu_list = query_menu_by_role(&mut rb, item.role_id).await;
-
-    let menu_list = SysMenu::select_all(&mut rb).await;
+    // 查询所有菜单
+    let menu_list = SysMenu::select_all(&mut rb).await.unwrap_or_default();
 
     let mut menu_data_list: Vec<MenuDataList> = Vec::new();
-    let mut role_menus: Vec<i32> = Vec::new();
+    let mut role_menu_ids: Vec<i32> = Vec::new();
 
-
-    for y in menu_list.unwrap_or_default() {
+    for y in menu_list {
         let x = y.clone();
         menu_data_list.push(MenuDataList {
             id: x.id.unwrap(),
-            parent_id: x.parent_id.unwrap(),
-            title: x.menu_name.unwrap_or_default(),
+            parent_id: x.parent_id,
+            title: x.menu_name,
             key: y.id.unwrap().to_string(),
-            label: y.menu_name.unwrap_or_default(),
-            is_penultimate: y.parent_id == Some(2)
+            label: y.menu_name,
+            is_penultimate: y.parent_id == 2,
         });
+        role_menu_ids.push(x.id.unwrap())
     }
 
-    for x in role_menu_list.unwrap_or_default() {
-        let m_id=x.get("menu_id").unwrap();
-        role_menus.push(*m_id)
+    //不是超级管理员的时候,就要查询角色和菜单的关联
+    if item.role_id != 1 {
+        role_menu_ids.clear();
+        let role_menu_list = query_menu_by_role(&mut rb, item.role_id).await.unwrap_or_default();
+
+        for x in role_menu_list {
+            let m_id = x.get("menu_id").unwrap().clone();
+            role_menu_ids.push(m_id)
+        }
     }
 
     let resp = QueryRoleMenuResp {
         msg: "successful".to_string(),
         code: 0,
         data: QueryRoleMenuData {
-            role_menus,
+            role_menus: role_menu_ids,
             menu_list: menu_data_list,
         },
     };
@@ -165,23 +166,24 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
 
     let mut rb = &state.batis;
 
-    SysMenuRole::delete_by_column(&mut rb, "role_id", &role_id).await.expect("删除角色菜单异常");
+    SysRoleMenu::delete_by_column(&mut rb, "role_id", &role_id).await.expect("删除角色菜单异常");
 
-    let mut menu_role: Vec<SysMenuRole> = Vec::new();
+    let mut menu_role: Vec<SysRoleMenu> = Vec::new();
 
     for x in &item.menu_ids {
-        menu_role.push(SysMenuRole {
+        let menu_id = x.clone();
+        menu_role.push(SysRoleMenu {
             id: None,
-            gmt_create: Some(FastDateTime::now()),
-            gmt_modified: Some(FastDateTime::now()),
-            status_id: Some(1),
-            sort: Some(1),
-            menu_id: Some(*x),
-            role_id: Some(role_id),
+            create_time: Some(DateTime::now()),
+            update_time: Some(DateTime::now()),
+            status_id: 1,
+            sort: 1,
+            menu_id,
+            role_id: role_id.clone(),
         })
     }
 
-    let result = SysMenuRole::insert_batch(&mut rb, &menu_role, item.menu_ids.len() as u64).await;
+    let result = SysRoleMenu::insert_batch(&mut rb, &menu_role, item.menu_ids.len() as u64).await;
 
     Json(handle_result(result))
 }

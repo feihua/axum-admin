@@ -75,7 +75,7 @@ pub struct QueryUserMenuData {
     pub name: String,
 }
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Clone)]
 pub struct MenuUserList {
     pub id: i32,
     pub parent_id: i32,

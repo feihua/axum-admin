@@ -34,7 +34,7 @@ pub struct MenuListData {
 pub struct MenuSaveReq {
     pub sort: i32,
     pub status_id: i32,
-    pub parent_id: i32,
+    pub parent_id: Option<i32>,
     pub menu_name: String,
     pub menu_url: Option<String>,
     pub icon: Option<String>,

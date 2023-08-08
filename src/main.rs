@@ -12,13 +12,13 @@ use std::{
     net::SocketAddr,
     sync::{Arc},
 };
-use rbatis::Rbatis;
+use rbatis::RBatis;
 use crate::handler::{menu_handler, role_handler, user_handler};
 use crate::model::db::init_db;
 use crate::utils::auth::auth;
 
 pub struct AppState {
-    pub batis: Rbatis,
+    pub batis: RBatis,
 }
 
 #[tokio::main]
@@ -52,7 +52,7 @@ async fn main() {
             .with_state(shared_state));
 
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     log::info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
