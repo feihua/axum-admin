@@ -1,22 +1,24 @@
 use std::collections::HashMap;
 use std::sync::Arc;
-use axum::extract::{State};
+
 use axum::{http::HeaderMap, Json};
+use axum::extract::State;
 use axum::response::IntoResponse;
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::sql::{PageRequest};
+use rbatis::sql::PageRequest;
 use rbs::to_value;
-use crate::{AppState};
-use crate::model::user::{SysUser};
-use crate::model::menu::{SysMenu};
-use crate::model::role::{SysRole};
-use crate::model::user_role::{SysUserRole};
+
+use crate::AppState;
+use crate::model::menu::SysMenu;
+use crate::model::role::SysRole;
+use crate::model::user::SysUser;
+use crate::model::user_role::SysUserRole;
 use crate::utils::error::WhoUnfollowedError;
-use crate::vo::user_vo::*;
 use crate::utils::jwt_util::JWTToken;
 use crate::vo::{BaseResponse, handle_result};
+use crate::vo::user_vo::*;
 
-
+// 后台用户登录
 pub async fn login(State(state): State<Arc<AppState>>, Json(item): Json<UserLoginReq>) -> impl IntoResponse {
     log::info!("user login params: {:?}, {:?}", &item, state.batis);
     let mut rb = &state.batis;
@@ -321,7 +323,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
     }
 }
 
-
+// 查询用户列表
 pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<UserListReq>) -> impl IntoResponse {
     log::info!("query user_list params: {:?}", &item);
     let mut rb = &state.batis;
@@ -329,25 +331,25 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
     let mobile = item.mobile.as_deref().unwrap_or_default();
     let status_id = item.status_id.as_deref().unwrap_or_default();
 
-    let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = SysUser::select_page_by_name(&mut rb, page, mobile, status_id).await;
+    let page_req = &PageRequest::new(item.page_no, item.page_size);
+    let result = SysUser::select_page_by_name(&mut rb, page_req, mobile, status_id).await;
 
     let resp = match result {
-        Ok(d) => {
-            let total = d.total;
+        Ok(page) => {
+            let total = page.total;
 
-            let mut user_list: Vec<UserListData> = Vec::new();
+            let mut list_data: Vec<UserListData> = Vec::new();
 
-            for x in d.records {
-                user_list.push(UserListData {
-                    id: x.id.unwrap(),
-                    sort: x.sort,
-                    status_id: x.status_id,
-                    mobile: x.mobile,
-                    user_name: x.user_name,
-                    remark: x.remark.unwrap_or_default(),
-                    create_time: x.create_time.unwrap().0.to_string(),
-                    update_time: x.update_time.unwrap().0.to_string(),
+            for user in page.records {
+                list_data.push(UserListData {
+                    id: user.id.unwrap(),
+                    sort: user.sort,
+                    status_id: user.status_id,
+                    mobile: user.mobile,
+                    user_name: user.user_name,
+                    remark: user.remark.unwrap_or_default(),
+                    create_time: user.create_time.unwrap().0.to_string(),
+                    update_time: user.update_time.unwrap().0.to_string(),
                 })
             }
 
@@ -356,7 +358,7 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
                 code: 0,
                 success: true,
                 total,
-                data: Some(user_list),
+                data: Some(list_data),
             }
         }
         Err(err) => {
@@ -373,7 +375,7 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
     Json(resp)
 }
 
-
+// 添加用户信息
 pub async fn user_save(State(state): State<Arc<AppState>>, Json(item): Json<UserSaveReq>) -> impl IntoResponse {
     log::info!("user_save params: {:?}", &item);
 
@@ -395,7 +397,7 @@ pub async fn user_save(State(state): State<Arc<AppState>>, Json(item): Json<User
     Json(handle_result(result))
 }
 
-
+// 更新用户信息
 pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<UserUpdateReq>) -> impl IntoResponse {
     log::info!("user_update params: {:?}", &item);
 
@@ -430,7 +432,7 @@ pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<Us
     }
 }
 
-
+// 删除用户信息
 pub async fn user_delete(State(state): State<Arc<AppState>>, Json(item): Json<UserDeleteReq>) -> impl IntoResponse {
     log::info!("user_delete params: {:?}", &item);
     let mut rb = &state.batis;
@@ -440,20 +442,41 @@ pub async fn user_delete(State(state): State<Arc<AppState>>, Json(item): Json<Us
     Json(handle_result(result))
 }
 
+// 更新用户密码
 pub async fn update_user_password(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserPwdReq>) -> impl IntoResponse {
     log::info!("update_user_pwd params: {:?}", &item);
 
     let mut rb = &state.batis;
 
-    let user_result = SysUser::select_by_id(&mut rb, item.id).await;
+    let sys_user_result = SysUser::select_by_id(&mut rb, item.id).await;
 
-    match user_result {
-        Ok(user) => {
-            let mut sys_user = user.unwrap();
-            sys_user.password = item.re_pwd;
-            let result = SysUser::update_by_column(&mut rb, &sys_user, "id").await;
+    match sys_user_result {
+        Ok(user_result) => {
+            match user_result {
+                None => {
+                    let resp = BaseResponse {
+                        msg: "用户不存在".to_string(),
+                        code: 1,
+                        data: None,
+                    };
+                    Json(resp)
+                }
+                Some(mut user) => {
+                    if user.password == item.pwd {
+                        user.password = item.re_pwd;
+                        let result = SysUser::update_by_column(&mut rb, &user, "id").await;
 
-            Json(handle_result(result))
+                        Json(handle_result(result))
+                    } else {
+                        let resp = BaseResponse {
+                            msg: "旧密码不正确".to_string(),
+                            code: 1,
+                            data: None,
+                        };
+                        Json(resp)
+                    }
+                }
+            }
         }
         Err(err) => {
             let resp = BaseResponse {

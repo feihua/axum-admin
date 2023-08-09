@@ -1,70 +1,66 @@
 use std::sync::Arc;
+
 use axum::extract::State;
 use axum::Json;
 use axum::response::IntoResponse;
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::sql::{PageRequest};
-use crate::{AppState};
 
-use crate::model::menu::{SysMenu};
-use crate::vo::handle_result;
+use crate::AppState;
+use crate::model::menu::SysMenu;
+use crate::vo::{BaseResponse, handle_result};
 use crate::vo::menu_vo::{*};
 
-
+// 查询菜单
 pub async fn menu_list(State(state): State<Arc<AppState>>, Json(item): Json<MenuListReq>) -> impl IntoResponse {
     log::info!("menu_list params: {:?}", &item);
     let mut rb = &state.batis;
 
-    let result = SysMenu::select_page(&mut rb, &PageRequest::new(1, 1000)).await;
+    // 菜单是树形结构不需要分页
+    let result = SysMenu::select_all(&mut rb).await;
 
-    let resp = match result {
-        Ok(d) => {
-            let total = d.total;
-
+    match result {
+        Ok(sys_menu_list) => {
             let mut menu_list: Vec<MenuListData> = Vec::new();
 
-            for x in d.records {
+            for menu in sys_menu_list {
                 menu_list.push(MenuListData {
-                    id: x.id.unwrap(),
-                    sort: x.sort,
-                    status_id: x.status_id,
-                    parent_id: x.parent_id,
-                    menu_name: x.menu_name.clone(),
-                    label: x.menu_name,
-                    menu_url: x.menu_url.unwrap_or_default(),
-                    icon: x.menu_icon.unwrap_or_default(),
-                    api_url: x.api_url.unwrap_or_default(),
-                    remark: x.remark.unwrap_or_default(),
-                    menu_type: x.menu_type,
-                    create_time: x.create_time.unwrap().0.to_string(),
-                    update_time: x.update_time.unwrap().0.to_string(),
+                    id: menu.id.unwrap(),
+                    sort: menu.sort,
+                    status_id: menu.status_id,
+                    parent_id: menu.parent_id,
+                    menu_name: menu.menu_name.clone(),
+                    label: menu.menu_name,
+                    menu_url: menu.menu_url.unwrap_or_default(),
+                    icon: menu.menu_icon.unwrap_or_default(),
+                    api_url: menu.api_url.unwrap_or_default(),
+                    remark: menu.remark.unwrap_or_default(),
+                    menu_type: menu.menu_type,
+                    create_time: menu.create_time.unwrap().0.to_string(),
+                    update_time: menu.update_time.unwrap().0.to_string(),
                 })
             }
-            MenuListResp {
-                msg: "successful".to_string(),
+            Json(MenuListResp {
+                msg: "查询菜单成功".to_string(),
                 code: 0,
-                total,
                 data: Some(menu_list),
-            }
+            })
         }
         Err(err) => {
-            MenuListResp {
+            Json(MenuListResp {
                 msg: err.to_string(),
                 code: 1,
-                total: 0,
                 data: None,
-            }
+            })
         }
-    };
-
-    Json(resp)
+    }
 }
 
+// 添加菜单
 pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<MenuSaveReq>) -> impl IntoResponse {
     log::info!("menu_save params: {:?}", &item);
     let mut rb = &state.batis;
 
-    let role = SysMenu {
+    let sys_menu = SysMenu {
         id: None,
         create_time: Some(DateTime::now()),
         update_time: Some(DateTime::now()),
@@ -79,11 +75,12 @@ pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<Menu
         menu_type: item.menu_type,
     };
 
-    let result = SysMenu::insert(&mut rb, &role).await;
+    let result = SysMenu::insert(&mut rb, &sys_menu).await;
 
     Json(handle_result(result))
 }
 
+// 更新菜单
 pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<MenuUpdateReq>) -> impl IntoResponse {
     log::info!("menu_update params: {:?}", &item);
     let mut rb = &state.batis;
@@ -112,6 +109,17 @@ pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<Me
 pub async fn menu_delete(State(state): State<Arc<AppState>>, Json(item): Json<MenuDeleteReq>) -> impl IntoResponse {
     log::info!("menu_delete params: {:?}", &item);
     let mut rb = &state.batis;
+
+    //有下级的时候 不能直接删除
+    let menus = SysMenu::select_by_column(&mut rb, "parent_id", &item.id).await.unwrap_or_default();
+
+    if menus.len() > 0 {
+        return Json(BaseResponse {
+            msg: "有下级菜单,不能直接删除".to_string(),
+            code: 1,
+            data: Some("None".to_string()),
+        });
+    }
 
     let result = SysMenu::delete_by_column(&mut rb, "id", &item.id).await;
 

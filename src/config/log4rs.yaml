@@ -3,7 +3,7 @@ appenders:
   stdout:
     kind: console
     encoder:
-      pattern: "{d(%Y-%m-%d %H:%M:%S)} {h({l})} [{M}] - {m}{n}"
+      pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
   requests:
     kind: file
     path: "log/requests.log"
