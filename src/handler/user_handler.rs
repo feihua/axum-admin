@@ -15,7 +15,7 @@ use crate::model::user::SysUser;
 use crate::model::user_role::SysUserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
-use crate::vo::{BaseResponse, handle_result};
+use crate::vo::{BaseResponse, err_result_msg, err_result_page, handle_result, ok_result_msg, ok_result_page};
 use crate::vo::user_vo::*;
 
 // 后台用户登录
@@ -334,11 +334,11 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
     let page_req = &PageRequest::new(item.page_no, item.page_size);
     let result = SysUser::select_page_by_name(&mut rb, page_req, mobile, status_id).await;
 
-    let resp = match result {
+    let mut list_data: Vec<UserListData> = Vec::new();
+    match result {
         Ok(page) => {
             let total = page.total;
 
-            let mut list_data: Vec<UserListData> = Vec::new();
 
             for user in page.records {
                 list_data.push(UserListData {
@@ -353,26 +353,12 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
                 })
             }
 
-            UserListResp {
-                msg: "successful".to_string(),
-                code: 0,
-                success: true,
-                total,
-                data: Some(list_data),
-            }
+            Json(ok_result_page(list_data, total))
         }
         Err(err) => {
-            UserListResp {
-                msg: err.to_string(),
-                code: 1,
-                success: true,
-                total: 0,
-                data: None,
-            }
+            Json(err_result_page(list_data, err.to_string()))
         }
-    };
-
-    Json(resp)
+    }
 }
 
 // 添加用户信息
@@ -406,11 +392,7 @@ pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<Us
 
     match result {
         None => {
-            Json(BaseResponse {
-                msg: "用户不存在".to_string(),
-                code: 1,
-                data: Some("None".to_string()),
-            })
+            Json(err_result_msg("用户不存在".to_string()))
         }
         Some(s_user) => {
             let sys_user = SysUser {
@@ -437,9 +419,14 @@ pub async fn user_delete(State(state): State<Arc<AppState>>, Json(item): Json<Us
     log::info!("user_delete params: {:?}", &item);
     let mut rb = &state.batis;
 
-    let result = SysUser::delete_in_column(&mut rb, "id", &item.ids).await;
+    let ids = item.ids.clone();
+    for id in ids {
+        if id != 1 {//id为1的用户为系统预留用户,不能删除
+            let _ = SysUser::delete_by_column(&mut rb, "id", &id).await;
+        }
+    }
 
-    Json(handle_result(result))
+    Json(ok_result_msg("删除用户信息成功".to_string()))
 }
 
 // 更新用户密码
@@ -454,12 +441,7 @@ pub async fn update_user_password(State(state): State<Arc<AppState>>, Json(item)
         Ok(user_result) => {
             match user_result {
                 None => {
-                    let resp = BaseResponse {
-                        msg: "用户不存在".to_string(),
-                        code: 1,
-                        data: None,
-                    };
-                    Json(resp)
+                    Json(err_result_msg("用户不存在".to_string()))
                 }
                 Some(mut user) => {
                     if user.password == item.pwd {
@@ -468,23 +450,13 @@ pub async fn update_user_password(State(state): State<Arc<AppState>>, Json(item)
 
                         Json(handle_result(result))
                     } else {
-                        let resp = BaseResponse {
-                            msg: "旧密码不正确".to_string(),
-                            code: 1,
-                            data: None,
-                        };
-                        Json(resp)
+                        Json(err_result_msg("旧密码不正确".to_string()))
                     }
                 }
             }
         }
         Err(err) => {
-            let resp = BaseResponse {
-                msg: err.to_string(),
-                code: 1,
-                data: None,
-            };
-            Json(resp)
+            Json(err_result_msg(err.to_string()))
         }
     }
 }
