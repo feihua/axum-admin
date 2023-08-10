@@ -6,30 +6,11 @@ pub struct UserLoginReq {
     pub password: String,
 }
 
-#[derive(Debug, Serialize)]
-pub struct UserLoginResp {
-    pub msg: String,
-    pub code: i32,
-    pub data: Option<UserLoginData>,
-}
-
-#[derive(Debug, Serialize)]
-pub struct UserLoginData {
-    pub mobile: String,
-    pub token: String,
-}
-
 #[derive(Debug, Deserialize)]
 pub struct QueryUserRoleReq {
     pub user_id: i32,
 }
 
-#[derive(Debug, Serialize)]
-pub struct QueryUserRoleResp {
-    pub msg: String,
-    pub code: i32,
-    pub data: QueryUserRoleData,
-}
 
 #[derive(Debug, Serialize)]
 pub struct QueryUserRoleData {

@@ -6,13 +6,6 @@ pub struct MenuListReq {
 }
 
 #[derive(Debug, Serialize)]
-pub struct MenuListResp {
-    pub msg: String,
-    pub code: i32,
-    pub data: Option<Vec<MenuListData>>,
-}
-
-#[derive(Debug, Serialize)]
 pub struct MenuListData {
     pub id: i32,
     pub sort: i32,

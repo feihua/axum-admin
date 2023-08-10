@@ -7,7 +7,7 @@ Content-Type: application/json
   "mobile": "18613030352",
   "password": "123456"
 }
-> {% client.global.set("token", response.body.data.token); %}
+> {% client.global.set("token", response.body.data); %}
 
 ###查询用户菜单 query_user_menu
 GET {{host}}/api/query_user_menu

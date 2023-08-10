@@ -11,15 +11,6 @@ pub struct RoleListReq {
 }
 
 #[derive(Debug, Serialize)]
-pub struct RoleListResp {
-    pub msg: String,
-    pub code: i32,
-    pub success: bool,
-    pub total: u64,
-    pub data: Option<Vec<RoleListData>>,
-}
-
-#[derive(Debug, Serialize)]
 pub struct RoleListData {
     pub id: i32,
     pub sort: i32,
@@ -57,13 +48,6 @@ pub struct RoleDeleteReq {
 #[derive(Debug, Deserialize)]
 pub struct QueryRoleMenuReq {
     pub role_id: i32,
-}
-
-#[derive(Debug, Serialize)]
-pub struct QueryRoleMenuResp {
-    pub msg: String,
-    pub code: i32,
-    pub data: QueryRoleMenuData,
 }
 
 #[derive(Debug, Serialize)]
