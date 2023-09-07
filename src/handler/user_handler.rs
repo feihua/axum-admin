@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 use axum::{http::HeaderMap, Json};
@@ -217,76 +217,49 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                     })
                 }
                 Some(user) => {
-                    let user_role = SysUserRole::select_by_column(&mut rb, "user_id", user.id).await;
-                    // 判断是不是超级管理员
-                    let mut is_admin = false;
-
-                    for x in user_role.unwrap() {
-                        if x.role_id == 1 {
-                            is_admin = true;
-                            break;
-                        }
-                    }
+                    //role_id为1是超级管理员--判断是不是超级管理员
+                    let sql_str = "select count(id) from sys_user_role where role_id = 1 and user_id = ?";
+                    let count = rb.query_decode::<i32>(sql_str, vec![to_value!(user.id)]).await.unwrap();
 
                     let sys_menu_list: Vec<SysMenu>;
 
-                    if is_admin {
-                        sys_menu_list = SysMenu::select_all(&mut rb).await.unwrap_or_default();
+                    if count > 0 {
+                        sys_menu_list = SysMenu::select_all(&mut rb.clone()).await.unwrap_or_default();
                     } else {
-                        sys_menu_list = rb.query_decode("select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ? order by u.id asc", vec![to_value!(user.id)]).await.unwrap();
+                        let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
+                        sys_menu_list = rb.query_decode(sql_str, vec![to_value!(user.id)]).await.unwrap();
                     }
 
-                    let mut sys_menu_map: HashMap<i32, MenuUserList> = HashMap::new();
                     let mut sys_menu: Vec<MenuUserList> = Vec::new();
                     let mut btn_menu: Vec<String> = Vec::new();
-                    let mut sys_menu_parent_ids: Vec<i32> = Vec::new();
+                    let mut sys_menu_ids: HashSet<i32> = HashSet::new();
 
                     for x in sys_menu_list {
-                        let y = x.clone();
-                        if y.menu_type != 3 {
-                            sys_menu_map.insert(y.id.unwrap(), MenuUserList {
-                                id: y.id.unwrap(),
-                                parent_id: y.parent_id,
-                                name: y.menu_name,
-                                icon: y.menu_icon.unwrap_or_default(),
-                                api_url: y.api_url.as_ref().unwrap().to_string(),
-                                menu_type: y.menu_type,
-                                path: y.menu_url.unwrap_or_default(),
-                            });
-                            sys_menu_parent_ids.push(y.parent_id.clone())
+                        if x.menu_type != 3 {
+                            sys_menu_ids.insert(x.id.unwrap_or_default().clone());
+                            sys_menu_ids.insert(x.parent_id.clone());
                         }
 
-                        btn_menu.push(x.api_url.unwrap_or_default());
-                    }
-
-                    for menu_id in sys_menu_parent_ids {
-                        let s_menu_result = SysMenu::select_by_id(&mut rb, menu_id).await.unwrap();
-                        match s_menu_result {
-                            None => {}
-                            Some(y) => {
-                                sys_menu_map.insert(y.id.unwrap(), MenuUserList {
-                                    id: y.id.unwrap(),
-                                    parent_id: y.parent_id,
-                                    name: y.menu_name,
-                                    icon: y.menu_icon.unwrap_or_default(),
-                                    api_url: y.api_url.as_ref().unwrap().to_string(),
-                                    menu_type: y.menu_type,
-                                    path: y.menu_url.unwrap_or_default(),
-                                });
-                            }
+                        if x.api_url.clone().unwrap_or_default().len() > 0 {
+                            btn_menu.push(x.api_url.unwrap_or_default());
                         }
                     }
 
-                    let mut sys_menu_ids: Vec<i32> = Vec::new();
-                    for menu in &sys_menu_map {
-                        sys_menu_ids.push(menu.0.abs())
-                    }
-
-                    sys_menu_ids.sort();
-
+                    let mut menu_ids = Vec::new();
                     for id in sys_menu_ids {
-                        let menu = sys_menu_map.get(&id).cloned().unwrap();
-                        sys_menu.push(menu)
+                        menu_ids.push(id)
+                    }
+                    let menu_result = SysMenu::select_by_ids(&mut rb.clone(), &menu_ids).await.unwrap();
+                    for menu in menu_result {
+                        sys_menu.push(MenuUserList {
+                            id: menu.id.unwrap(),
+                            parent_id: menu.parent_id,
+                            name: menu.menu_name,
+                            icon: menu.menu_icon.unwrap_or_default(),
+                            api_url: menu.api_url.as_ref().unwrap().to_string(),
+                            menu_type: menu.menu_type,
+                            path: menu.menu_url.unwrap_or_default(),
+                        });
                     }
 
                     let resp = BaseResponse {
