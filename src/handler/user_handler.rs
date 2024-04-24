@@ -6,7 +6,7 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use rbatis::RBatis;
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::sql::PageRequest;
+use rbatis::plugin::page::PageRequest;
 use rbs::to_value;
 
 use crate::AppState;
@@ -22,9 +22,9 @@ use crate::vo::user_vo::*;
 // 后台用户登录
 pub async fn login(State(state): State<Arc<AppState>>, Json(item): Json<UserLoginReq>) -> impl IntoResponse {
     log::info!("user login params: {:?}, {:?}", &item, state.batis);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
-    let user_result = SysUser::select_by_mobile(&mut rb, &item.mobile).await;
+    let user_result = SysUser::select_by_mobile(rb, &item.mobile).await;
     log::info!("select_by_mobile: {:?}",user_result);
 
     match user_result {
@@ -72,8 +72,8 @@ pub async fn login(State(state): State<Arc<AppState>>, Json(item): Json<UserLogi
     }
 }
 
-async fn query_btn_menu(id: &i32, mut rb: RBatis) -> Vec<String> {
-    let user_role = SysUserRole::select_by_column(&mut rb, "user_id", id.clone()).await;
+async fn query_btn_menu(id: &i32, rb: RBatis) -> Vec<String> {
+    let user_role = SysUserRole::select_by_column(&rb, "user_id", id.clone()).await;
     // 判断是不是超级管理员
     let mut is_admin = false;
 
@@ -86,7 +86,7 @@ async fn query_btn_menu(id: &i32, mut rb: RBatis) -> Vec<String> {
 
     let mut btn_menu: Vec<String> = Vec::new();
     if is_admin {
-        let data = SysMenu::select_all(&mut rb).await;
+        let data = SysMenu::select_all(&rb).await;
 
         for x in data.unwrap() {
             btn_menu.push(x.api_url.unwrap_or_default());
@@ -105,16 +105,16 @@ async fn query_btn_menu(id: &i32, mut rb: RBatis) -> Vec<String> {
 
 pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Json<QueryUserRoleReq>) -> impl IntoResponse {
     log::info!("query_user_role params: {:?}", item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
-    let user_role = SysUserRole::select_by_column(&mut rb, "user_id", item.user_id).await;
+    let user_role = SysUserRole::select_by_column(rb, "user_id", item.user_id).await;
     let mut user_role_ids: Vec<i32> = Vec::new();
 
     for x in user_role.unwrap() {
         user_role_ids.push(x.role_id);
     }
 
-    let sys_role = SysRole::select_all(&mut rb).await;
+    let sys_role = SysRole::select_all(rb).await;
 
     let mut sys_role_list: Vec<UserRoleList> = Vec::new();
 
@@ -138,7 +138,7 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
 
 pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserRoleReq>) -> impl IntoResponse {
     log::info!("update_user_role params: {:?}", item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     let user_id = item.user_id;
     let role_ids = &item.role_ids;
@@ -148,7 +148,7 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
         return Json(err_result_msg("不能修改超级管理员的角色".to_string()));
     }
 
-    let sys_result = SysUserRole::delete_by_column(&mut rb, "user_id", user_id).await;
+    let sys_result = SysUserRole::delete_by_column(rb, "user_id", user_id).await;
 
     if sys_result.is_err() {
         return Json(err_result_msg("更新用户角色异常".to_string()));
@@ -168,7 +168,7 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
         })
     }
 
-    let result = SysUserRole::insert_batch(&mut rb, &sys_role_user_list, len as u64).await;
+    let result = SysUserRole::insert_batch(rb, &sys_role_user_list, len as u64).await;
 
     Json(handle_result(result))
 }
@@ -200,10 +200,10 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
 
     log::info!("query user menu params {:?}",jwt_token);
 
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     //根据id查询用户
-    let result = SysUser::select_by_id(&mut rb, jwt_token.id).await;
+    let result = SysUser::select_by_id(rb, jwt_token.id).await;
 
     match result {
         Ok(sys_user) => {
@@ -224,7 +224,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                     let sys_menu_list: Vec<SysMenu>;
 
                     if count > 0 {
-                        sys_menu_list = SysMenu::select_all(&mut rb.clone()).await.unwrap_or_default();
+                        sys_menu_list = SysMenu::select_all(rb).await.unwrap_or_default();
                     } else {
                         let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
                         sys_menu_list = rb.query_decode(sql_str, vec![to_value!(user.id)]).await.unwrap();
@@ -249,7 +249,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                     for id in sys_menu_ids {
                         menu_ids.push(id)
                     }
-                    let menu_result = SysMenu::select_by_ids(&mut rb.clone(), &menu_ids).await.unwrap();
+                    let menu_result = SysMenu::select_by_ids(rb, &menu_ids).await.unwrap();
                     for menu in menu_result {
                         sys_menu.push(MenuUserList {
                             id: menu.id.unwrap(),
@@ -290,13 +290,13 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
 // 查询用户列表
 pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<UserListReq>) -> impl IntoResponse {
     log::info!("query user_list params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     let mobile = item.mobile.as_deref().unwrap_or_default();
     let status_id = item.status_id.as_deref().unwrap_or_default();
 
     let page_req = &PageRequest::new(item.page_no, item.page_size);
-    let result = SysUser::select_page_by_name(&mut rb, page_req, mobile, status_id).await;
+    let result = SysUser::select_page_by_name(rb, page_req, mobile, status_id).await;
 
     let mut list_data: Vec<UserListData> = Vec::new();
     match result {
@@ -329,7 +329,7 @@ pub async fn user_list(State(state): State<Arc<AppState>>, Json(item): Json<User
 pub async fn user_save(State(state): State<Arc<AppState>>, Json(item): Json<UserSaveReq>) -> impl IntoResponse {
     log::info!("user_save params: {:?}", &item);
 
-    let mut rb = &state.batis;
+    let rb = &state.batis;
     let sys_user = SysUser {
         id: None,
         create_time: Some(DateTime::now()),
@@ -342,7 +342,7 @@ pub async fn user_save(State(state): State<Arc<AppState>>, Json(item): Json<User
         password: "123456".to_string(),//默认密码为123456,暂时不加密
     };
 
-    let result = SysUser::insert(&mut rb, &sys_user).await;
+    let result = SysUser::insert(rb, &sys_user).await;
 
     Json(handle_result(result))
 }
@@ -351,8 +351,8 @@ pub async fn user_save(State(state): State<Arc<AppState>>, Json(item): Json<User
 pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<UserUpdateReq>) -> impl IntoResponse {
     log::info!("user_update params: {:?}", &item);
 
-    let mut rb = &state.batis;
-    let result = SysUser::select_by_id(&mut rb, item.id.clone()).await.unwrap();
+    let rb = &state.batis;
+    let result = SysUser::select_by_id(rb, item.id.clone()).await.unwrap();
 
     match result {
         None => {
@@ -371,7 +371,7 @@ pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<Us
                 password: s_user.password,
             };
 
-            let result = SysUser::update_by_column(&mut rb, &sys_user, "id").await;
+            let result = SysUser::update_by_column(rb, &sys_user, "id").await;
 
             Json(handle_result(result))
         }
@@ -381,12 +381,12 @@ pub async fn user_update(State(state): State<Arc<AppState>>, Json(item): Json<Us
 // 删除用户信息
 pub async fn user_delete(State(state): State<Arc<AppState>>, Json(item): Json<UserDeleteReq>) -> impl IntoResponse {
     log::info!("user_delete params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     let ids = item.ids.clone();
     for id in ids {
         if id != 1 {//id为1的用户为系统预留用户,不能删除
-            let _ = SysUser::delete_by_column(&mut rb, "id", &id).await;
+            let _ = SysUser::delete_by_column(rb, "id", &id).await;
         }
     }
 
@@ -397,9 +397,9 @@ pub async fn user_delete(State(state): State<Arc<AppState>>, Json(item): Json<Us
 pub async fn update_user_password(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserPwdReq>) -> impl IntoResponse {
     log::info!("update_user_pwd params: {:?}", &item);
 
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
-    let sys_user_result = SysUser::select_by_id(&mut rb, item.id).await;
+    let sys_user_result = SysUser::select_by_id(rb, item.id).await;
 
     match sys_user_result {
         Ok(user_result) => {
@@ -410,7 +410,7 @@ pub async fn update_user_password(State(state): State<Arc<AppState>>, Json(item)
                 Some(mut user) => {
                     if user.password == item.pwd {
                         user.password = item.re_pwd;
-                        let result = SysUser::update_by_column(&mut rb, &user, "id").await;
+                        let result = SysUser::update_by_column(rb, &user, "id").await;
 
                         Json(handle_result(result))
                     } else {

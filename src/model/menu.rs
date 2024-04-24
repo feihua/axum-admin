@@ -1,5 +1,5 @@
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::sql::IntoSql;
+use crate::rbatis::rbatis_codegen::IntoSql;
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

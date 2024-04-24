@@ -1,4 +1,4 @@
-use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation, errors::ErrorKind};
+use jsonwebtoken::{decode, encode, DecodingKey, EncodingKey, Header, Validation, errors::ErrorKind, Algorithm};
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::utils::error::WhoUnfollowedError;
@@ -59,8 +59,10 @@ impl JWTToken {
     /// verify token invalid
     /// secret: your secret string
     pub fn verify(secret: &str, token: &str) -> Result<JWTToken, WhoUnfollowedError> {
-        let mut validation = Validation::default();
-        validation.validate_nbf = true;
+        let mut validation = Validation::new(Algorithm::HS256);
+        validation.sub = Some("rust_admin".to_string());
+        validation.set_audience(&["rust_admin"]);
+        validation.set_required_spec_claims(&["exp", "sub", "aud"]);
         return match decode::<JWTToken>(
             &token,
             &DecodingKey::from_secret(secret.as_ref()),

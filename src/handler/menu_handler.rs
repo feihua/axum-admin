@@ -13,10 +13,10 @@ use crate::vo::menu_vo::{*};
 // 查询菜单
 pub async fn menu_list(State(state): State<Arc<AppState>>, Json(item): Json<MenuListReq>) -> impl IntoResponse {
     log::info!("menu_list params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     // 菜单是树形结构不需要分页
-    let result = SysMenu::select_all(&mut rb).await;
+    let result = SysMenu::select_all(rb).await;
 
     let mut menu_list: Vec<MenuListData> = Vec::new();
     match result {
@@ -49,7 +49,7 @@ pub async fn menu_list(State(state): State<Arc<AppState>>, Json(item): Json<Menu
 // 添加菜单
 pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<MenuSaveReq>) -> impl IntoResponse {
     log::info!("menu_save params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     let sys_menu = SysMenu {
         id: None,
@@ -66,7 +66,7 @@ pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<Menu
         menu_type: item.menu_type,
     };
 
-    let result = SysMenu::insert(&mut rb, &sys_menu).await;
+    let result = SysMenu::insert(rb, &sys_menu).await;
 
     Json(handle_result(result))
 }
@@ -74,7 +74,7 @@ pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<Menu
 // 更新菜单
 pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<MenuUpdateReq>) -> impl IntoResponse {
     log::info!("menu_update params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     let sys_menu = SysMenu {
         id: Some(item.id),
@@ -91,7 +91,7 @@ pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<Me
         menu_type: item.menu_type,
     };
 
-    let result = SysMenu::update_by_column(&mut rb, &sys_menu, "id").await;
+    let result = SysMenu::update_by_column(rb, &sys_menu, "id").await;
 
     Json(handle_result(result))
 }
@@ -99,16 +99,16 @@ pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<Me
 // 删除菜单信息
 pub async fn menu_delete(State(state): State<Arc<AppState>>, Json(item): Json<MenuDeleteReq>) -> impl IntoResponse {
     log::info!("menu_delete params: {:?}", &item);
-    let mut rb = &state.batis;
+    let rb = &state.batis;
 
     //有下级的时候 不能直接删除
-    let menus = SysMenu::select_by_column(&mut rb, "parent_id", &item.id).await.unwrap_or_default();
+    let menus = SysMenu::select_by_column(rb, "parent_id", &item.id).await.unwrap_or_default();
 
     if menus.len() > 0 {
         return Json(err_result_msg("有下级菜单,不能直接删除".to_string()));
     }
 
-    let result = SysMenu::delete_by_column(&mut rb, "id", &item.id).await;
+    let result = SysMenu::delete_by_column(rb, "id", &item.id).await;
 
     Json(handle_result(result))
 }

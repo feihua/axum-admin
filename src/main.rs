@@ -9,7 +9,6 @@ pub mod utils;
 use axum::{ routing::{get, post}, Router, middleware};
 
 use std::{
-    net::SocketAddr,
     sync::{Arc},
 };
 use rbatis::RBatis;
@@ -52,11 +51,13 @@ async fn main() {
             .with_state(shared_state));
 
 
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
-    log::info!("listening on {}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
+    // let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    // log::info!("listening on {}", addr);
+    // axum::Server::bind(&addr)
+    //     .serve(app.into_make_service())
+    //     .await
+    //     .unwrap();
+    let listener = tokio::net::TcpListener::bind("0.0.0.0:3000").await.unwrap();
+    axum::serve(listener, app).await.unwrap();
 }
 
