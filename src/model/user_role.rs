@@ -24,3 +24,6 @@ impl_select_page!(SysUserRole{select_page_by_name(name:&str) =>"
        where user_name != #{name}
      if name == '':
        where user_name != ''"});
+
+// 查询是否为超级管理员(role_id=1是预设超级管理的id)
+impl_select!(SysUserRole{is_admin(user_id:&i32) => "`where user_id = #{user_id} and role_id = 1`"});

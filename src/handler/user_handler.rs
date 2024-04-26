@@ -73,19 +73,9 @@ pub async fn login(State(state): State<Arc<AppState>>, Json(item): Json<UserLogi
 }
 
 async fn query_btn_menu(id: &i32, rb: RBatis) -> Vec<String> {
-    let user_role = SysUserRole::select_by_column(&rb, "user_id", id.clone()).await;
-    // 判断是不是超级管理员
-    let mut is_admin = false;
-
-    for x in user_role.unwrap() {
-        if x.role_id == 1 {
-            is_admin = true;
-            break;
-        }
-    }
-
+    let user_role = SysUserRole::is_admin(&rb, id).await;
     let mut btn_menu: Vec<String> = Vec::new();
-    if is_admin {
+    if user_role.unwrap().len() == 1 {
         let data = SysMenu::select_all(&rb).await;
 
         for x in data.unwrap() {
