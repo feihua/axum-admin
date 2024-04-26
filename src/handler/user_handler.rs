@@ -209,7 +209,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                 Some(user) => {
                     //role_id为1是超级管理员--判断是不是超级管理员
                     let sql_str = "select count(id) from sys_user_role where role_id = 1 and user_id = ?";
-                    let count = rb.query_decode::<i32>(sql_str, vec![to_value!(user.id)]).await.unwrap();
+                    let count = rb.query_decode::<i32>(sql_str, vec![to_value!(user.id)]).await.unwrap_or_default();
 
                     let sys_menu_list: Vec<SysMenu>;
 

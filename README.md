@@ -17,7 +17,7 @@ https://github.com/feihua/salvo-admin.git # salvo-web框架
 
 # 预览地址
 
-http://139.159.180.129:81/salvo 账号：18613030352 密码：123456
+[http://110.41.179.89/salvo](http://110.41.179.89/salvo) 账号：18613030352 密码：123456
 
 # 本地启动
 
@@ -34,7 +34,7 @@ Content-Type: application/json
   "mobile": "18613030352",
   "password": "123456"
 }
-> {% client.global.set("token", response.body.data.token); %}
+> {% client.global.set("token", response.body.data); %}
 
 ```
 
