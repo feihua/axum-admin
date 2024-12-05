@@ -4,13 +4,28 @@ appenders:
     kind: console
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
-  requests:
+  file:
     kind: file
     path: "log/requests.log"
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
+  rolling:
+    kind: rolling_file
+    path: "log/rolling_file.log"
+    encoder:
+      pattern: "[{d(%Y-%m-%dT%H:%M:%S%.6f)} {h({l}):<5.5} {M}] {m}{n}"
+    policy:
+      trigger:
+        kind: time
+        interval: 1 minute
+      roller:
+        kind: fixed_window
+        pattern: "log/old-rolling_file-{}.log"
+        base: 0
+        count: 2
 root:
   level: debug
   appenders:
     - stdout
-    - requests
+    - file
+    - rolling

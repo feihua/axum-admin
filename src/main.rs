@@ -6,6 +6,7 @@ pub mod vo;
 pub mod handler;
 pub mod utils;
 pub mod middleware;
+pub mod common;
 
 use axum::{middleware as md, routing::{get, post}, Router};
 

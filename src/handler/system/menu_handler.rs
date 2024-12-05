@@ -6,8 +6,9 @@ use axum::response::IntoResponse;
 use rbatis::rbdc::datetime::DateTime;
 
 use crate::AppState;
+use crate::common::result::BaseResponse;
+use crate::common::result_page::ResponsePage;
 use crate::model::system::menu::SysMenu;
-use crate::vo::{err_result_msg, err_result_page, handle_result, ok_result_page};
 use crate::vo::system::menu_vo::{*};
 
 // 查询菜单
@@ -38,10 +39,10 @@ pub async fn menu_list(State(state): State<Arc<AppState>>, Json(item): Json<Menu
                     update_time: menu.update_time.unwrap().0.to_string(),
                 })
             }
-            Json(ok_result_page(menu_list, 0))
+           ResponsePage::ok_result(menu_list)
         }
         Err(err) => {
-            Json(err_result_page(menu_list, err.to_string()))
+            ResponsePage::err_result_page(menu_list, err.to_string())
         }
     }
 }
@@ -68,7 +69,10 @@ pub async fn menu_save(State(state): State<Arc<AppState>>, Json(item): Json<Menu
 
     let result = SysMenu::insert(rb, &sys_menu).await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }
 
 // 更新菜单
@@ -93,7 +97,10 @@ pub async fn menu_update(State(state): State<Arc<AppState>>, Json(item): Json<Me
 
     let result = SysMenu::update_by_column(rb, &sys_menu, "id").await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }
 
 // 删除菜单信息
@@ -105,10 +112,13 @@ pub async fn menu_delete(State(state): State<Arc<AppState>>, Json(item): Json<Me
     let menus = SysMenu::select_by_column(rb, "parent_id", &item.id).await.unwrap_or_default();
 
     if menus.len() > 0 {
-        return Json(err_result_msg("有下级菜单,不能直接删除".to_string()));
+        return BaseResponse::<String>::err_result_msg("有下级菜单,不能直接删除".to_string());
     }
 
     let result = SysMenu::delete_by_column(rb, "id", &item.id).await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }

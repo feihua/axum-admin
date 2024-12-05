@@ -1,21 +1,25 @@
 use std::sync::Arc;
 
 use axum::extract::State;
-use axum::Json;
 use axum::response::IntoResponse;
-use rbatis::rbdc::datetime::DateTime;
+use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbatis::rbdc::datetime::DateTime;
 
-use crate::AppState;
+use crate::common::result::BaseResponse;
+use crate::common::result_page::ResponsePage;
 use crate::model::system::menu::SysMenu;
 use crate::model::system::role::SysRole;
 use crate::model::system::role_menu::{query_menu_by_role, SysRoleMenu};
 use crate::model::system::user_role::SysUserRole;
-use crate::vo::{err_result_msg, err_result_page, handle_result, ok_result_data, ok_result_page};
 use crate::vo::system::role_vo::*;
+use crate::AppState;
 
 // 查询角色列表
-pub async fn role_list(State(state): State<Arc<AppState>>, Json(item): Json<RoleListReq>) -> impl IntoResponse {
+pub async fn role_list(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleListReq>,
+) -> impl IntoResponse {
     log::info!("role_list params: {:?}", &item);
     let rb = &state.batis;
 
@@ -42,16 +46,17 @@ pub async fn role_list(State(state): State<Arc<AppState>>, Json(item): Json<Role
                 })
             }
 
-            Json(ok_result_page(role_list, total))
+            ResponsePage::ok_result_page(role_list, total)
         }
-        Err(err) => {
-            Json(err_result_page(role_list, err.to_string()))
-        }
+        Err(err) => ResponsePage::err_result_page(role_list, err.to_string()),
     }
 }
 
 // 添加角色信息
-pub async fn role_save(State(state): State<Arc<AppState>>, Json(item): Json<RoleSaveReq>) -> impl IntoResponse {
+pub async fn role_save(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleSaveReq>,
+) -> impl IntoResponse {
     log::info!("role_save params: {:?}", &item);
     let rb = &state.batis;
 
@@ -67,11 +72,17 @@ pub async fn role_save(State(state): State<Arc<AppState>>, Json(item): Json<Role
 
     let result = SysRole::insert(rb, &sys_role).await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }
 
 // 更新角色信息
-pub async fn role_update(State(state): State<Arc<AppState>>, Json(item): Json<RoleUpdateReq>) -> impl IntoResponse {
+pub async fn role_update(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleUpdateReq>,
+) -> impl IntoResponse {
     log::info!("role_update params: {:?}", &item);
     let rb = &state.batis;
 
@@ -87,27 +98,41 @@ pub async fn role_update(State(state): State<Arc<AppState>>, Json(item): Json<Ro
 
     let result = SysRole::update_by_column(rb, &sys_role, "id").await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }
 
 // 删除角色信息
-pub async fn role_delete(State(state): State<Arc<AppState>>, Json(item): Json<RoleDeleteReq>) -> impl IntoResponse {
+pub async fn role_delete(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleDeleteReq>,
+) -> impl IntoResponse {
     log::info!("role_delete params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
-    let user_role_list = SysUserRole::select_in_column(rb, "role_id", &ids).await.unwrap_or_default();
+    let user_role_list = SysUserRole::select_in_column(rb, "role_id", &ids)
+        .await
+        .unwrap_or_default();
 
     if user_role_list.len() > 0 {
-        return Json(err_result_msg("角色已被使用,不能直接删除".to_string()));
+        return BaseResponse::<String>::err_result_msg("角色已被使用,不能直接删除".to_string());
     }
     let result = SysRole::delete_in_column(rb, "id", &item.ids).await;
 
-    Json(handle_result(result))
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 }
 
 // 查询角色关联的菜单
-pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleMenuReq>) -> impl IntoResponse {
+pub async fn query_role_menu(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<QueryRoleMenuReq>,
+) -> impl IntoResponse {
     log::info!("query_role_menu params: {:?}", &item);
     let rb = &state.batis;
 
@@ -133,7 +158,9 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     //不是超级管理员的时候,就要查询角色和菜单的关联
     if item.role_id != 1 {
         role_menu_ids.clear();
-        let role_menu_list = query_menu_by_role(rb, item.role_id).await.unwrap_or_default();
+        let role_menu_list = query_menu_by_role(rb, item.role_id)
+            .await
+            .unwrap_or_default();
 
         for x in role_menu_list {
             let m_id = x.get("menu_id").unwrap().clone();
@@ -141,14 +168,17 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    Json(ok_result_data(QueryRoleMenuData {
+    BaseResponse::<QueryRoleMenuData>::ok_result_data(QueryRoleMenuData {
         role_menus: role_menu_ids,
         menu_list: menu_data_list,
-    }))
+    })
 }
 
 // 更新角色关联的菜单
-pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleMenuReq>) -> impl IntoResponse {
+pub async fn update_role_menu(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<UpdateRoleMenuReq>,
+) -> impl IntoResponse {
     log::info!("update_role_menu params: {:?}", &item);
     let role_id = item.role_id;
 
@@ -173,12 +203,14 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
                 })
             }
 
-            let result = SysRoleMenu::insert_batch(rb, &menu_role, item.menu_ids.len() as u64).await;
+            let result =
+                SysRoleMenu::insert_batch(rb, &menu_role, item.menu_ids.len() as u64).await;
 
-            Json(handle_result(result))
+            match result {
+                Ok(_u) => BaseResponse::<String>::ok_result(),
+                Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+            }
         }
-        Err(err) => {
-            Json(err_result_msg(err.to_string()))
-        }
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }
