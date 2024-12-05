@@ -6,13 +6,11 @@ pub mod vo;
 pub mod handler;
 pub mod utils;
 
-use axum::{ routing::{get, post}, Router, middleware};
+use axum::{middleware, routing::{get, post}, Router};
 
-use std::{
-    sync::{Arc},
-};
+use std::sync::Arc;
 use rbatis::RBatis;
-use crate::handler::{menu_handler, role_handler, user_handler};
+use handler::system::{menu_handler, role_handler, user_handler};
 use crate::model::db::init_db;
 use crate::utils::auth::auth;
 
