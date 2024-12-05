@@ -5,14 +5,15 @@ pub mod model;
 pub mod vo;
 pub mod handler;
 pub mod utils;
+pub mod middleware;
 
-use axum::{middleware, routing::{get, post}, Router};
+use axum::{middleware as md, routing::{get, post}, Router};
 
 use std::sync::Arc;
 use rbatis::RBatis;
 use handler::system::{menu_handler, role_handler, user_handler};
 use crate::model::db::init_db;
-use crate::utils::auth::auth;
+use middleware::auth::auth;
 
 pub struct AppState {
     pub batis: RBatis,
@@ -45,7 +46,7 @@ async fn main() {
             .route("/menu_save", post(menu_handler::menu_save))
             .route("/menu_delete", post(menu_handler::menu_delete))
             .route("/menu_update", post(menu_handler::menu_update))
-            .route_layer(middleware::from_fn(auth))
+            .route_layer(md::from_fn(auth))
             .with_state(shared_state));
 
 
