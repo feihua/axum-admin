@@ -7,7 +7,6 @@ use rbatis::rbdc::datetime::DateTime;
 
 use crate::AppState;
 use crate::common::result::BaseResponse;
-use crate::common::result_page::ResponsePage;
 use crate::model::system::menu::SysMenu;
 use crate::vo::system::menu_vo::{*};
 
@@ -39,10 +38,10 @@ pub async fn menu_list(State(state): State<Arc<AppState>>, Json(item): Json<Menu
                     update_time: menu.update_time.unwrap().0.to_string(),
                 })
             }
-           ResponsePage::ok_result(menu_list)
+            BaseResponse::ok_result_page(menu_list, 0)
         }
         Err(err) => {
-            ResponsePage::err_result_page(menu_list, err.to_string())
+            BaseResponse::err_result_page(menu_list, err.to_string())
         }
     }
 }

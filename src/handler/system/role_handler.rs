@@ -7,7 +7,6 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
 
 use crate::common::result::BaseResponse;
-use crate::common::result_page::ResponsePage;
 use crate::model::system::menu::SysMenu;
 use crate::model::system::role::SysRole;
 use crate::model::system::role_menu::{query_menu_by_role, SysRoleMenu};
@@ -46,9 +45,9 @@ pub async fn role_list(
                 })
             }
 
-            ResponsePage::ok_result_page(role_list, total)
+            BaseResponse::ok_result_page(role_list, total)
         }
-        Err(err) => ResponsePage::err_result_page(role_list, err.to_string()),
+        Err(err) => BaseResponse::err_result_page(role_list, err.to_string()),
     }
 }
 

@@ -10,7 +10,6 @@ use rbatis::RBatis;
 use rbs::to_value;
 
 use crate::common::result::BaseResponse;
-use crate::common::result_page::ResponsePage;
 use crate::model::system::menu::SysMenu;
 use crate::model::system::role::SysRole;
 use crate::model::system::user::SysUser;
@@ -324,9 +323,9 @@ pub async fn user_list(
                 })
             }
 
-            ResponsePage::ok_result_page(list_data, total)
+            BaseResponse::ok_result_page(list_data, total)
         }
-        Err(err) => ResponsePage::err_result_page(list_data, err.to_string()),
+        Err(err) => BaseResponse::err_result_page(list_data, err.to_string()),
     }
 }
 
