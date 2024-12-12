@@ -14,6 +14,83 @@ use crate::model::system::user_role::SysUserRole;
 use crate::vo::system::role_vo::*;
 use crate::AppState;
 
+
+// 添加角色信息
+pub async fn role_save(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleSaveReq>,
+) -> impl IntoResponse {
+    log::info!("role_save params: {:?}", &item);
+    let rb = &state.batis;
+
+    let sys_role = SysRole {
+        id: None,
+        create_time: Some(DateTime::now()),
+        update_time: Some(DateTime::now()),
+        status_id: item.status_id,
+        sort: item.sort,
+        role_name: item.role_name,
+        remark: item.remark,
+    };
+
+    let result = SysRole::insert(rb, &sys_role).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+// 删除角色信息
+pub async fn role_delete(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleDeleteReq>,
+) -> impl IntoResponse {
+    log::info!("role_delete params: {:?}", &item);
+    let rb = &state.batis;
+
+    let ids = item.ids.clone();
+    let user_role_list = SysUserRole::select_in_column(rb, "role_id", &ids)
+        .await
+        .unwrap_or_default();
+
+    if user_role_list.len() > 0 {
+        return BaseResponse::<String>::err_result_msg("角色已被使用,不能直接删除".to_string());
+    }
+    let result = SysRole::delete_in_column(rb, "id", &item.ids).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+// 更新角色信息
+pub async fn role_update(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<RoleUpdateReq>,
+) -> impl IntoResponse {
+    log::info!("role_update params: {:?}", &item);
+    let rb = &state.batis;
+
+    let sys_role = SysRole {
+        id: Some(item.id),
+        create_time: None,
+        update_time: Some(DateTime::now()),
+        status_id: item.status_id,
+        sort: item.sort,
+        role_name: item.role_name,
+        remark: item.remark,
+    };
+
+    let result = SysRole::update_by_column(rb, &sys_role, "id").await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
 // 查询角色列表
 pub async fn role_list(
     State(state): State<Arc<AppState>>,
@@ -48,82 +125,6 @@ pub async fn role_list(
             BaseResponse::ok_result_page(role_list, total)
         }
         Err(err) => BaseResponse::err_result_page(role_list, err.to_string()),
-    }
-}
-
-// 添加角色信息
-pub async fn role_save(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<RoleSaveReq>,
-) -> impl IntoResponse {
-    log::info!("role_save params: {:?}", &item);
-    let rb = &state.batis;
-
-    let sys_role = SysRole {
-        id: None,
-        create_time: Some(DateTime::now()),
-        update_time: Some(DateTime::now()),
-        status_id: item.status_id,
-        sort: item.sort,
-        role_name: item.role_name,
-        remark: item.remark,
-    };
-
-    let result = SysRole::insert(rb, &sys_role).await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
-}
-
-// 更新角色信息
-pub async fn role_update(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<RoleUpdateReq>,
-) -> impl IntoResponse {
-    log::info!("role_update params: {:?}", &item);
-    let rb = &state.batis;
-
-    let sys_role = SysRole {
-        id: Some(item.id),
-        create_time: None,
-        update_time: Some(DateTime::now()),
-        status_id: item.status_id,
-        sort: item.sort,
-        role_name: item.role_name,
-        remark: item.remark,
-    };
-
-    let result = SysRole::update_by_column(rb, &sys_role, "id").await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
-}
-
-// 删除角色信息
-pub async fn role_delete(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<RoleDeleteReq>,
-) -> impl IntoResponse {
-    log::info!("role_delete params: {:?}", &item);
-    let rb = &state.batis;
-
-    let ids = item.ids.clone();
-    let user_role_list = SysUserRole::select_in_column(rb, "role_id", &ids)
-        .await
-        .unwrap_or_default();
-
-    if user_role_list.len() > 0 {
-        return BaseResponse::<String>::err_result_msg("角色已被使用,不能直接删除".to_string());
-    }
-    let result = SysRole::delete_in_column(rb, "id", &item.ids).await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }
 
