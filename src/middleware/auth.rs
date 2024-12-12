@@ -1,17 +1,18 @@
-use axum::middleware::Next;
-use axum::{http, response};
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use axum::extract::Request;
 use axum::http::StatusCode;
+use axum::middleware::Next;
+use axum::{http, response};
 
 pub async fn auth(req: Request, next: Next) -> Result<response::Response, StatusCode> {
-    log::info!("req {:?}",req.uri());
+    log::info!("req {:?}", req.uri());
     let path = req.uri().to_string();
     if path.eq("/login") {
         return Ok(next.run(req).await);
     }
-    let auth_header = req.headers()
+    let auth_header = req
+        .headers()
         .get(http::header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok());
 
@@ -22,18 +23,22 @@ pub async fn auth(req: Request, next: Next) -> Result<response::Response, Status
     };
 
     let token = authorization.to_string().replace("Bearer ", "");
-    log::info!("token:{}",token);
+    log::info!("token:{}", token);
     let jwt_token_e = JWTToken::verify("123", &token);
     let jwt_token = match jwt_token_e {
-        Ok(data) => { data }
+        Ok(data) => data,
         Err(err) => {
-            log::info!("{}",err);
+            log::info!("{}", err);
             let er = match err {
-                WhoUnfollowedError::JwtTokenError(s) => { s }
-                _ => "no math error".to_string()
+                WhoUnfollowedError::JwtTokenError(s) => s,
+                _ => "no math error".to_string(),
             };
-            log::error!("Hi from start. You requested path: {}, token: {}", path, token);
-            log::info!("{}",er);
+            log::error!(
+                "Hi from start. You requested path: {}, token: {}",
+                path,
+                token
+            );
+            log::info!("{}", er);
             return Err(StatusCode::UNAUTHORIZED);
         }
     };
@@ -50,5 +55,4 @@ pub async fn auth(req: Request, next: Next) -> Result<response::Response, Status
     } else {
         Err(StatusCode::UNAUTHORIZED)
     }
-
 }

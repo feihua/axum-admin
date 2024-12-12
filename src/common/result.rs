@@ -25,7 +25,6 @@ where
     pub data: Option<T>,
 }
 
-
 impl<T> BaseResponse<T>
 where
     T: Serialize + Debug + Send,
@@ -58,6 +57,13 @@ where
         Json(BaseResponse {
             msg: "操作成功".to_string(),
             code: 0,
+            data: Some(data),
+        })
+    }
+    pub fn err_result_data(data: T, msg: String) -> Json<BaseResponse<T>> {
+        Json(BaseResponse {
+            msg:msg.to_string(),
+            code: 1,
             data: Some(data),
         })
     }

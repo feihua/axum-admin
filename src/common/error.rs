@@ -10,10 +10,6 @@ pub enum WhoUnfollowedError {
     //
     // #[error("Failed to update the cache file")]
     // DiskCacheWrite { source: std::io::Error },
-
     #[error("")]
     JwtTokenError(String),
-
-
-
 }
