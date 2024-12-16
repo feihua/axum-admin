@@ -14,10 +14,7 @@ pub struct UserRole {
     pub id: Option<i64>,               //主键
     pub user_id: i64,                  //用户ID
     pub role_id: i64,                  //角色ID
-    pub status_id: i8,                 //状态(1:正常，0:禁用)
-    pub sort: i32,                     //排序
     pub create_time: Option<DateTime>, //创建时间
-    pub update_time: Option<DateTime>, //修改时间
 }
 
 /*

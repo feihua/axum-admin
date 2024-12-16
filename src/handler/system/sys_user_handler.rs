@@ -398,9 +398,6 @@ pub async fn update_user_role(
         sys_role_user_list.push(UserRole {
             id: None,
             create_time: Some(DateTime::now()),
-            update_time: Some(DateTime::now()),
-            status_id: 1,
-            sort: 1,
             role_id: r_id,
             user_id: user_id.clone(),
         })

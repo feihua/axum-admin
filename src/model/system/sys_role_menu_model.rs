@@ -16,10 +16,7 @@ pub struct RoleMenu {
     pub id: Option<i64>,               //主键
     pub role_id: i64,                  //角色ID
     pub menu_id: i64,                  //菜单ID
-    pub status_id: i8,                 //状态(1:正常，0:禁用)
-    pub sort: i32,                     //排序
     pub create_time: Option<DateTime>, //创建时间
-    pub update_time: Option<DateTime>, //修改时间
 }
 
 /*
