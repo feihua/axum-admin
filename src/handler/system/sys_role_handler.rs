@@ -181,11 +181,11 @@ pub async fn query_sys_role_list(
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = Role::select_page_by_name(rb, page, role_name, status_id).await;
 
-    let mut sys_role_list_data: Vec<RoleListDataResp> = Vec::new();
     match result {
         Ok(d) => {
             let total = d.total;
 
+            let mut sys_role_list_data: Vec<RoleListDataResp> = Vec::new();
             for x in d.records {
                 sys_role_list_data.push(RoleListDataResp {
                     id: x.id.unwrap(),                                 //主键
@@ -200,7 +200,7 @@ pub async fn query_sys_role_list(
 
             BaseResponse::ok_result_page(sys_role_list_data, total)
         }
-        Err(err) => BaseResponse::err_result_page(sys_role_list_data, err.to_string()),
+        Err(err) => BaseResponse::err_result_page(RoleListDataResp::new(), err.to_string()),
     }
 }
 

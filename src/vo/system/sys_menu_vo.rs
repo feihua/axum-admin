@@ -125,3 +125,9 @@ pub struct MenuListDataResp {
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间
 }
+
+impl MenuListDataResp {
+    pub fn new() -> Vec<MenuListDataResp> {
+        Vec::new()
+    }
+}

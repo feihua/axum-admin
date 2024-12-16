@@ -114,7 +114,11 @@ pub struct UserListDataResp {
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间
 }
-
+impl UserListDataResp {
+    pub fn new() -> Vec<UserListDataResp> {
+        Vec::new()
+    }
+}
 /*
 登录请求参数
 */

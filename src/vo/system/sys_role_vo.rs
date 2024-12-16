@@ -105,7 +105,11 @@ pub struct RoleListDataResp {
     pub create_time: String,    //创建时间
     pub update_time: String,    //修改时间
 }
-
+impl RoleListDataResp {
+    pub fn new() -> Vec<RoleListDataResp> {
+        Vec::new()
+    }
+}
 /*
 查询角色菜单信息参数
 */

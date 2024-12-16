@@ -189,7 +189,7 @@ pub async fn query_sys_user_detail(
                 id: x.id.unwrap(),                                 //主键
                 mobile: x.mobile,                                  //手机
                 user_name: x.user_name,                            //姓名
-                password: x.password,          //密码
+                password: x.password,                              //密码
                 status_id: x.status_id,                            //状态(1:正常，0:禁用)
                 sort: x.sort,                                      //排序
                 remark: x.remark.unwrap_or_default(),              //备注
@@ -199,7 +199,10 @@ pub async fn query_sys_user_detail(
 
             BaseResponse::<QueryUserDetailResp>::ok_result_data(sys_user)
         }
-        Err(err) => BaseResponse::<QueryUserDetailResp>::err_result_data(QueryUserDetailResp::new(), err.to_string()),
+        Err(err) => BaseResponse::<QueryUserDetailResp>::err_result_data(
+            QueryUserDetailResp::new(),
+            err.to_string(),
+        ),
     }
 }
 
@@ -221,11 +224,10 @@ pub async fn query_sys_user_list(
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = User::select_page_by_name(rb, page, mobile, status_id).await;
 
-    let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
     match result {
         Ok(d) => {
             let total = d.total;
-
+            let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
             for x in d.records {
                 sys_user_list_data.push(UserListDataResp {
                     id: x.id.unwrap(),                                 //主键
@@ -241,7 +243,7 @@ pub async fn query_sys_user_list(
 
             BaseResponse::ok_result_page(sys_user_list_data, total)
         }
-        Err(err) => BaseResponse::err_result_page(sys_user_list_data, err.to_string()),
+        Err(err) => BaseResponse::err_result_page(UserListDataResp::new(), err.to_string()),
     }
 }
 

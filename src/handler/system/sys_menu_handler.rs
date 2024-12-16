@@ -184,10 +184,9 @@ pub async fn query_sys_menu_list(
 
     let result = Menu::select_all(rb).await;
 
-    let mut sys_menu_list_data: Vec<MenuListDataResp> = Vec::new();
     match result {
         Ok(d) => {
-
+            let mut sys_menu_list_data: Vec<MenuListDataResp> = Vec::new();
             for x in d {
                 sys_menu_list_data.push(MenuListDataResp {
                     id: x.id.unwrap(),                          //主键
@@ -207,6 +206,6 @@ pub async fn query_sys_menu_list(
 
             BaseResponse::ok_result_page(sys_menu_list_data, 0)
         }
-        Err(err) => BaseResponse::err_result_page(sys_menu_list_data, err.to_string()),
+        Err(err) => BaseResponse::err_result_page(MenuListDataResp::new(), err.to_string()),
     }
 }
