@@ -4,7 +4,7 @@ pub async fn init_db() -> RBatis {
     let rb = RBatis::new();
     rb.init(
         rbdc_mysql::driver::MysqlDriver {},
-        "mysql://root:oMbPi5munxCsBSsiLoPV1@110.41.179.89:3306/axum",
+        "mysql://root:123456@127.0.0.1:3306/rustdb",
     )
     .unwrap();
     return rb;

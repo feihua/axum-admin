@@ -5,27 +5,25 @@ appenders:
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
   file:
-    kind: file
-    path: "log/requests.log"
+    kind: rolling_file
+    path: "log/axum-admin.log"
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
-  rolling:
-    kind: rolling_file
-    path: "log/rolling_file.log"
-    encoder:
-      pattern: "[{d(%Y-%m-%dT%H:%M:%S%.6f)} {h({l}):<5.5} {M}] {m}{n}"
+#      kind: json
     policy:
+      #trigger:
+      #  kind: size
+      #  limit: 10 mb  #测试日志轮转，可以改成1 kb
       trigger:
         kind: time
-        interval: 1 minute
+        interval: 1 day
       roller:
         kind: fixed_window
-        pattern: "log/old-rolling_file-{}.log"
-        base: 0
-        count: 2
+        pattern: "log/old-axum-admin-{}.log"
+        base: 1
+        count: 30
 root:
   level: debug
   appenders:
     - stdout
     - file
-    - rolling
