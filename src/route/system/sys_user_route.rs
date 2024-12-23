@@ -39,7 +39,7 @@ pub fn build_sys_user_route() -> Router<Arc<AppState>> {
         )
         .route(
             "/system/user/queryUserRole",
-            get(sys_user_handler::query_user_role),
+            post(sys_user_handler::query_user_role),
         )
         .route(
             "/system/user/updateUserRole",
