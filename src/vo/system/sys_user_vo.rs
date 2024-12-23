@@ -71,8 +71,8 @@ pub struct QueryUserDetailResp {
 }
 
 impl QueryUserDetailResp {
-    pub fn new() ->QueryUserDetailResp{
-        QueryUserDetailResp{
+    pub fn new() -> QueryUserDetailResp {
+        QueryUserDetailResp {
             id: 0,
             mobile: "".to_string(),
             user_name: "".to_string(),

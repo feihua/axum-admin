@@ -1,0 +1,92 @@
+###添加角色信息 addRole
+POST {{host}}/api/system/role/addRole
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role_name": "aa",
+  "status_id": 1,
+  "sort": 1,
+  "remark": "aa"
+}
+
+###删除角色信息 deleteRole
+POST {{host}}/api/system/role/deleteRole
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [
+    5
+  ]
+}
+
+###更新角色信息 updateRole
+POST {{host}}/api/system/role/updateRole
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 5,
+  "role_name": "aa11",
+  "status_id": 1,
+  "sort": 1,
+  "remark": "aa11"
+}
+
+###更新角色信息 updateRoleStatus状态
+POST {{host}}/api/system/role/updateRoleStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [
+    4
+  ],
+  "status": 1
+}
+
+###查询角色信息详情 queryRole
+POST {{host}}/api/system/role/queryRoleDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询角色信息列表 queryRoleList
+POST {{host}}/api/system/role/queryRoleList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "role_name": "",
+  "status_id": 1
+}
+
+###查询角色菜单 queryRoleMenu
+POST {{host}}/api/system/role/queryRoleMenu
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role_id": 3
+}
+
+###更新角色菜单 updateRoleMenu
+POST {{host}}/api/system/role/updateRoleMenu
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role_id": 3,
+  "menu_ids": [
+    1,
+    2,
+    3
+  ]
+}

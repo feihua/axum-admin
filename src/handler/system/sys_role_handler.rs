@@ -115,10 +115,18 @@ pub async fn update_sys_role_status(
     log::info!("update_sys_role_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let param = vec![to_value!(1), to_value!(1)];
-    let result = rb
-        .exec("update sys_role set status = ? where id in ?", param)
-        .await;
+    let update_sql = format!(
+        "update sys_role set status_id = ? where id in ({})",
+        item.ids
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<&str>>()
+            .join(", ")
+    );
+
+    let mut param = vec![to_value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let result = rb.exec(&update_sql, param).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -135,7 +143,7 @@ pub async fn query_sys_role_detail(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryRoleDetailReq>,
 ) -> impl IntoResponse {
-    log::info!("query_sys_role_detail params: {:?}", &item);
+    log::info!("query sys_role_detail params: {:?}", &item);
     let rb = &state.batis;
 
     let result = Role::select_by_id(rb, &item.id).await;

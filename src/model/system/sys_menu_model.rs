@@ -1,8 +1,8 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
-use rbatis::rbdc::datetime::DateTime;
 use crate::rbatis::rbatis_codegen::IntoSql;
+use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -15,7 +15,7 @@ pub struct Menu {
     pub id: Option<i64>,               //主键
     pub menu_name: String,             //菜单名称
     pub menu_type: i8,                 //菜单类型(1：目录   2：菜单   3：按钮)
-    pub status_id: i8,                 //状态(1:正常，0:禁用)
+    pub status: i8,                    //状态(1:正常，0:禁用)
     pub sort: i32,                     //排序
     pub parent_id: i64,                //父ID
     pub menu_url: Option<String>,      //路由路径
@@ -54,4 +54,4 @@ impl_select!(Menu{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select!(Menu{select_by_ids(ids:&[i64]) -> Vec => "`where status_id = 1 and id in ${ids.sql()} order by sort asc`"}, "sys_menu");
+impl_select!(Menu{select_by_ids(ids:&[i64]) -> Vec => "`where status = 1 and id in ${ids.sql()} order by sort asc`"}, "sys_menu");

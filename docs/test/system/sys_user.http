@@ -1,0 +1,101 @@
+###登录 login
+POST {{host}}/api/system/user/login
+Content-Type: application/json
+
+{
+  "mobile": "18613030352",
+  "password": "123456"
+}
+> {% client.global.set("token", response.body.data); %}
+
+###查询用户菜单 query_user_menu
+GET {{host}}/api/system/user/queryUserMenu
+Authorization: Bearer {{token}}
+
+###添加用户信息 addUser
+POST {{host}}/api/system/user/addUser
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "mobile": "123123123",
+  "user_name": "22334",
+  "status_id": 1,
+  "sort": 11,
+  "remark": "22334"
+}
+
+###删除用户信息 deleteUser
+POST {{host}}/api/system/user/deleteUser
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [15]
+}
+
+###更新用户信息 updateUser
+POST {{host}}/api/system/user/updateUser
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 13,
+    "mobile": "",
+    "user_name": "",
+    "password": "",
+    "status_id": 0,
+    "sort": 0,
+    "remark": ""
+}
+
+###更新用户信息 updateUserStatus状态
+POST {{host}}/api/system/user/updateUserStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [12,13],
+  "status": 0
+}
+###查询用户信息详情 queryUserDetail
+POST {{host}}/api/system/user/queryUserDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询用户信息列表 queryUserList
+POST {{host}}/api/system/user/queryUserList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "mobile": "",
+  "user_name": "",
+  "status_id": 1
+}
+
+###查询用户角色列表 queryUserRole
+GET {{host}}/api/system/user/queryUserRole
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "role_id": 1
+}
+
+###更新用户角色列表 updateUserRole
+POST {{host}}/api/system/user/updateUserRole
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "user_id": 2,
+  "role_ids": [1,2]
+}

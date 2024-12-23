@@ -8,12 +8,8 @@ edition = "2021"
 [dependencies]
 axum ={ version = "0.7.5" }
 tokio ={ version = "1",features = ["full"]}
-tower = { version = "0.5.1", features = ["util", "timeout"] }
-tower-http = { version = "0.5.2" }
 
-json = "0.12"
 serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
 
 rbs = { version = "4.5"}
 rbatis = { version = "4.5"}
@@ -27,5 +23,4 @@ jsonwebtoken = "9.3.0"
 
 redis = "0.27.5"
 
-futures = { version = "0.3", default-features = false }
 thiserror = "2.0.3"

@@ -27,7 +27,7 @@ pub async fn add_sys_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<AddUserReq>,
 ) -> impl IntoResponse {
-    log::info!("add_sys_user params: {:?}", &item);
+    log::info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
     let sys_user = User {
@@ -59,7 +59,7 @@ pub async fn delete_sys_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<DeleteUserReq>,
 ) -> impl IntoResponse {
-    log::info!("delete_sys_user params: {:?}", &item);
+    log::info!("delete sys_user params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
@@ -85,7 +85,7 @@ pub async fn update_sys_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateUserReq>,
 ) -> impl IntoResponse {
-    log::info!("update_sys_user params: {:?}", &item);
+    log::info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
 
     let sys_user = User {
@@ -117,13 +117,21 @@ pub async fn update_sys_user_status(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateUserStatusReq>,
 ) -> impl IntoResponse {
-    log::info!("update_sys_user_status params: {:?}", &item);
+    log::info!("update sys_user_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let param = vec![to_value!(item.status), to_value!(item.ids)];
-    let result = rb
-        .exec("update sys_user set status = ? where id in ?", param)
-        .await;
+    let update_sql = format!(
+        "update sys_user set status_id = ? where id in ({})",
+        item.ids
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<&str>>()
+            .join(", ")
+    );
+
+    let mut param = vec![to_value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let result = rb.exec(&update_sql, param).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -215,14 +223,15 @@ pub async fn query_sys_user_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryUserListReq>,
 ) -> impl IntoResponse {
-    log::info!("query_sys_user_list params: {:?}", &item);
+    log::info!("query sys_user_list params: {:?}", &item);
     let rb = &state.batis;
 
     let mobile = item.mobile.as_deref().unwrap_or_default();
+    let user_name = item.user_name.as_deref().unwrap_or_default();
     let status_id = item.status_id.unwrap_or_default();
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = User::select_page_by_name(rb, page, mobile, status_id).await;
+    let result = User::select_page_by_name(rb, page, mobile, user_name, status_id).await;
 
     match result {
         Ok(d) => {
@@ -338,7 +347,7 @@ pub async fn query_user_role(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryUserRoleReq>,
 ) -> impl IntoResponse {
-    log::info!("query_user_role params: {:?}", item);
+    log::info!("query user_role params: {:?}", item);
     let rb = &state.batis;
 
     let user_role = UserRole::select_by_column(rb, "user_id", item.user_id).await;

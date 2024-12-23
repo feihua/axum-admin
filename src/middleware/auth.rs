@@ -8,7 +8,7 @@ use axum::{http, response};
 pub async fn auth(req: Request, next: Next) -> Result<response::Response, StatusCode> {
     log::info!("req {:?}", req.uri());
     let path = req.uri().to_string();
-    if path.eq("/login") {
+    if path.eq("/system/user/login") {
         return Ok(next.run(req).await);
     }
     let auth_header = req
@@ -23,7 +23,6 @@ pub async fn auth(req: Request, next: Next) -> Result<response::Response, Status
     };
 
     let token = authorization.to_string().replace("Bearer ", "");
-    log::info!("token:{}", token);
     let jwt_token_e = JWTToken::verify("123", &token);
     let jwt_token = match jwt_token_e {
         Ok(data) => data,

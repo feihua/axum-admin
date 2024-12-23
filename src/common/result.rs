@@ -62,7 +62,7 @@ where
     }
     pub fn err_result_data(data: T, msg: String) -> Json<BaseResponse<T>> {
         Json(BaseResponse {
-            msg:msg.to_string(),
+            msg: msg.to_string(),
             code: 1,
             data: Some(data),
         })

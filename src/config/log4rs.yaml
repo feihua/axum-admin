@@ -9,7 +9,7 @@ appenders:
     path: "log/axum-admin.log"
     encoder:
       pattern: "{d(%Y-%m-%d %H:%M:%S)} [{f}:{L}] {h({l})} [{M}] - {m}{n}"
-#      kind: json
+    #      kind: json
     policy:
       #trigger:
       #  kind: size

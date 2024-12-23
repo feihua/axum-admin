@@ -25,7 +25,7 @@ pub async fn add_sys_menu(
         id: None,                  //主键
         menu_name: item.menu_name, //菜单名称
         menu_type: item.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
-        status_id: item.status_id, //状态(1:正常，0:禁用)
+        status: item.status,       //状态(1:正常，0:禁用)
         sort: item.sort,           //排序
         parent_id: item.parent_id, //父ID
         menu_url: item.menu_url,   //路由路径
@@ -89,7 +89,7 @@ pub async fn update_sys_menu(
         id: Some(item.id),         //主键
         menu_name: item.menu_name, //菜单名称
         menu_type: item.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
-        status_id: item.status_id, //状态(1:正常，0:禁用)
+        status: item.status,       //状态(1:正常，0:禁用)
         sort: item.sort,           //排序
         parent_id: item.parent_id, //父ID
         menu_url: item.menu_url,   //路由路径
@@ -120,10 +120,18 @@ pub async fn update_sys_menu_status(
     log::info!("update sys_menu_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let param = vec![to_value!(item.status), to_value!(item.ids)];
-    let result = rb
-        .exec("update sys_menu set status = ? where id in ?", param)
-        .await;
+    let update_sql = format!(
+        "update sys_menu set status = ? where id in ({})",
+        item.ids
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<&str>>()
+            .join(", ")
+    );
+
+    let mut param = vec![to_value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let result = rb.exec(&update_sql, param).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -150,23 +158,26 @@ pub async fn query_sys_menu_detail(
             let x = d.unwrap();
 
             let sys_menu = QueryMenuDetailResp {
-                id: x.id.unwrap(),                          //主键
-                menu_name: x.menu_name,                     //菜单名称
-                menu_type: x.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
-                status_id: x.status_id,                     //状态(1:正常，0:禁用)
-                sort: x.sort,                               //排序
-                parent_id: x.parent_id,                     //父ID
-                menu_url: x.menu_url.unwrap_or_default(),   //路由路径
-                api_url: x.api_url.unwrap_or_default(),     //接口URL
+                id: x.id.unwrap(),                                 //主键
+                menu_name: x.menu_name,                            //菜单名称
+                menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
+                status: x.status,       //状态(1:正常，0:禁用)
+                sort: x.sort,           //排序
+                parent_id: x.parent_id, //父ID
+                menu_url: x.menu_url.unwrap_or_default(), //路由路径
+                api_url: x.api_url.unwrap_or_default(), //接口URL
                 menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
-                remark: x.remark.unwrap_or_default(),       //备注
-                create_time: x.create_time.unwrap().0.to_string(),     //创建时间
-                update_time: x.update_time.unwrap().0.to_string(),     //修改时间
+                remark: x.remark.unwrap_or_default(), //备注
+                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
 
             BaseResponse::<QueryMenuDetailResp>::ok_result_data(sys_menu)
         }
-        Err(err) => BaseResponse::<QueryMenuDetailResp>::err_result_data(QueryMenuDetailResp::new(), err.to_string()),
+        Err(err) => BaseResponse::<QueryMenuDetailResp>::err_result_data(
+            QueryMenuDetailResp::new(),
+            err.to_string(),
+        ),
     }
 }
 
@@ -189,10 +200,10 @@ pub async fn query_sys_menu_list(
             let mut sys_menu_list_data: Vec<MenuListDataResp> = Vec::new();
             for x in d {
                 sys_menu_list_data.push(MenuListDataResp {
-                    id: x.id.unwrap(),                          //主键
-                    menu_name: x.menu_name,                     //菜单名称
+                    id: x.id.unwrap(),                                 //主键
+                    menu_name: x.menu_name,                            //菜单名称
                     menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
-                    status_id: x.status_id, //状态(1:正常，0:禁用)
+                    status: x.status,       //状态(1:正常，0:禁用)
                     sort: x.sort,           //排序
                     parent_id: x.parent_id, //父ID
                     menu_url: x.menu_url.unwrap_or_default(), //路由路径
