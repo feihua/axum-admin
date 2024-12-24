@@ -25,7 +25,7 @@ INSERT INTO sys_menu (id, menu_name, menu_type, `status`, sort, parent_id, menu_
 -- 配置用户信息权限
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('用户信息管理', 2, 1, 1, 2, '/system/user', '', '', '用户信息管理');
 
-select * from sys_menu where menu_name='用户信息管理';
+select * from sys_menu where menu_name='用户管理';
 
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加用户信息', 3, 1, 1, 3, '', '/api/system/user/addUser', '', '添加用户信息');
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除用户信息', 3, 1, 2, 3, '', '/api/system/user/deleteUser', '', '删除用户信息');
@@ -42,7 +42,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 -- 配置角色信息权限
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('角色信息管理', 2, 1, 1, 2, '/system/role', '', '', '角色信息管理');
 
-select * from sys_menu where menu_name='角色信息管理';
+select * from sys_menu where menu_name='角色管理';
 
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加角色信息', 3, 1, 1, 15, '', '/api/system/role/addRole', '', '添加角色信息');
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除角色信息', 3, 1, 2, 15, '', '/api/system/role/deleteRole', '', '删除角色信息');
@@ -56,7 +56,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 -- 配置菜单信息权限
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('菜单信息管理', 2, 1, 1, 2, '/system/menu', '', '', '菜单信息管理');
 
-select * from sys_menu where menu_name='菜单信息管理';
+select * from sys_menu where menu_name='菜单管理';
 
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加菜单信息', 3, 1, 1, 24, '', '/api/system/menu/addMenu', '', '添加菜单信息');
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除菜单信息', 3, 1, 2, 24, '', '/api/system/menu/deleteMenu', '', '删除菜单信息');
@@ -66,6 +66,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询菜单信息列表', 3, 1, 6, 24, '', '/api/system/menu/queryMenuList', '', '查询菜单信息列表');
 
 
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('其他', 1, 1, 2, 0, '/other', '', 'SettingOutlined', '其他');
 
 
 

@@ -28,13 +28,12 @@ pub struct DeleteUserReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct UpdateUserReq {
-    pub id: i64,                  //主键
-    pub mobile: String,           //手机
-    pub user_name: String,        //姓名
-    pub password: Option<String>, //密码
-    pub status_id: i8,            //状态(1:正常，0:禁用)
-    pub sort: i32,                //排序
-    pub remark: Option<String>,   //备注
+    pub id: i64,                //主键
+    pub mobile: String,         //手机
+    pub user_name: String,      //姓名
+    pub status_id: i8,          //状态(1:正常，0:禁用)
+    pub sort: i32,              //排序
+    pub remark: Option<String>, //备注
 }
 
 /*

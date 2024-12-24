@@ -88,16 +88,26 @@ pub async fn update_sys_user(
     log::info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
 
+    let sys_user_result = User::select_by_id(rb, item.id).await;
+    let u = match sys_user_result {
+        Ok(user) => user,
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    };
+
+    if u.is_none() {
+        return BaseResponse::<String>::err_result_msg("用户不存在".to_string());
+    }
+
     let sys_user = User {
-        id: Some(item.id),                           //主键
-        mobile: item.mobile,                         //手机
-        user_name: item.user_name,                   //姓名
-        password: item.password.unwrap_or_default(), //密码
-        status_id: item.status_id,                   //状态(1:正常，0:禁用)
-        sort: item.sort,                             //排序
-        remark: item.remark,                         //备注
-        create_time: None,                           //创建时间
-        update_time: None,                           //修改时间
+        id: Some(item.id),             //主键
+        mobile: item.mobile,           //手机
+        user_name: item.user_name,     //姓名
+        password: u.unwrap().password, //密码
+        status_id: item.status_id,     //状态(1:正常，0:禁用)
+        sort: item.sort,               //排序
+        remark: item.remark,           //备注
+        create_time: None,             //创建时间
+        update_time: None,             //修改时间
     };
 
     let result = User::update_by_column(rb, &sys_user, "id").await;
