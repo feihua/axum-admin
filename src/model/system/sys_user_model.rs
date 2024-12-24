@@ -53,11 +53,11 @@ impl_select_page!(User{select_page() =>"
  */
 impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:i8) =>"
       where 1=1
-     if mobile != null && mobile != '':
+      if mobile != null && mobile != '':
        ` and mobile = #{mobile} `
-    if user_name != null && user_name != '':
+     if user_name != null && user_name != '':
        ` and user_name = #{user_name} `
-     if status_id != null && status_id != '':
+     if status_id != 2:
        ` and status_id = #{status_id} `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");

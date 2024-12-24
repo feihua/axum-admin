@@ -238,7 +238,7 @@ pub async fn query_sys_user_list(
 
     let mobile = item.mobile.as_deref().unwrap_or_default();
     let user_name = item.user_name.as_deref().unwrap_or_default();
-    let status_id = item.status_id.unwrap_or_default();
+    let status_id = item.status_id.unwrap_or(2);
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = User::select_page_by_name(rb, page, mobile, user_name, status_id).await;
