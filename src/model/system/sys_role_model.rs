@@ -53,7 +53,7 @@ impl_select_page!(Role{select_page_by_name(role_name:&str,status_id:i8) =>"
       where 1=1
      if role_name != null && role_name != '':
        ` and role_name = #{role_name} `
-     if status_id != null && status_id != '':
+     if status_id != 2:
        ` and status_id = #{status_id} `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_role");

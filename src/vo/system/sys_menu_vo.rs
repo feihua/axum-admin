@@ -12,7 +12,7 @@ pub struct AddMenuReq {
     pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
     pub status: i8,                //状态(1:正常，0:禁用)
     pub sort: i32,                 //排序
-    pub parent_id: i64,            //父ID
+    pub parent_id: Option<i64>,    //父ID
     pub menu_url: Option<String>,  //路由路径
     pub api_url: Option<String>,   //接口URL
     pub menu_icon: Option<String>, //菜单图标
