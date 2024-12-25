@@ -1,0 +1,83 @@
+###添加岗位信息表 addPost
+POST {{host}}/api/system/post/addPost
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "post_code": "",
+    "post_name": "",
+    "sort": 0,
+    "status": 0,
+    "remark": "",
+
+}
+
+###删除岗位信息表 deletePost
+POST {{host}}/api/system/post/deletePost
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13]
+}
+
+###更新岗位信息表 updatePost
+POST {{host}}/api/system/post/updatePost
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 0,
+    "post_code": "",
+    "post_name": "",
+    "sort": 0,
+    "status": 0,
+    "remark": "",
+}
+
+###更新岗位信息表 updatePostStatus状态
+POST {{host}}/api/system/post/updatePostStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13],
+  "status": 1
+}
+###查询岗位信息表详情 queryPostDetail
+POST {{host}}/api/system/post/queryPostDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询岗位信息表列表 queryPostList
+POST {{host}}/api/system/post/queryPostList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "post_code": "",
+  "current": 1,
+  "pageSize": 10,
+    "post_name": "",
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "status": 0,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+}
+

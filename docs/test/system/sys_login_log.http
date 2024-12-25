@@ -1,0 +1,96 @@
+###添加系统访问记录 addLoginLog
+POST {{host}}/api/system/loginLog/addLoginLog
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "login_name": "",
+    "ipaddr": "",
+    "login_location": "",
+    "browser": "",
+    "os": "",
+    "status": 0,
+    "msg": "",
+    "login_time": "",
+
+}
+
+###删除系统访问记录 deleteLoginLog
+POST {{host}}/api/system/loginLog/deleteLoginLog
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13]
+}
+
+###更新系统访问记录 updateLoginLog
+POST {{host}}/api/system/loginLog/updateLoginLog
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 0,
+    "login_name": "",
+    "ipaddr": "",
+    "login_location": "",
+    "browser": "",
+    "os": "",
+    "status": 0,
+    "msg": "",
+    "login_time": "",
+}
+
+###更新系统访问记录 updateLoginLogStatus状态
+POST {{host}}/api/system/loginLog/updateLoginLogStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13],
+  "status": 1
+}
+###查询系统访问记录详情 queryLoginLogDetail
+POST {{host}}/api/system/loginLog/queryLoginLogDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询系统访问记录列表 queryLoginLogList
+POST {{host}}/api/system/loginLog/queryLoginLogList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "login_name": "",
+  "current": 1,
+  "pageSize": 10,
+    "ipaddr": "",
+  "current": 1,
+  "pageSize": 10,
+    "login_location": "",
+  "current": 1,
+  "pageSize": 10,
+    "browser": "",
+  "current": 1,
+  "pageSize": 10,
+    "os": "",
+  "current": 1,
+  "pageSize": 10,
+    "status": 0,
+  "current": 1,
+  "pageSize": 10,
+    "msg": "",
+  "current": 1,
+  "pageSize": 10,
+    "login_time": "",
+}
+

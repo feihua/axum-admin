@@ -1,0 +1,79 @@
+###添加字典类型表 addDictType
+POST {{host}}/api/system/dictType/addDictType
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "dict_name": "",
+    "dict_type": "",
+    "status": 0,
+    "remark": "",
+
+}
+
+###删除字典类型表 deleteDictType
+POST {{host}}/api/system/dictType/deleteDictType
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13]
+}
+
+###更新字典类型表 updateDictType
+POST {{host}}/api/system/dictType/updateDictType
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "dict_id": 0,
+    "dict_name": "",
+    "dict_type": "",
+    "status": 0,
+    "remark": "",
+}
+
+###更新字典类型表 updateDictTypeStatus状态
+POST {{host}}/api/system/dictType/updateDictTypeStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13],
+  "status": 1
+}
+###查询字典类型表详情 queryDictTypeDetail
+POST {{host}}/api/system/dictType/queryDictTypeDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询字典类型表列表 queryDictTypeList
+POST {{host}}/api/system/dictType/queryDictTypeList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "dict_name": "",
+  "current": 1,
+  "pageSize": 10,
+    "dict_type": "",
+  "current": 1,
+  "pageSize": 10,
+    "status": 0,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+}
+

@@ -1,0 +1,104 @@
+###添加部门表 addDept
+POST {{host}}/api/system/dept/addDept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "parent_id": 0,
+    "ancestors": "",
+    "dept_name": "",
+    "sort": 0,
+    "leader": "",
+    "phone": "",
+    "email": "",
+    "status": 0,
+    "del_flag": 0,
+
+}
+
+###删除部门表 deleteDept
+POST {{host}}/api/system/dept/deleteDept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13]
+}
+
+###更新部门表 updateDept
+POST {{host}}/api/system/dept/updateDept
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 0,
+    "parent_id": 0,
+    "ancestors": "",
+    "dept_name": "",
+    "sort": 0,
+    "leader": "",
+    "phone": "",
+    "email": "",
+    "status": 0,
+    "del_flag": 0,
+}
+
+###更新部门表 updateDeptStatus状态
+POST {{host}}/api/system/dept/updateDeptStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13],
+  "status": 1
+}
+###查询部门表详情 queryDeptDetail
+POST {{host}}/api/system/dept/queryDeptDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询部门表列表 queryDeptList
+POST {{host}}/api/system/dept/queryDeptList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "parent_id": 0,
+  "current": 1,
+  "pageSize": 10,
+    "ancestors": "",
+  "current": 1,
+  "pageSize": 10,
+    "dept_name": "",
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "leader": "",
+  "current": 1,
+  "pageSize": 10,
+    "phone": "",
+  "current": 1,
+  "pageSize": 10,
+    "email": "",
+  "current": 1,
+  "pageSize": 10,
+    "status": 0,
+  "current": 1,
+  "pageSize": 10,
+    "del_flag": 0,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+}
+

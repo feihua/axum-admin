@@ -1,0 +1,84 @@
+###添加通知公告表 addNotice
+POST {{host}}/api/system/notice/addNotice
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "notice_title": "",
+    "notice_type": 0,
+    "notice_content": "",
+    "status": 0,
+    "remark": "",
+
+}
+
+###删除通知公告表 deleteNotice
+POST {{host}}/api/system/notice/deleteNotice
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13]
+}
+
+###更新通知公告表 updateNotice
+POST {{host}}/api/system/notice/updateNotice
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+    "id": 0,
+    "notice_title": "",
+    "notice_type": 0,
+    "notice_content": "",
+    "status": 0,
+    "remark": "",
+}
+
+###更新通知公告表 updateNoticeStatus状态
+POST {{host}}/api/system/notice/updateNoticeStatus
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "ids": [13],
+  "status": 1
+}
+###查询通知公告表详情 queryNoticeDetail
+POST {{host}}/api/system/notice/queryNoticeDetail
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "id": 1
+}
+
+
+###查询通知公告表列表 queryNoticeList
+POST {{host}}/api/system/notice/queryNoticeList
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+    "notice_title": "",
+  "current": 1,
+  "pageSize": 10,
+    "notice_type": 0,
+  "current": 1,
+  "pageSize": 10,
+    "notice_content": "",
+  "current": 1,
+  "pageSize": 10,
+    "status": 0,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+  "current": 1,
+  "pageSize": 10,
+}
+
