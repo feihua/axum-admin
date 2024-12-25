@@ -1,3 +1,10 @@
+pub mod sys_dept_vo;
+pub mod sys_dict_data_vo;
+pub mod sys_dict_type_vo;
+pub mod sys_login_log_vo;
 pub mod sys_menu_vo;
+pub mod sys_notice_vo;
+pub mod sys_operate_log_vo;
+pub mod sys_post_vo;
 pub mod sys_role_vo;
 pub mod sys_user_vo;

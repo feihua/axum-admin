@@ -9,8 +9,10 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AddRoleReq {
     pub role_name: String,      //名称
-    pub status_id: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
+    pub role_key: String,       //角色权限字符串
+    pub data_scope: String, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+    pub status: i8,         //状态(1:正常，0:禁用)
+    pub sort: i32,          //排序
     pub remark: Option<String>, //备注
 }
 
@@ -29,8 +31,10 @@ pub struct DeleteRoleReq {
 pub struct UpdateRoleReq {
     pub id: i64,                //主键
     pub role_name: String,      //名称
-    pub status_id: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
+    pub role_key: String,       //角色权限字符串
+    pub data_scope: String, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+    pub status: i8,         //状态(1:正常，0:禁用)
+    pub sort: i32,          //排序
     pub remark: Option<String>, //备注
 }
 
@@ -58,11 +62,14 @@ pub struct QueryRoleDetailReq {
 pub struct QueryRoleDetailResp {
     pub id: i64,                //主键
     pub role_name: String,      //名称
-    pub status_id: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
+    pub role_key: String,       //角色权限字符串
+    pub data_scope: String, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+    pub status: i8,         //状态(1:正常，0:禁用)
+    pub sort: i32,          //排序
     pub remark: Option<String>, //备注
-    pub create_time: String,    //创建时间
-    pub update_time: String,    //修改时间
+    pub del_flag: i8,       //删除标志（0代表删除 1代表存在）
+    pub create_time: String, //创建时间
+    pub update_time: String, //修改时间
 }
 
 impl QueryRoleDetailResp {
@@ -70,9 +77,12 @@ impl QueryRoleDetailResp {
         QueryRoleDetailResp {
             id: 0,
             role_name: "".to_string(),
-            status_id: 0,
+            role_key: "".to_string(),
+            data_scope: "".to_string(),
+            status: 0,
             sort: 0,
-            remark: None,
+            remark: "".to_string(),
+            del_flag: 0,
             create_time: "".to_string(),
             update_time: "".to_string(),
         }
@@ -99,11 +109,14 @@ pub struct QueryRoleListReq {
 pub struct RoleListDataResp {
     pub id: i64,                //主键
     pub role_name: String,      //名称
-    pub status_id: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
+    pub role_key: String,       //角色权限字符串
+    pub data_scope: String, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+    pub status: i8,         //状态(1:正常，0:禁用)
+    pub sort: i32,          //排序
     pub remark: Option<String>, //备注
-    pub create_time: String,    //创建时间
-    pub update_time: String,    //修改时间
+    pub del_flag: i8,       //删除标志（0代表删除 1代表存在）
+    pub create_time: String, //创建时间
+    pub update_time: String, //修改时间
 }
 impl RoleListDataResp {
     pub fn new() -> Vec<RoleListDataResp> {
