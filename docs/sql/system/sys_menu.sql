@@ -23,7 +23,7 @@ INSERT INTO sys_menu (id, menu_name, menu_type, `status`, sort, parent_id, menu_
 INSERT INTO sys_menu (id, menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES (2, '权限管理', 1, 1, 2, 0, '/system', '', 'SettingOutlined', '权限管理');
 
 -- 配置用户信息权限
-INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('用户信息管理', 2, 1, 1, 2, '/system/user', '', '', '用户信息管理');
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('用户管理', 2, 1, 1, 2, '/system/user', '', '', '用户信息管理');
 
 select * from sys_menu where menu_name='用户管理';
 
@@ -40,7 +40,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新用户角色信息', 3, 1, 10, 3, '', '/api/system/user/updateUserRole', '', '更新用户角色信息');
 
 -- 配置角色信息权限
-INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('角色信息管理', 2, 1, 1, 2, '/system/role', '', '', '角色信息管理');
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('角色管理', 2, 1, 2, 2, '/system/role', '', '', '角色信息管理');
 
 select * from sys_menu where menu_name='角色管理';
 
@@ -54,7 +54,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新角色菜单信息', 3, 1, 8, 15, '', '/api/system/role/updateRoleMenu', '', '更新角色菜单信息');
 
 -- 配置菜单信息权限
-INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('菜单信息管理', 2, 1, 1, 2, '/system/menu', '', '', '菜单信息管理');
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('菜单管理', 2, 1, 3, 2, '/system/menu', '', '', '菜单信息管理');
 
 select * from sys_menu where menu_name='菜单管理';
 
@@ -64,6 +64,92 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新菜单信息状态', 3, 1, 4, 24, '', '/api/system/menu/updateMenuStatus', '', '更新菜单信息状态');
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询菜单信息详情', 3, 1, 5, 24, '', '/api/system/menu/queryMenuDetail', '', '查询菜单信息详情');
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询菜单信息列表', 3, 1, 6, 24, '', '/api/system/menu/queryMenuList', '', '查询菜单信息列表');
+
+
+-- 配置部门权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('部门管理', 2, 1, 4, 2, '/system/dept', '', '', '部门管理');
+
+select * from sys_menu where menu_name='部门管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加部门', 3, 1, 1, 31, '', '/api/system/dept/addDept', '', '添加部门');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除部门', 3, 1, 2, 31, '', '/api/system/dept/deleteDept', '', '删除部门');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新部门', 3, 1, 3, 31, '', '/api/system/dept/updateDept', '', '更新部门');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新部门状态', 3, 1, 4, 31, '', '/api/system/dept/updateDeptStatus', '', '更新部门状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询部门详情', 3, 1, 5, 31, '', '/api/system/dept/queryDeptDetail', '', '查询部门详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询部门列', 3, 1, 6, 31, '', '/api/system/dept/queryDeptList', '', '查询部门列');
+
+-- 配置岗位权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('岗位管理', 2, 1, 5, 2, '/system/post', '', '', '岗位管理');
+
+select * from sys_menu where menu_name='岗位管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加岗位', 3, 1, 1, 38, '', '/api/system/post/addPost', '', '添加岗位');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除岗位', 3, 1, 2, 38, '', '/api/system/post/deletePost', '', '删除岗位');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新岗位', 3, 1, 3, 38, '', '/api/system/post/updatePost', '', '更新岗位');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新岗位状态', 3, 1, 4, 38, '', '/api/system/post/updatePostStatus', '', '更新岗位状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询岗位详情', 3, 1, 5, 38, '', '/api/system/post/queryPostDetail', '', '查询岗位详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询岗位列', 3, 1, 6, 38, '', '/api/system/post/queryPostList', '', '查询岗位列');
+
+-- 配置字典类型权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典类型管理', 2, 1, 6, 2, '/system/dictType', '', '', '字典类型管理');
+
+select * from sys_menu where menu_name='字典类型管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加字典类型', 3, 1, 1, 45, '', '/api/system/dictType/addDictType', '', '添加字典类型');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除字典类型', 3, 1, 2, 45, '', '/api/system/dictType/deleteDictType', '', '删除字典类型');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新字典类型', 3, 1, 3, 45, '', '/api/system/dictType/updateDictType', '', '更新字典类型');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新字典类型状态', 3, 1, 4, 45, '', '/api/system/dictType/updateDictTypeStatus', '', '更新字典类型状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典类型详情', 3, 1, 5, 45, '', '/api/system/dictType/queryDictTypeDetail', '', '查询字典类型详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典类型列', 3, 1, 6, 45, '', '/api/system/dictType/queryDictTypeList', '', '查询字典类型列');
+
+-- 配置字典数据权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据管理', 2, 1, 1, 2, '/system/dictData', '', '', '字典数据管理');
+
+select * from sys_menu where menu_name='字典数据管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加字典数据', 3, 1, 1, 52, '', '/api/system/dictData/addDictData', '', '添加字典数据');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除字典数据', 3, 1, 2, 52, '', '/api/system/dictData/deleteDictData', '', '删除字典数据');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新字典数据', 3, 1, 3, 52, '', '/api/system/dictData/updateDictData', '', '更新字典数据');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新字典数据状态', 3, 1, 4, 52, '', '/api/system/dictData/updateDictDataStatus', '', '更新字典数据状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典数据详情', 3, 1, 5, 52, '', '/api/system/dictData/queryDictDataDetail', '', '查询字典数据详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典数据列', 3, 1, 6, 52, '', '/api/system/dictData/queryDictDataList', '', '查询字典数据列');
+
+-- 配置通知公告权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('通知公告管理', 2, 1, 1, 2, '/system/notice', '', '', '通知公告管理');
+
+select * from sys_menu where menu_name='通知公告管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加通知公告', 3, 1, 1, 59, '', '/api/system/notice/addNotice', '', '添加通知公告');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除通知公告', 3, 1, 2, 59, '', '/api/system/notice/deleteNotice', '', '删除通知公告');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新通知公告', 3, 1, 3, 59, '', '/api/system/notice/updateNotice', '', '更新通知公告');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新通知公告状态', 3, 1, 4, 59, '', '/api/system/notice/updateNoticeStatus', '', '更新通知公告状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告详情', 3, 1, 5, 59, '', '/api/system/notice/queryNoticeDetail', '', '查询通知公告详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告列', 3, 1, 6, 59, '', '/api/system/notice/queryNoticeList', '', '查询通知公告列');
+
+-- 配置系统访问记录权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('系统访问记录管理', 2, 1, 1, 2, '/system/loginLog', '', '', '系统访问记录管理');
+
+select * from sys_menu where menu_name='系统访问记录管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加系统访问记录', 3, 1, 1, 66, '', '/api/system/loginLog/addLoginLog', '', '添加系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除系统访问记录', 3, 1, 2, 66, '', '/api/system/loginLog/deleteLoginLog', '', '删除系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录', 3, 1, 3, 66, '', '/api/system/loginLog/updateLoginLog', '', '更新系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录状态', 3, 1, 4, 66, '', '/api/system/loginLog/updateLoginLogStatus', '', '更新系统访问记录状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录详情', 3, 1, 5, 66, '', '/api/system/loginLog/queryLoginLogDetail', '', '查询系统访问记录详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录列', 3, 1, 6, 66, '', '/api/system/loginLog/queryLoginLogList', '', '查询系统访问记录列');
+
+
+-- 配置操作日志记录权限
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志记录管理', 2, 1, 1, 2, '/system/operateLog', '', '', '操作日志记录管理');
+
+select * from sys_menu where menu_name='操作日志记录管理';
+
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加操作日志记录', 3, 1, 1, 73, '', '/api/system/operateLog/addOperateLog', '', '添加操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除操作日志记录', 3, 1, 2, 73, '', '/api/system/operateLog/deleteOperateLog', '', '删除操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录', 3, 1, 3, 73, '', '/api/system/operateLog/updateOperateLog', '', '更新操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录状态', 3, 1, 4, 73, '', '/api/system/operateLog/updateOperateLogStatus', '', '更新操作日志记录状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录详情', 3, 1, 5, 73, '', '/api/system/operateLog/queryOperateLogDetail', '', '查询操作日志记录详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录列', 3, 1, 6, 73, '', '/api/system/operateLog/queryOperateLogList', '', '查询操作日志记录列');
 
 
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('其他', 1, 1, 2, 0, '/other', '', 'SettingOutlined', '其他');
