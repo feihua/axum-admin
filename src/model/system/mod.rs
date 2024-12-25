@@ -1,5 +1,14 @@
+pub mod sys_dept_model;
+pub mod sys_dict_data_model;
+pub mod sys_dict_type_model;
+pub mod sys_login_log_model;
 pub mod sys_menu_model;
+pub mod sys_notice_model;
+pub mod sys_operate_log_model;
+pub mod sys_post_model;
+pub mod sys_role_dept_model;
 pub mod sys_role_menu_model;
 pub mod sys_role_model;
 pub mod sys_user_model;
+pub mod sys_user_post_model;
 pub mod sys_user_role_model;
