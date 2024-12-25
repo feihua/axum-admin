@@ -111,9 +111,6 @@ pub struct QueryDictDataListReq {
     pub dict_label: Option<String>, //字典标签
     pub dict_value: Option<String>, //字典键值
     pub dict_type: Option<String>,  //字典类型
-    pub css_class: Option<String>,  //样式属性（其他样式扩展）
-    pub list_class: Option<String>, //表格回显样式
-    pub is_default: Option<String>, //是否默认（Y是 N否）
     pub status: Option<i8>,         //门状态（0：停用，1:正常）
 }
 

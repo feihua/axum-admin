@@ -4,7 +4,7 @@ create table sys_role
         primary key,
     role_name   varchar(50)                            not null comment '名称',
     role_key    varchar(100) default ''                not null comment '角色权限字符串',
-    data_scope  char(1)      default '1' comment '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
+    data_scope  char(1)      default '1'               not null comment '数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）',
     status      tinyint      default 1                 not null comment '状态(1:正常，0:禁用)',
     sort        int          default 1                 not null comment '排序',
     remark      varchar(255)                           not null comment '备注',

@@ -12,6 +12,13 @@ pub mod vo;
 use axum::{middleware as md, Router};
 
 use crate::model::db::init_db;
+use crate::route::system::sys_dept_route::build_sys_dept_route;
+use crate::route::system::sys_dict_data_route::build_sys_dict_data_route;
+use crate::route::system::sys_dict_type_route::build_sys_dict_type_route;
+use crate::route::system::sys_login_log_route::build_sys_login_log_route;
+use crate::route::system::sys_notice_route::build_sys_notice_route;
+use crate::route::system::sys_operate_log_route::build_sys_operate_log_route;
+use crate::route::system::sys_post_route::build_sys_post_route;
 use middleware::auth::auth;
 use rbatis::RBatis;
 use route::system::sys_menu_route::build_sys_menu_route;
@@ -37,6 +44,13 @@ async fn main() {
             .merge(build_sys_user_route())
             .merge(build_sys_role_route())
             .merge(build_sys_menu_route())
+            .merge(build_sys_dept_route())
+            .merge(build_sys_dict_type_route())
+            .merge(build_sys_dict_data_route())
+            .merge(build_sys_post_route())
+            .merge(build_sys_login_log_route())
+            .merge(build_sys_operate_log_route())
+            .merge(build_sys_notice_route())
             .route_layer(md::from_fn(auth))
             .with_state(shared_state),
     );

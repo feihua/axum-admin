@@ -16,7 +16,6 @@ pub struct AddDeptReq {
     pub phone: String,     //联系电话
     pub email: String,     //邮箱
     pub status: i8,        //部门状态（0：停用，1:正常）
-    pub del_flag: i8,      //删除标志（0代表删除 1代表存在）
 }
 
 /*
@@ -108,14 +107,11 @@ pub struct QueryDeptListReq {
     pub page_no: u64,
     #[serde(rename = "pageSize")]
     pub page_size: u64,
-    pub parent_id: Option<i64>,    //父部门id
-    pub ancestors: Option<String>, //祖级列表
     pub dept_name: Option<String>, //部门名称
     pub leader: Option<String>,    //负责人
     pub phone: Option<String>,     //联系电话
     pub email: Option<String>,     //邮箱
     pub status: Option<i8>,        //部门状态（0：停用，1:正常）
-    pub del_flag: Option<i8>,      //删除标志（0代表删除 1代表存在）
 }
 
 /*

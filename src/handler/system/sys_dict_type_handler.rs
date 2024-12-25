@@ -3,19 +3,17 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dict_type_model::DictType;
 use crate::vo::system::sys_dict_type_vo::*;
-use crate::vo::system::*;
 
 /*
  *添加字典类型表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_dict_type(
     State(state): State<Arc<AppState>>,
@@ -25,13 +23,13 @@ pub async fn add_sys_dict_type(
     let rb = &state.batis;
 
     let sys_dict_type = DictType {
-        dict_id: None,             //字典主键
-        dict_name: item.dict_name, //字典名称
-        dict_type: item.dict_type, //字典类型
-        status: item.status,       //门状态（0：停用，1:正常）
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
+        dict_id: None,                           //字典主键
+        dict_name: item.dict_name,               //字典名称
+        dict_type: item.dict_type,               //字典类型
+        status: item.status,                     //门状态（0：停用，1:正常）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     let result = DictType::insert(rb, &sys_dict_type).await;
@@ -45,7 +43,7 @@ pub async fn add_sys_dict_type(
 /*
  *删除字典类型表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_dict_type(
     State(state): State<Arc<AppState>>,
@@ -65,7 +63,7 @@ pub async fn delete_sys_dict_type(
 /*
  *更新字典类型表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_type(
     State(state): State<Arc<AppState>>,
@@ -75,13 +73,13 @@ pub async fn update_sys_dict_type(
     let rb = &state.batis;
 
     let sys_dict_type = DictType {
-        dict_id: Some(item.dict_id), //字典主键
-        dict_name: item.dict_name,   //字典名称
-        dict_type: item.dict_type,   //字典类型
-        status: item.status,         //门状态（0：停用，1:正常）
-        remark: item.remark,         //备注
-        create_time: None,           //创建时间
-        update_time: None,           //修改时间
+        dict_id: Some(item.dict_id),             //字典主键
+        dict_name: item.dict_name,               //字典名称
+        dict_type: item.dict_type,               //字典类型
+        status: item.status,                     //门状态（0：停用，1:正常）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     let result = DictType::update_by_column(rb, &sys_dict_type, "id").await;
@@ -95,7 +93,7 @@ pub async fn update_sys_dict_type(
 /*
  *更新字典类型表状态
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_type_status(
     State(state): State<Arc<AppState>>,
@@ -126,7 +124,7 @@ pub async fn update_sys_dict_type_status(
 /*
  *查询字典类型表详情
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_type_detail(
     State(state): State<Arc<AppState>>,
@@ -142,13 +140,13 @@ pub async fn query_sys_dict_type_detail(
             let x = d.unwrap();
 
             let sys_dict_type = QueryDictTypeDetailResp {
-                dict_id: x.dict_id.unwrap(),            //字典主键
-                dict_name: x.dict_name,                 //字典名称
-                dict_type: x.dict_type,                 //字典类型
-                status: x.status,                       //门状态（0：停用，1:正常）
-                remark: x.remark,                       //备注
-                create_time: x.create_time.to_string(), //创建时间
-                update_time: x.update_time.to_string(), //修改时间
+                dict_id: x.dict_id.unwrap(),                       //字典主键
+                dict_name: x.dict_name,                            //字典名称
+                dict_type: x.dict_type,                            //字典类型
+                status: x.status,                                  //门状态（0：停用，1:正常）
+                remark: x.remark,                                  //备注
+                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
 
             BaseResponse::<QueryDictTypeDetailResp>::ok_result_data(sys_dict_type)
@@ -163,7 +161,7 @@ pub async fn query_sys_dict_type_detail(
 /*
  *查询字典类型表列表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_type_list(
     State(state): State<Arc<AppState>>,
@@ -171,6 +169,9 @@ pub async fn query_sys_dict_type_list(
 ) -> impl IntoResponse {
     log::info!("query sys_dict_type_list params: {:?}", &item);
     let rb = &state.batis;
+    //let dict_name = item.dict_name.as_deref().unwrap_or_default(); //字典名称
+    //let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
+    //let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = DictType::select_page(rb, page).await;

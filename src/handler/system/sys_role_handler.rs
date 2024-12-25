@@ -27,13 +27,16 @@ pub async fn add_sys_role(
     let rb = &state.batis;
 
     let sys_role = Role {
-        id: None,                  //主键
-        role_name: item.role_name, //名称
-        status_id: item.status_id, //状态(1:正常，0:禁用)
-        sort: item.sort,           //排序
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
+        id: None,                                //主键
+        role_name: item.role_name,               //名称
+        role_key: item.role_key,                 //角色权限字符串
+        data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+        status: item.status,         //状态(1:正常，0:禁用)
+        sort: item.sort,             //排序
+        remark: item.remark.unwrap_or_default(), //备注
+        del_flag: 1,                 //删除标志（0代表删除 1代表存在）
+        create_time: None,           //创建时间
+        update_time: None,           //修改时间
     };
 
     let result = Role::insert(rb, &sys_role).await;
@@ -86,13 +89,16 @@ pub async fn update_sys_role(
     let rb = &state.batis;
 
     let sys_role = Role {
-        id: Some(item.id),         //主键
-        role_name: item.role_name, //名称
-        status_id: item.status_id, //状态(1:正常，0:禁用)
-        sort: item.sort,           //排序
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
+        id: Some(item.id),                       //主键
+        role_name: item.role_name,               //名称
+        role_key: item.role_key,                 //角色权限字符串
+        data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+        status: item.status,         //状态(1:正常，0:禁用)
+        sort: item.sort,             //排序
+        remark: item.remark.unwrap_or_default(), //备注
+        del_flag: item.del_flag,     //删除标志（0代表删除 1代表存在）
+        create_time: None,           //创建时间
+        update_time: None,           //修改时间
     };
 
     let result = Role::update_by_column(rb, &sys_role, "id").await;
@@ -116,7 +122,7 @@ pub async fn update_sys_role_status(
     let rb = &state.batis;
 
     let update_sql = format!(
-        "update sys_role set status_id = ? where id in ({})",
+        "update sys_role set status = ? where id in ({})",
         item.ids
             .iter()
             .map(|_| "?")
@@ -155,9 +161,12 @@ pub async fn query_sys_role_detail(
             let sys_role = QueryRoleDetailResp {
                 id: x.id.unwrap(),                                 //主键
                 role_name: x.role_name,                            //名称
-                status_id: x.status_id,                            //状态(1:正常，0:禁用)
-                sort: x.sort,                                      //排序
-                remark: x.remark,                                  //备注
+                role_key: x.role_key,                              //角色权限字符串
+                data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+                status: x.status,         //状态(1:正常，0:禁用)
+                sort: x.sort,             //排序
+                remark: x.remark,         //备注
+                del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
@@ -198,9 +207,12 @@ pub async fn query_sys_role_list(
                 sys_role_list_data.push(RoleListDataResp {
                     id: x.id.unwrap(),                                 //主键
                     role_name: x.role_name,                            //名称
-                    status_id: x.status_id,                            //状态(1:正常，0:禁用)
-                    sort: x.sort,                                      //排序
-                    remark: x.remark,                                  //备注
+                    role_key: x.role_key,                              //角色权限字符串
+                    data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+                    status: x.status,         //状态(1:正常，0:禁用)
+                    sort: x.sort,             //排序
+                    remark: x.remark,         //备注
+                    del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间
                 })

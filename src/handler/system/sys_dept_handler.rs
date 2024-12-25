@@ -3,19 +3,17 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dept_model::Dept;
 use crate::vo::system::sys_dept_vo::*;
-use crate::vo::system::*;
 
 /*
  *添加部门表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_dept(
     State(state): State<Arc<AppState>>,
@@ -34,7 +32,7 @@ pub async fn add_sys_dept(
         phone: item.phone,         //联系电话
         email: item.email,         //邮箱
         status: item.status,       //部门状态（0：停用，1:正常）
-        del_flag: item.del_flag,   //删除标志（0代表删除 1代表存在）
+        del_flag: 1,               //删除标志（0代表删除 1代表存在）
         create_time: None,         //创建时间
         update_time: None,         //修改时间
     };
@@ -50,7 +48,7 @@ pub async fn add_sys_dept(
 /*
  *删除部门表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_dept(
     State(state): State<Arc<AppState>>,
@@ -70,7 +68,7 @@ pub async fn delete_sys_dept(
 /*
  *更新部门表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dept(
     State(state): State<Arc<AppState>>,
@@ -105,7 +103,7 @@ pub async fn update_sys_dept(
 /*
  *更新部门表状态
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dept_status(
     State(state): State<Arc<AppState>>,
@@ -136,7 +134,7 @@ pub async fn update_sys_dept_status(
 /*
  *查询部门表详情
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dept_detail(
     State(state): State<Arc<AppState>>,
@@ -152,18 +150,18 @@ pub async fn query_sys_dept_detail(
             let x = d.unwrap();
 
             let sys_dept = QueryDeptDetailResp {
-                id: x.id.unwrap(),                      //部门id
-                parent_id: x.parent_id,                 //父部门id
-                ancestors: x.ancestors,                 //祖级列表
-                dept_name: x.dept_name,                 //部门名称
-                sort: x.sort,                           //显示顺序
-                leader: x.leader,                       //负责人
-                phone: x.phone,                         //联系电话
-                email: x.email,                         //邮箱
-                status: x.status,                       //部门状态（0：停用，1:正常）
-                del_flag: x.del_flag,                   //删除标志（0代表删除 1代表存在）
-                create_time: x.create_time.to_string(), //创建时间
-                update_time: x.update_time.to_string(), //修改时间
+                id: x.id.unwrap(),                                 //部门id
+                parent_id: x.parent_id,                            //父部门id
+                ancestors: x.ancestors,                            //祖级列表
+                dept_name: x.dept_name,                            //部门名称
+                sort: x.sort,                                      //显示顺序
+                leader: x.leader,                                  //负责人
+                phone: x.phone,                                    //联系电话
+                email: x.email,                                    //邮箱
+                status: x.status,                                  //部门状态（0：停用，1:正常）
+                del_flag: x.del_flag,                              //删除标志（0代表删除 1代表存在）
+                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
 
             BaseResponse::<QueryDeptDetailResp>::ok_result_data(sys_dept)
@@ -178,7 +176,7 @@ pub async fn query_sys_dept_detail(
 /*
  *查询部门表列表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dept_list(
     State(state): State<Arc<AppState>>,
@@ -186,6 +184,12 @@ pub async fn query_sys_dept_list(
 ) -> impl IntoResponse {
     log::info!("query sys_dept_list params: {:?}", &item);
     let rb = &state.batis;
+
+    // let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
+    // let leader = item.leader.as_deref().unwrap_or_default(); //负责人
+    // let phone = item.phone.as_deref().unwrap_or_default(); //联系电话
+    // let email = item.email.as_deref().unwrap_or_default(); //邮箱
+    // let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = Dept::select_page(rb, page).await;

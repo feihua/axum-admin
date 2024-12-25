@@ -4,15 +4,15 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_sort": 0,
-    "dict_label": "",
-    "dict_value": "",
-    "dict_type": "",
-    "css_class": "",
-    "list_class": "",
-    "is_default": "",
-    "status": 0,
-    "remark": "",
+    "dict_sort": 1,
+    "dict_label": "1",
+    "dict_value": "1",
+    "dict_type": "1",
+    "css_class": "1",
+    "list_class": "1",
+    "is_default": "1",
+    "status": 1,
+    "remark": ""
 
 }
 
@@ -69,35 +69,6 @@ Authorization: Bearer {{token}}
 
 {
   "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-    "dict_label": "",
-  "current": 1,
-  "pageSize": 10,
-    "dict_value": "",
-  "current": 1,
-  "pageSize": 10,
-    "dict_type": "",
-  "current": 1,
-  "pageSize": 10,
-    "css_class": "",
-  "current": 1,
-  "pageSize": 10,
-    "list_class": "",
-  "current": 1,
-  "pageSize": 10,
-    "is_default": "",
-  "current": 1,
-  "pageSize": 10,
-    "status": 0,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
+  "pageSize": 10
 }
 

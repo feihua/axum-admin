@@ -3,19 +3,17 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_post_model::Post;
 use crate::vo::system::sys_post_vo::*;
-use crate::vo::system::*;
 
 /*
  *添加岗位信息表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_post(
     State(state): State<Arc<AppState>>,
@@ -25,14 +23,14 @@ pub async fn add_sys_post(
     let rb = &state.batis;
 
     let sys_post = Post {
-        id: None,                  //岗位id
-        post_code: item.post_code, //岗位编码
-        post_name: item.post_name, //岗位名称
-        sort: item.sort,           //显示顺序
-        status: item.status,       //部门状态（0：停用，1:正常）
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //更新时间
+        id: None,                                //岗位id
+        post_code: item.post_code,               //岗位编码
+        post_name: item.post_name,               //岗位名称
+        sort: item.sort,                         //显示顺序
+        status: item.status,                     //部门状态（0：停用，1:正常）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //更新时间
     };
 
     let result = Post::insert(rb, &sys_post).await;
@@ -46,7 +44,7 @@ pub async fn add_sys_post(
 /*
  *删除岗位信息表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_post(
     State(state): State<Arc<AppState>>,
@@ -66,7 +64,7 @@ pub async fn delete_sys_post(
 /*
  *更新岗位信息表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_post(
     State(state): State<Arc<AppState>>,
@@ -76,14 +74,14 @@ pub async fn update_sys_post(
     let rb = &state.batis;
 
     let sys_post = Post {
-        id: Some(item.id),         //岗位id
-        post_code: item.post_code, //岗位编码
-        post_name: item.post_name, //岗位名称
-        sort: item.sort,           //显示顺序
-        status: item.status,       //部门状态（0：停用，1:正常）
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //更新时间
+        id: Some(item.id),                       //岗位id
+        post_code: item.post_code,               //岗位编码
+        post_name: item.post_name,               //岗位名称
+        sort: item.sort,                         //显示顺序
+        status: item.status,                     //部门状态（0：停用，1:正常）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //更新时间
     };
 
     let result = Post::update_by_column(rb, &sys_post, "id").await;
@@ -97,7 +95,7 @@ pub async fn update_sys_post(
 /*
  *更新岗位信息表状态
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_post_status(
     State(state): State<Arc<AppState>>,
@@ -128,7 +126,7 @@ pub async fn update_sys_post_status(
 /*
  *查询岗位信息表详情
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_post_detail(
     State(state): State<Arc<AppState>>,
@@ -144,14 +142,14 @@ pub async fn query_sys_post_detail(
             let x = d.unwrap();
 
             let sys_post = QueryPostDetailResp {
-                id: x.id.unwrap(),                      //岗位id
-                post_code: x.post_code,                 //岗位编码
-                post_name: x.post_name,                 //岗位名称
-                sort: x.sort,                           //显示顺序
-                status: x.status,                       //部门状态（0：停用，1:正常）
-                remark: x.remark,                       //备注
-                create_time: x.create_time.to_string(), //创建时间
-                update_time: x.update_time.to_string(), //更新时间
+                id: x.id.unwrap(),                                 //岗位id
+                post_code: x.post_code,                            //岗位编码
+                post_name: x.post_name,                            //岗位名称
+                sort: x.sort,                                      //显示顺序
+                status: x.status,                                  //部门状态（0：停用，1:正常）
+                remark: x.remark,                                  //备注
+                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                update_time: x.update_time.unwrap().0.to_string(), //更新时间
             };
 
             BaseResponse::<QueryPostDetailResp>::ok_result_data(sys_post)
@@ -166,7 +164,7 @@ pub async fn query_sys_post_detail(
 /*
  *查询岗位信息表列表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_post_list(
     State(state): State<Arc<AppState>>,
@@ -174,6 +172,9 @@ pub async fn query_sys_post_list(
 ) -> impl IntoResponse {
     log::info!("query sys_post_list params: {:?}", &item);
     let rb = &state.batis;
+    //let post_code = item.post_code.as_deref().unwrap_or_default(); //岗位编码
+    //let post_name = item.post_name.as_deref().unwrap_or_default(); //岗位名称
+    //let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = Post::select_page(rb, page).await;

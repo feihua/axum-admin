@@ -61,23 +61,6 @@ Authorization: Bearer {{token}}
 
 {
   "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-    "post_code": "",
-  "current": 1,
-  "pageSize": 10,
-    "post_name": "",
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-    "status": 0,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
+  "pageSize": 10
 }
 

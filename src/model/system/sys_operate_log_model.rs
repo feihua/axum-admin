@@ -52,7 +52,7 @@ impl_select!(OperateLog{select_by_id(id:&i64) -> Option => "`where id = #{id} li
  */
 impl_select_page!(OperateLog{select_page() =>"
      if !sql.contains('count'):
-       order by create_time desc"
+       order by operate_time desc"
 },"sys_operate_log");
 
 /*

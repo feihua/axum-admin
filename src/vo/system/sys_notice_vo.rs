@@ -92,10 +92,9 @@ pub struct QueryNoticeListReq {
     pub page_no: u64,
     #[serde(rename = "pageSize")]
     pub page_size: u64,
-    pub notice_title: Option<String>,   //公告标题
-    pub notice_type: Option<i8>,        //公告类型（1:通知,2:公告）
-    pub notice_content: Option<String>, //公告内容
-    pub status: Option<i8>,             //公告状态（0:关闭,1:正常 ）
+    pub notice_title: Option<String>, //公告标题
+    pub notice_type: Option<i8>,      //公告类型（1:通知,2:公告）
+    pub status: Option<i8>,           //公告状态（0:关闭,1:正常 ）
 }
 
 /*

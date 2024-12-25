@@ -3,19 +3,17 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_notice_model::Notice;
 use crate::vo::system::sys_notice_vo::*;
-use crate::vo::system::*;
 
 /*
  *添加通知公告表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_notice(
     State(state): State<Arc<AppState>>,
@@ -25,14 +23,14 @@ pub async fn add_sys_notice(
     let rb = &state.batis;
 
     let sys_notice = Notice {
-        id: None,                            //公告ID
-        notice_title: item.notice_title,     //公告标题
-        notice_type: item.notice_type,       //公告类型（1:通知,2:公告）
-        notice_content: item.notice_content, //公告内容
-        status: item.status,                 //公告状态（0:关闭,1:正常 ）
-        remark: item.remark,                 //备注
-        create_time: None,                   //创建时间
-        update_time: None,                   //修改时间
+        id: None,                                //公告ID
+        notice_title: item.notice_title,         //公告标题
+        notice_type: item.notice_type,           //公告类型（1:通知,2:公告）
+        notice_content: item.notice_content,     //公告内容
+        status: item.status,                     //公告状态（0:关闭,1:正常 ）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     let result = Notice::insert(rb, &sys_notice).await;
@@ -46,7 +44,7 @@ pub async fn add_sys_notice(
 /*
  *删除通知公告表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_notice(
     State(state): State<Arc<AppState>>,
@@ -66,7 +64,7 @@ pub async fn delete_sys_notice(
 /*
  *更新通知公告表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_notice(
     State(state): State<Arc<AppState>>,
@@ -76,14 +74,14 @@ pub async fn update_sys_notice(
     let rb = &state.batis;
 
     let sys_notice = Notice {
-        id: Some(item.id),                   //公告ID
-        notice_title: item.notice_title,     //公告标题
-        notice_type: item.notice_type,       //公告类型（1:通知,2:公告）
-        notice_content: item.notice_content, //公告内容
-        status: item.status,                 //公告状态（0:关闭,1:正常 ）
-        remark: item.remark,                 //备注
-        create_time: None,                   //创建时间
-        update_time: None,                   //修改时间
+        id: Some(item.id),                       //公告ID
+        notice_title: item.notice_title,         //公告标题
+        notice_type: item.notice_type,           //公告类型（1:通知,2:公告）
+        notice_content: item.notice_content,     //公告内容
+        status: item.status,                     //公告状态（0:关闭,1:正常 ）
+        remark: item.remark.unwrap_or_default(), //备注
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     let result = Notice::update_by_column(rb, &sys_notice, "id").await;
@@ -97,7 +95,7 @@ pub async fn update_sys_notice(
 /*
  *更新通知公告表状态
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_notice_status(
     State(state): State<Arc<AppState>>,
@@ -128,7 +126,7 @@ pub async fn update_sys_notice_status(
 /*
  *查询通知公告表详情
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_notice_detail(
     State(state): State<Arc<AppState>>,
@@ -144,14 +142,14 @@ pub async fn query_sys_notice_detail(
             let x = d.unwrap();
 
             let sys_notice = QueryNoticeDetailResp {
-                id: x.id.unwrap(),                      //公告ID
-                notice_title: x.notice_title,           //公告标题
-                notice_type: x.notice_type,             //公告类型（1:通知,2:公告）
-                notice_content: x.notice_content,       //公告内容
-                status: x.status,                       //公告状态（0:关闭,1:正常 ）
-                remark: x.remark,                       //备注
-                create_time: x.create_time.to_string(), //创建时间
-                update_time: x.update_time.to_string(), //修改时间
+                id: x.id.unwrap(),                                 //公告ID
+                notice_title: x.notice_title,                      //公告标题
+                notice_type: x.notice_type,                        //公告类型（1:通知,2:公告）
+                notice_content: x.notice_content,                  //公告内容
+                status: x.status,                                  //公告状态（0:关闭,1:正常 ）
+                remark: x.remark,                                  //备注
+                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
 
             BaseResponse::<QueryNoticeDetailResp>::ok_result_data(sys_notice)
@@ -166,7 +164,7 @@ pub async fn query_sys_notice_detail(
 /*
  *查询通知公告表列表
  *author：刘飞华
- *date：2024/12/25 10:01:11
+ *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_notice_list(
     State(state): State<Arc<AppState>>,
@@ -174,6 +172,10 @@ pub async fn query_sys_notice_list(
 ) -> impl IntoResponse {
     log::info!("query sys_notice_list params: {:?}", &item);
     let rb = &state.batis;
+    //let notice_title = item.notice_title.as_deref().unwrap_or_default(); //公告标题
+    //let notice_type = item.notice_type.unwrap_or(2); //公告类型（1:通知,2:公告）
+    //let notice_content = item.notice_content.as_deref().unwrap_or_default(); //公告内容
+    //let status = item.status.unwrap_or(2); //公告状态（0:关闭,1:正常 ）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = Notice::select_page(rb, page).await;

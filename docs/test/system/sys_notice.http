@@ -62,23 +62,9 @@ Authorization: Bearer {{token}}
 {
   "current": 1,
   "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
     "notice_title": "",
-  "current": 1,
-  "pageSize": 10,
     "notice_type": 0,
-  "current": 1,
-  "pageSize": 10,
     "notice_content": "",
-  "current": 1,
-  "pageSize": 10,
-    "status": 0,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
+    "status": 0
 }
 

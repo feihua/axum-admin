@@ -44,7 +44,7 @@ impl_select!(LoginLog{select_by_id(id:&i64) -> Option => "`where id = #{id} limi
  */
 impl_select_page!(LoginLog{select_page() =>"
      if !sql.contains('count'):
-       order by create_time desc"
+       order by login_time desc"
 },"sys_login_log");
 
 /*

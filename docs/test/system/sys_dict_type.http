@@ -4,10 +4,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_name": "",
-    "dict_type": "",
+    "dict_name": "1",
+    "dict_type": "1",
     "status": 0,
-    "remark": "",
+    "remark": "1"
 
 }
 
@@ -59,21 +59,6 @@ Authorization: Bearer {{token}}
 
 {
   "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-    "dict_name": "",
-  "current": 1,
-  "pageSize": 10,
-    "dict_type": "",
-  "current": 1,
-  "pageSize": 10,
-    "status": 0,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
-  "current": 1,
-  "pageSize": 10,
+  "pageSize": 10
 }
 

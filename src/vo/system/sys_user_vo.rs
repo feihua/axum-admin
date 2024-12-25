@@ -13,6 +13,7 @@ pub struct AddUserReq {
     pub avatar: String,         //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
     pub sort: i32,              //排序
+    pub dept_id: i64,           //部门ID
     pub remark: Option<String>, //备注
 }
 
@@ -35,7 +36,9 @@ pub struct UpdateUserReq {
     pub avatar: String,         //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
     pub sort: i32,              //排序
+    pub dept_id: i64,           //部门ID
     pub remark: Option<String>, //备注
+    pub del_flag: i8,           //删除标志（0代表删除 1代表存在）
 }
 
 /*
@@ -198,13 +201,13 @@ pub struct QueryUserRoleResp {
 */
 #[derive(Debug, Serialize)]
 pub struct RoleList {
-    pub id: i64,                //主键
-    pub role_name: String,      //名称
-    pub role_key: String,       //角色权限字符串
+    pub id: i64,             //主键
+    pub role_name: String,   //名称
+    pub role_key: String,    //角色权限字符串
     pub data_scope: String, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
     pub status: i8,         //状态(1:正常，0:禁用)
     pub sort: i32,          //排序
-    pub remark: Option<String>, //备注
+    pub remark: String,     //备注
     pub del_flag: i8,       //删除标志（0代表删除 1代表存在）
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间
