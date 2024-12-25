@@ -1,14 +1,14 @@
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_notice_model::Notice;
+use crate::vo::system::sys_notice_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbatis::rbdc::Error;
 use rbs::to_value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_notice_model::Notice;
-use crate::vo::system::sys_notice_vo::*;
 
 /*
  *添加通知公告表
@@ -21,6 +21,16 @@ pub async fn add_sys_notice(
 ) -> impl IntoResponse {
     log::info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Notice::select_by_title(rb, &item.notice_title).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_notice = Notice {
         id: None,                                //公告ID
@@ -72,6 +82,17 @@ pub async fn update_sys_notice(
 ) -> impl IntoResponse {
     log::info!("update sys_notice params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Notice::select_by_title(rb, &item.notice_title).await;
+
+    match res {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_notice = Notice {
         id: Some(item.id),                       //公告ID
@@ -172,21 +193,21 @@ pub async fn query_sys_notice_list(
 ) -> impl IntoResponse {
     log::info!("query sys_notice_list params: {:?}", &item);
     let rb = &state.batis;
-    //let notice_title = item.notice_title.as_deref().unwrap_or_default(); //公告标题
-    //let notice_type = item.notice_type.unwrap_or(2); //公告类型（1:通知,2:公告）
-    //let notice_content = item.notice_content.as_deref().unwrap_or_default(); //公告内容
-    //let status = item.status.unwrap_or(2); //公告状态（0:关闭,1:正常 ）
+
+    let notice_title = item.notice_title.as_deref().unwrap_or_default();
+    let notice_type = item.notice_type.unwrap_or(0); //公告类型（1:通知,2:公告）
+    let status = item.status.unwrap_or(2); //公告状态（0:关闭,1:正常 ）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Notice::select_page(rb, page).await;
+    let result = Notice::select_sys_notice_list(rb, page, notice_title, notice_type, status).await;
 
-    let mut sys_notice_list_data: Vec<NoticeListDataResp> = Vec::new();
+    let mut data: Vec<NoticeListDataResp> = Vec::new();
     match result {
         Ok(d) => {
             let total = d.total;
 
             for x in d.records {
-                sys_notice_list_data.push(NoticeListDataResp {
+                data.push(NoticeListDataResp {
                     id: x.id.unwrap(),                                 //公告ID
                     notice_title: x.notice_title,                      //公告标题
                     notice_type: x.notice_type,                        //公告类型（1:通知,2:公告）
@@ -198,7 +219,7 @@ pub async fn query_sys_notice_list(
                 })
             }
 
-            BaseResponse::ok_result_page(sys_notice_list_data, total)
+            BaseResponse::ok_result_page(data, total)
         }
         Err(err) => BaseResponse::err_result_page(NoticeListDataResp::new(), err.to_string()),
     }

@@ -103,7 +103,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典类型列', 3, 1, 6, 45, '', '/api/system/dictType/queryDictTypeList', '', '查询字典类型列');
 
 -- 配置字典数据权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据管理', 2, 1, 1, 2, '/system/dictData', '', '', '字典数据管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据管理', 2, 1, 7, 2, '/system/dictData', '', '', '字典数据管理');
 
 select * from sys_menu where menu_name='字典数据管理';
 
@@ -115,9 +115,9 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典数据列', 3, 1, 6, 52, '', '/api/system/dictData/queryDictDataList', '', '查询字典数据列');
 
 -- 配置通知公告权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('通知公告管理', 2, 1, 1, 2, '/system/notice', '', '', '通知公告管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('通知公告管理', 2, 1, 8, 2, '/system/notice', '', '', '通知公告管理');
 
-select * from sys_menu where menu_name='通知公告管理';
+select * from sys_menu where menu_name='通知公告';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加通知公告', 3, 1, 1, 59, '', '/api/system/notice/addNotice', '', '添加通知公告');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除通知公告', 3, 1, 2, 59, '', '/api/system/notice/deleteNotice', '', '删除通知公告');
@@ -127,7 +127,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告列', 3, 1, 6, 59, '', '/api/system/notice/queryNoticeList', '', '查询通知公告列');
 
 -- 配置系统访问记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('系统访问记录管理', 2, 1, 1, 2, '/system/loginLog', '', '', '系统访问记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('系统访问记录管理', 2, 1, 9, 2, '/system/loginLog', '', '', '系统访问记录管理');
 
 select * from sys_menu where menu_name='系统访问记录管理';
 
@@ -140,7 +140,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 
 
 -- 配置操作日志记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志记录管理', 2, 1, 1, 2, '/system/operateLog', '', '', '操作日志记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志记录管理', 2, 1, 10, 2, '/system/operateLog', '', '', '操作日志记录管理');
 
 select * from sys_menu where menu_name='操作日志记录管理';
 

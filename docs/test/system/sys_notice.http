@@ -4,11 +4,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "notice_title": "",
-    "notice_type": 0,
-    "notice_content": "",
-    "status": 0,
-    "remark": "",
+    "notice_title": "123ggg",
+    "notice_type": 1,
+    "notice_content": "sdfs",
+    "status": 1,
+    "remark": "sfdsdf"
 
 }
 
@@ -27,12 +27,12 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "id": 0,
-    "notice_title": "",
-    "notice_type": 0,
-    "notice_content": "",
-    "status": 0,
-    "remark": "",
+  "id": 1,
+  "notice_title": "123ggg",
+  "notice_type": 0,
+  "notice_content": "sdfs",
+  "status": 0,
+  "remark": "sfdsdf"
 }
 
 ###更新通知公告表 updateNoticeStatus状态
@@ -59,12 +59,16 @@ POST {{host}}/api/system/notice/queryNoticeList
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
+#{
+#  "current": 1,
+#  "pageSize": 10,
+#    "notice_title": "",
+#    "notice_type": 0,
+#    "status": 0
+#}
+
 {
   "current": 1,
   "pageSize": 10,
-    "notice_title": "",
-    "notice_type": 0,
-    "notice_content": "",
-    "status": 0
+  "notice_type": 1
 }
-

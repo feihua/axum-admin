@@ -37,23 +37,25 @@ rbatis::crud!(Notice {}, "sys_notice");
 impl_select!(Notice{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_notice");
 
 /*
- *分页查询通知公告表
+ *根据公告标题查询通知公告表
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Notice{select_page() =>"
-     if !sql.contains('count'):
-       order by create_time desc"
-},"sys_notice");
+impl_select!(Notice{select_by_title(title:&str) -> Option => "`where notice_title = #{title} limit 1`"}, "sys_notice");
 
 /*
  *根据条件分页查询通知公告表
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Notice{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(Notice{select_sys_notice_list(title:&str, notice_type:i8, status:i8) =>"
+    where 1=1
+     if title != '':
+       ` and notice_title = #{notice_title} `
+     if notice_type != 0:
+      ` and notice_type = #{notice_type} `
+     if status != 2:
+       ` and status = #{status} `
+     if !sql.contains('count'):
+       ` order by create_time desc `"
 },"sys_notice");
