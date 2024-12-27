@@ -7,7 +7,10 @@ use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
-use crate::model::system::sys_dept_model::Dept;
+use crate::model::system::sys_dept_model::{
+    check_dept_exist_user, select_dept_count, select_normal_children_dept_by_id, Dept,
+};
+use crate::model::system::sys_notice_model::Notice;
 use crate::vo::system::sys_dept_vo::*;
 
 /*
@@ -21,6 +24,16 @@ pub async fn add_sys_dept(
 ) -> impl IntoResponse {
     log::info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Dept::select_by_dept_name(rb, &item.dept_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("部门名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_dept = Dept {
         id: None,                  //部门id
@@ -57,7 +70,19 @@ pub async fn delete_sys_dept(
     log::info!("delete sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Dept::delete_in_column(rb, "id", &item.ids).await;
+    let res = select_dept_count(rb, &item.id).await.unwrap_or_default();
+    if res > 0 {
+        return BaseResponse::<String>::err_result_msg("存在下级部门,不允许删除".to_string());
+    }
+
+    let res1 = check_dept_exist_user(rb, &item.id)
+        .await
+        .unwrap_or_default();
+    if res1 > 0 {
+        return BaseResponse::<String>::err_result_msg("部门存在用户,不允许删除".to_string());
+    }
+
+    let result = Dept::delete_in_column(rb, "id", &item.id).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -76,6 +101,27 @@ pub async fn update_sys_dept(
 ) -> impl IntoResponse {
     log::info!("update sys_dept params: {:?}", &item);
     let rb = &state.batis;
+
+    if item.parent_id == item.id {
+        return BaseResponse::<String>::err_result_msg("上级部门不能是自己".to_string());
+    }
+
+    let res = Dept::select_by_dept_name(rb, &item.dept_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("部门名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let count = select_normal_children_dept_by_id(rb, &item.id)
+        .await
+        .unwrap_or_default();
+    if count > 0 && item.status == 0 {
+        return BaseResponse::<String>::err_result_msg("该部门包含未停用的子部门".to_string());
+    }
 
     let sys_dept = Dept {
         id: Some(item.id),         //部门id
@@ -147,6 +193,12 @@ pub async fn query_sys_dept_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryDeptDetailResp>::err_result_data(
+                    QueryDeptDetailResp::new(),
+                    "部门不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_dept = QueryDeptDetailResp {

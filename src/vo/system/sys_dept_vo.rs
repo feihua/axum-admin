@@ -23,7 +23,7 @@ pub struct AddDeptReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct DeleteDeptReq {
-    pub ids: Vec<i64>,
+    pub id: i64,
 }
 
 /*
