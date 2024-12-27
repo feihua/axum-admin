@@ -3,6 +3,7 @@
 // createTime：2024/12/25 10:01:11
 
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -52,9 +53,28 @@ impl_select_page!(LoginLog{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(LoginLog{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(LoginLog{select_page_by_name(name:&str, ipaddr:&str,browser:&str,os:&str,status:&i8) =>"
+    where 1=1
+     if name != '':
+       ` and login_name = #{name} `
+     if ipaddr != '':
+       ` and ipaddr = #{ipaddr} `
+     if browser != '':
+       ` and browser = #{browser} `
+     if os != '':
+       ` and os = #{os} `
+     if status != 2:
+       ` and status = #{status} `
+     if !sql.contains('count'):
+       ` order by login_time desc `"
 },"sys_login_log");
+
+/*
+ *清空系统登录日志
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+#[sql("truncate table sys_login_log")]
+pub async fn clean_login_log(rb: &RBatis) -> Option<i64> {
+    impled!()
+}

@@ -1,6 +1,6 @@
 use crate::handler::system::sys_login_log_handler;
 use crate::AppState;
-use axum::routing::post;
+use axum::routing::{get, post};
 use axum::Router;
 use std::sync::Arc;
 /*
@@ -13,6 +13,10 @@ pub fn build_sys_login_log_route() -> Router<Arc<AppState>> {
         .route(
             "/system/loginLog/deleteLoginLog",
             post(sys_login_log_handler::delete_sys_login_log),
+        )
+        .route(
+            "/system/loginLog/cleanLoginLog",
+            get(sys_login_log_handler::clean_sys_login_log),
         )
         .route(
             "/system/loginLog/queryLoginLogDetail",

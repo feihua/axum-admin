@@ -6,7 +6,7 @@ use rbatis::plugin::page::PageRequest;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
-use crate::model::system::sys_login_log_model::LoginLog;
+use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
 use crate::vo::system::sys_login_log_vo::*;
 
 /*
@@ -30,6 +30,23 @@ pub async fn delete_sys_login_log(
 }
 
 /*
+ *清空系统登录日志
+ *author：刘飞华
+ *date：2024/12/25 11:36:48
+ */
+pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    log::info!("clean sys_login_log ");
+    let rb = &state.batis;
+
+    let result = clean_login_log(rb).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+/*
  *查询系统访问记录详情
  *author：刘飞华
  *date：2024/12/25 11:36:48
@@ -45,6 +62,12 @@ pub async fn query_sys_login_log_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryLoginLogDetailResp>::err_result_data(
+                    QueryLoginLogDetailResp::new(),
+                    "日志不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_login_log = QueryLoginLogDetailResp {
@@ -79,17 +102,14 @@ pub async fn query_sys_login_log_list(
 ) -> impl IntoResponse {
     log::info!("query sys_login_log_list params: {:?}", &item);
     let rb = &state.batis;
-    //let login_name = item.login_name.as_deref().unwrap_or_default(); //登录账号
-    //let ipaddr = item.ipaddr.as_deref().unwrap_or_default(); //登录IP地址
-    //let login_location = item.login_location.as_deref().unwrap_or_default(); //登录地点
-    //let browser = item.browser.as_deref().unwrap_or_default(); //浏览器类型
-    //let os = item.os.as_deref().unwrap_or_default(); //操作系统
-    //let status = item.status.unwrap_or(2); //登录状态(0:失败,1:成功)
-    //let msg = item.msg.as_deref().unwrap_or_default(); //提示消息
-    //let login_time = item.login_time.unwrap_or(2); //访问时间
+    let name = item.login_name.as_deref().unwrap_or_default(); //登录账号
+    let ipaddr = item.ipaddr.as_deref().unwrap_or_default(); //登录IP地址
+    let browser = item.browser.as_deref().unwrap_or_default(); //浏览器类型
+    let os = item.os.as_deref().unwrap_or_default(); //操作系统
+    let status = item.status.unwrap_or(2); //登录状态(0:失败,1:成功)
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = LoginLog::select_page(rb, page).await;
+    let result = LoginLog::select_page_by_name(rb, page, name, ipaddr, browser, os, &status).await;
 
     let mut sys_login_log_list_data: Vec<LoginLogListDataResp> = Vec::new();
     match result {

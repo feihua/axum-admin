@@ -133,7 +133,7 @@ select * from sys_menu where menu_name='系统访问记录管理';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加系统访问记录', 3, 1, 1, 66, '', '/api/system/loginLog/addLoginLog', '', '添加系统访问记录');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除系统访问记录', 3, 1, 2, 66, '', '/api/system/loginLog/deleteLoginLog', '', '删除系统访问记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录', 3, 1, 3, 66, '', '/api/system/loginLog/updateLoginLog', '', '更新系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空系统登录日志', 3, 1, 3, 66, '', '/api/system/loginLog/cleanLoginLog', '', '清空系统登录日志');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录状态', 3, 1, 4, 66, '', '/api/system/loginLog/updateLoginLogStatus', '', '更新系统访问记录状态');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录详情', 3, 1, 5, 66, '', '/api/system/loginLog/queryLoginLogDetail', '', '查询系统访问记录详情');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录列', 3, 1, 6, 66, '', '/api/system/loginLog/queryLoginLogList', '', '查询系统访问记录列');

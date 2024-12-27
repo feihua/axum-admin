@@ -210,6 +210,12 @@ pub async fn query_sys_post_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryPostDetailResp>::err_result_data(
+                    QueryPostDetailResp::new(),
+                    "岗位不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_post = QueryPostDetailResp {

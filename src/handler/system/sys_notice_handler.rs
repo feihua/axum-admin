@@ -159,6 +159,12 @@ pub async fn query_sys_notice_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryNoticeDetailResp>::err_result_data(
+                    QueryNoticeDetailResp::new(),
+                    "通知公告表不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_notice = QueryNoticeDetailResp {
