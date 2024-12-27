@@ -1,27 +1,3 @@
-###添加操作日志记录 addOperateLog
-POST {{host}}/api/system/operateLog/addOperateLog
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-    "title": "",
-    "business_type": 0,
-    "method": "",
-    "request_method": "",
-    "operator_type": 0,
-    "operate_name": "",
-    "dept_name": "",
-    "operate_url": "",
-    "operate_ip": "",
-    "operate_location": "",
-    "operate_param": "",
-    "json_result": "",
-    "status": 0,
-    "error_msg": "",
-    "operate_time": "",
-    "cost_time": 0,
-
-}
 
 ###删除操作日志记录 deleteOperateLog
 POST {{host}}/api/system/operateLog/deleteOperateLog
@@ -31,41 +7,10 @@ Authorization: Bearer {{token}}
 {
   "ids": [13]
 }
-
-###更新操作日志记录 updateOperateLog
-POST {{host}}/api/system/operateLog/updateOperateLog
-Content-Type: application/json
+###清空系统登录日志 cleanLoginLog
+GET {{host}}/api/system/operateLog/cleanOperateLog
 Authorization: Bearer {{token}}
 
-{
-    "id": 0,
-    "title": "",
-    "business_type": 0,
-    "method": "",
-    "request_method": "",
-    "operator_type": 0,
-    "operate_name": "",
-    "dept_name": "",
-    "operate_url": "",
-    "operate_ip": "",
-    "operate_location": "",
-    "operate_param": "",
-    "json_result": "",
-    "status": 0,
-    "error_msg": "",
-    "operate_time": "",
-    "cost_time": 0,
-}
-
-###更新操作日志记录 updateOperateLogStatus状态
-POST {{host}}/api/system/operateLog/updateOperateLogStatus
-Content-Type: application/json
-Authorization: Bearer {{token}}
-
-{
-  "ids": [13],
-  "status": 1
-}
 ###查询操作日志记录详情 queryOperateLogDetail
 POST {{host}}/api/system/operateLog/queryOperateLogDetail
 Content-Type: application/json

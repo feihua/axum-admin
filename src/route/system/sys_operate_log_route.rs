@@ -1,6 +1,6 @@
 use crate::handler::system::sys_operate_log_handler;
 use crate::AppState;
-use axum::routing::post;
+use axum::routing::{get, post};
 use axum::Router;
 use std::sync::Arc;
 /*
@@ -13,6 +13,10 @@ pub fn build_sys_operate_log_route() -> Router<Arc<AppState>> {
         .route(
             "/system/operateLog/deleteOperateLog",
             post(sys_operate_log_handler::delete_sys_operate_log),
+        )
+        .route(
+            "/system/operateLog/cleanOperateLog",
+            get(sys_operate_log_handler::clean_sys_operate_log),
         )
         .route(
             "/system/operateLog/queryOperateLogDetail",

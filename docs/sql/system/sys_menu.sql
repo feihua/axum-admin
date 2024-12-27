@@ -146,7 +146,7 @@ select * from sys_menu where menu_name='操作日志记录管理';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加操作日志记录', 3, 1, 1, 73, '', '/api/system/operateLog/addOperateLog', '', '添加操作日志记录');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除操作日志记录', 3, 1, 2, 73, '', '/api/system/operateLog/deleteOperateLog', '', '删除操作日志记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录', 3, 1, 3, 73, '', '/api/system/operateLog/updateOperateLog', '', '更新操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空操作日志记录', 3, 1, 3, 73, '', '/api/system/operateLog/cleanOperateLog', '', '清空操作日志记录');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录状态', 3, 1, 4, 73, '', '/api/system/operateLog/updateOperateLogStatus', '', '更新操作日志记录状态');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录详情', 3, 1, 5, 73, '', '/api/system/operateLog/queryOperateLogDetail', '', '查询操作日志记录详情');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录列', 3, 1, 6, 73, '', '/api/system/operateLog/queryOperateLogList', '', '查询操作日志记录列');

@@ -3,6 +3,7 @@
 // createTime：2024/12/25 10:01:11
 
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -60,9 +61,48 @@ impl_select_page!(OperateLog{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(OperateLog{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(OperateLog{select_page_by_name(
+    title:&str,
+    business_type:&i8,
+    method:&str,
+    request_method:&str,
+    operator_type:&i8,
+    operate_name:&str,
+    dept_name:&str,
+    operate_url:&str,
+    operate_ip:&str,
+    status:&i8,) =>"
+    where 1=1
+     if title != '':
+       ` and title = #{title} `
+     if business_type != 4:
+       ` and business_type = #{business_type} `
+     if method != '':
+       ` and method = #{method} `
+     if request_method != '':
+       ` and request_method = #{request_method} `
+     if operator_type != 3:
+       ` and operator_type = #{operator_type} `
+     if operate_name != '':
+       ` and operate_name = #{operate_name} `
+     if dept_name != '':
+       ` and dept_name = #{dept_name} `
+     if operate_url != '':
+       ` and operate_url = #{operate_url} `
+     if operate_ip != '':
+       ` and operate_ip = #{operate_ip} `
+     if status != 2:
+       ` and status = #{status} `
+     if !sql.contains('count'):
+       ` order by operate_time desc `"
 },"sys_operate_log");
+
+/*
+ *清空操作日志
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+#[sql("truncate table sys_operate_log")]
+pub async fn clean_operate_log(rb: &RBatis) -> Option<i64> {
+    impled!()
+}
