@@ -7,7 +7,10 @@ use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
+use crate::model::system::sys_dict_data_model::{count_dict_data_by_type, update_dict_data_type};
 use crate::model::system::sys_dict_type_model::DictType;
+use crate::model::system::sys_post_model::Post;
+use crate::model::system::sys_user_post_model::count_user_post_by_id;
 use crate::vo::system::sys_dict_type_vo::*;
 
 /*
@@ -21,6 +24,18 @@ pub async fn add_sys_dict_type(
 ) -> impl IntoResponse {
     log::info!("add sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
+
+    let res_by_type = DictType::select_by_dict_type(rb, &item.dict_type).await;
+    match res_by_type {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg(
+                    "新增字典失败,字典类型已存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_dict_type = DictType {
         dict_id: None,                           //字典主键
@@ -52,6 +67,31 @@ pub async fn delete_sys_dict_type(
     log::info!("delete sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
+    let ids = item.ids.clone();
+    for id in ids {
+        let dict_by_id = DictType::select_by_id(rb, &id).await;
+        let p = match dict_by_id {
+            Ok(p) => {
+                if p.is_none() {
+                    return BaseResponse::<String>::err_result_msg(
+                        "字典类型不存在,不能删除".to_string(),
+                    );
+                } else {
+                    p.unwrap()
+                }
+            }
+            Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        };
+
+        let res = count_dict_data_by_type(rb, &p.dict_type)
+            .await
+            .unwrap_or_default();
+        if res > 0 {
+            let msg = format!("{}已分配,不能删除", p.dict_name);
+            return BaseResponse::<String>::err_result_msg(msg);
+        }
+    }
+
     let result = DictType::delete_in_column(rb, "id", &item.ids).await;
 
     match result {
@@ -71,6 +111,21 @@ pub async fn update_sys_dict_type(
 ) -> impl IntoResponse {
     log::info!("update sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
+
+    let res_by_type = DictType::select_by_dict_type(rb, &item.dict_type).await;
+    match res_by_type {
+        Ok(r) => {
+            if r.is_some() && r.clone().unwrap().dict_id.unwrap_or_default() != item.dict_id {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新字典失败,字典类型已存在".to_string(),
+                );
+            }
+
+            let dict_type = r.unwrap().dict_type;
+            let _ = update_dict_data_type(rb, &*item.dict_type, &dict_type).await;
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_dict_type = DictType {
         dict_id: Some(item.dict_id),             //字典主键

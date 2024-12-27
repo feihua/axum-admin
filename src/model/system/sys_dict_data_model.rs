@@ -3,6 +3,7 @@
 // createTime：2024/12/25 10:01:11
 
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -61,3 +62,26 @@ impl_select_page!(DictData{select_page_by_name(name:&str) =>"
      if name == '':
        where real_name != ''"
 },"sys_dict_data");
+
+/*
+ *同步修改字典类型
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+#[sql("update sys_dict_data set dict_type = ? where dict_type = ?")]
+pub async fn update_dict_data_type(
+    rb: &RBatis,
+    new_dict_type: &str,
+    old_dict_type: &str,
+) -> Option<i64> {
+    impled!()
+}
+/*
+ *查询字典数据
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+#[sql("select count(1) from sys_dict_data where dict_type= ?")]
+pub async fn count_dict_data_by_type(rb: &RBatis, dict_type: &str) -> rbatis::Result<i64> {
+    impled!()
+}

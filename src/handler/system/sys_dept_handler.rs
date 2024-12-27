@@ -82,7 +82,7 @@ pub async fn delete_sys_dept(
         return BaseResponse::<String>::err_result_msg("部门存在用户,不允许删除".to_string());
     }
 
-    let result = Dept::delete_in_column(rb, "id", &item.id).await;
+    let result = Dept::delete_by_column(rb, "id", &item.id).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),

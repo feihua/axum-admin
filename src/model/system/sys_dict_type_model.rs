@@ -6,7 +6,7 @@ use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
 
 /*
- *字典类型表
+ *字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
@@ -22,21 +22,28 @@ pub struct DictType {
 }
 
 /*
- *字典类型表基本操作
+ *字典类型基本操作
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
 rbatis::crud!(DictType {}, "sys_dict_type");
 
 /*
- *根据id查询字典类型表
+ *根据id查询字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
 impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
 
 /*
- *分页查询字典类型表
+ *根据dict_type查询字典类型
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+impl_select!(DictType{select_by_dict_type(id:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
+
+/*
+ *分页查询字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
@@ -46,7 +53,7 @@ impl_select_page!(DictType{select_page() =>"
 },"sys_dict_type");
 
 /*
- *根据条件分页查询字典类型表
+ *根据条件分页查询字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
