@@ -1,18 +1,23 @@
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_dept_model::Dept;
+use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
+use crate::model::system::sys_post_model::Post;
+use crate::model::system::sys_role_dept_model::RoleDept;
+use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
+use crate::model::system::sys_role_model::Role;
+use crate::model::system::sys_user_post_model::count_user_post_by_id;
+use crate::model::system::sys_user_role_model::UserRole;
+use crate::vo::system::sys_role_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::rbdc::db::ExecResult;
+use rbatis::rbdc::Error;
 use rbs::to_value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_menu_model::Menu;
-use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
-use crate::model::system::sys_role_model::Role;
-use crate::model::system::sys_user_role_model::UserRole;
-use crate::vo::system::sys_role_vo::*;
 
 /*
  *添加角色信息
@@ -25,6 +30,26 @@ pub async fn add_sys_role(
 ) -> impl IntoResponse {
     log::info!("add_sys_role params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Role::select_by_role_name(rb, &item.role_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("角色名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let res1 = Role::select_by_role_key(rb, &item.role_key).await;
+    match res1 {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("角色权限已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_role = Role {
         id: None,                                //主键
@@ -60,17 +85,44 @@ pub async fn delete_sys_role(
     let rb = &state.batis;
 
     let ids = item.ids.clone();
-    let user_role_list = UserRole::select_in_column(rb, "role_id", &ids)
-        .await
-        .unwrap_or_default();
+    for id in ids {
+        let post_by_id = Role::select_by_id(rb, &id).await;
+        let p = match post_by_id {
+            Ok(p) => {
+                if p.is_none() {
+                    return BaseResponse::<String>::err_result_msg(
+                        "角色不存在,不能删除".to_string(),
+                    );
+                } else {
+                    p.unwrap()
+                }
+            }
+            Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        };
 
-    if user_role_list.len() > 0 {
-        return BaseResponse::<String>::err_result_msg("角色已被使用,不能直接删除".to_string());
+        let res = count_user_post_by_id(rb, id).await;
+        if res.unwrap_or_default() > 0 {
+            let msg = format!("{}已分配,不能删除", p.role_name);
+            return BaseResponse::<String>::err_result_msg(msg);
+        }
     }
 
-    let result = Role::delete_in_column(rb, "id", &item.ids).await;
+    let result = RoleMenu::delete_in_column(rb, "role_id", &item.ids).await;
 
     match result {
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        _ => {}
+    }
+    let result1 = RoleDept::delete_in_column(rb, "role_id", &item.ids).await;
+
+    match result1 {
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        _ => {}
+    }
+
+    let result2 = Role::delete_in_column(rb, "id", &item.ids).await;
+
+    match result2 {
         Ok(_u) => BaseResponse::<String>::ok_result(),
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
@@ -87,6 +139,26 @@ pub async fn update_sys_role(
 ) -> impl IntoResponse {
     log::info!("update_sys_role params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Role::select_by_role_name(rb, &item.role_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("角色名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let res1 = Role::select_by_role_key(rb, &item.role_key).await;
+    match res1 {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("角色权限已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_role = Role {
         id: Some(item.id),                       //主键

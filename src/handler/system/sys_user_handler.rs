@@ -140,11 +140,27 @@ pub async fn update_sys_user(
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user_status(
+    headers: HeaderMap,
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateUserStatusReq>,
 ) -> impl IntoResponse {
     log::info!("update sys_user_status params: {:?}", &item);
     let rb = &state.batis;
+
+    let ids = item.ids.clone();
+    if ids.contains(&1) {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户".to_string());
+    }
+
+    let user_id = headers
+        .get("user_id")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .parse::<i64>()
+        .unwrap();
+
+    if user_id != 1 {}
 
     let update_sql = format!(
         "update sys_user set status = ? where id in ({})",
@@ -469,6 +485,14 @@ pub async fn query_user_menu(
     headers: HeaderMap,
     State(state): State<Arc<AppState>>,
 ) -> impl IntoResponse {
+    let user_id = headers
+        .get("user_id")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .parse::<i64>()
+        .unwrap();
+    log::info!("query user menu params user_id {:?}", user_id);
     let token = headers.get("Authorization").unwrap().to_str().unwrap();
     let split_vec = token.split_whitespace().collect::<Vec<_>>();
     if split_vec.len() != 2 || split_vec[0] != "Bearer" {
