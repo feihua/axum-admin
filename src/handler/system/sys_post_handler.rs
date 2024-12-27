@@ -1,3 +1,7 @@
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_post_model::Post;
+use crate::model::system::sys_user_post_model::count_user_post_by_id;
+use crate::vo::system::sys_post_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
@@ -5,10 +9,6 @@ use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbs::to_value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_post_model::Post;
-use crate::vo::system::sys_post_vo::*;
 
 /*
  *添加岗位信息表
@@ -21,6 +21,30 @@ pub async fn add_sys_post(
 ) -> impl IntoResponse {
     log::info!("add sys_post params: {:?}", &item);
     let rb = &state.batis;
+
+    let res_by_name = Post::select_by_name(rb, &item.post_name).await;
+    match res_by_name {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg(
+                    "新增岗位失败,岗位名称已存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let res_by_code = Post::select_by_code(rb, &item.post_code).await;
+    match res_by_code {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg(
+                    "新增岗位失败,岗位编码已存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_post = Post {
         id: None,                                //岗位id
@@ -53,6 +77,29 @@ pub async fn delete_sys_post(
     log::info!("delete sys_post params: {:?}", &item);
     let rb = &state.batis;
 
+    let ids = item.ids.clone();
+    for id in ids {
+        let post_by_id = Post::select_by_id(rb, &id).await;
+        let p = match post_by_id {
+            Ok(p) => {
+                if p.is_none() {
+                    return BaseResponse::<String>::err_result_msg(
+                        "岗位不存在,不能删除".to_string(),
+                    );
+                } else {
+                    p.unwrap()
+                }
+            }
+            Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        };
+
+        let res = count_user_post_by_id(rb, id).await;
+        if res.unwrap_or_default() > 0 {
+            let msg = format!("{}已分配,不能删除", p.post_name);
+            return BaseResponse::<String>::err_result_msg(msg);
+        }
+    }
+
     let result = Post::delete_in_column(rb, "id", &item.ids).await;
 
     match result {
@@ -72,6 +119,30 @@ pub async fn update_sys_post(
 ) -> impl IntoResponse {
     log::info!("update sys_post params: {:?}", &item);
     let rb = &state.batis;
+
+    let res_by_name = Post::select_by_name(rb, &item.post_name).await;
+    match res_by_name {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新岗位失败,岗位名称已存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let res_by_code = Post::select_by_code(rb, &item.post_code).await;
+    match res_by_code {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新岗位失败,岗位编码已存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_post = Post {
         id: Some(item.id),                       //岗位id

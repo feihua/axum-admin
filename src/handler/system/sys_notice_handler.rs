@@ -6,7 +6,6 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::Error;
 use rbs::to_value;
 use std::sync::Arc;
 

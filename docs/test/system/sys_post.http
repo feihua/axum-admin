@@ -4,11 +4,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "post_code": "",
-    "post_name": "",
+    "post_code": "abc1",
+    "post_name": "测试1",
     "sort": 0,
-    "status": 0,
-    "remark": "",
+    "status": 1,
+    "remark": "123"
 
 }
 
@@ -18,7 +18,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "ids": [13]
+  "ids": [1]
 }
 
 ###更新岗位信息表 updatePost
@@ -27,12 +27,12 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "id": 0,
-    "post_code": "",
-    "post_name": "",
-    "sort": 0,
-    "status": 0,
-    "remark": "",
+  "id": 1,
+  "post_code": "abc1",
+  "post_name": "测试2",
+  "sort": 0,
+  "status": 1,
+  "remark": "123"
 }
 
 ###更新岗位信息表 updatePostStatus状态
