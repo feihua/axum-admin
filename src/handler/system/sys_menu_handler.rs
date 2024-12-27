@@ -6,7 +6,7 @@ use rbs::to_value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
-use crate::model::system::sys_menu_model::Menu;
+use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::vo::system::sys_menu_vo::*;
 
 /*
@@ -20,6 +20,16 @@ pub async fn add_sys_menu(
 ) -> impl IntoResponse {
     log::info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Menu::select_by_menu_name(rb, &item.menu_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_menu = Menu {
         id: None,                               //主键
@@ -57,12 +67,19 @@ pub async fn delete_sys_menu(
     let rb = &state.batis;
 
     //有下级的时候 不能直接删除
-    let menus = Menu::select_by_column(rb, "parent_id", &item.id)
+    let count = select_count_menu_by_parent_id(rb, &item.id)
         .await
         .unwrap_or_default();
 
-    if menus.len() > 0 {
-        return BaseResponse::<String>::err_result_msg("有下级菜单,不能直接删除".to_string());
+    if count > 0 {
+        return BaseResponse::<String>::err_result_msg("存在子菜单,不允许删除".to_string());
+    }
+    let count1 = select_count_menu_by_parent_id(rb, &item.id)
+        .await
+        .unwrap_or_default();
+
+    if count1 > 0 {
+        return BaseResponse::<String>::err_result_msg("菜单已分配,不允许删除".to_string());
     }
 
     let result = Menu::delete_by_column(rb, "id", &item.id).await;
@@ -84,6 +101,16 @@ pub async fn update_sys_menu(
 ) -> impl IntoResponse {
     log::info!("update sys_menu params: {:?}", &item);
     let rb = &state.batis;
+
+    let res = Menu::select_by_menu_name(rb, &item.menu_name).await;
+    match res {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
 
     let sys_menu = Menu {
         id: Some(item.id),         //主键

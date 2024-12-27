@@ -92,7 +92,7 @@ pub async fn select_dept_count(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
 }
 
 /*
- *根据父部门id查询下级部门数量
+ *查询部门是否存在用户
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */

@@ -3,6 +3,7 @@
 
 use crate::rbatis::rbatis_codegen::IntoSql;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -50,8 +51,25 @@ impl_select_page!(Menu{select_page() =>"
 impl_select!(Menu{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_menu");
 
 /*
+ *根据menu_name查询菜单信息
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+impl_select!(Menu{select_by_menu_name(menu_name:&str) -> Option => "`where menu_name = #{menu_name} limit 1`"}, "sys_menu");
+
+/*
  *根据ids查询菜单信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
 impl_select!(Menu{select_by_ids(ids:&[i64]) -> Vec => "`where status = 1 and id in ${ids.sql()} order by sort asc`"}, "sys_menu");
+
+/*
+ *查询菜单数量
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+#[sql("select count(1) from sys_menu where parent_id= ?")]
+pub async fn select_count_menu_by_parent_id(rb: &RBatis, parent_id: &i64) -> rbatis::Result<i64> {
+    impled!()
+}
