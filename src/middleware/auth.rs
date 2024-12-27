@@ -1,11 +1,11 @@
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use axum::extract::Request;
-use axum::http::StatusCode;
+use axum::http::{HeaderValue, StatusCode};
 use axum::middleware::Next;
 use axum::{http, response};
 
-pub async fn auth(req: Request, next: Next) -> Result<response::Response, StatusCode> {
+pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, StatusCode> {
     log::info!("req {:?}", req.uri());
     let path = req.uri().to_string();
     if path.eq("/system/user/login") {
@@ -49,6 +49,9 @@ pub async fn auth(req: Request, next: Next) -> Result<response::Response, Status
             break;
         }
     }
+
+    req.headers_mut()
+        .insert("user_id", jwt_token.id.to_string().parse().unwrap());
     if flag {
         Ok(next.run(req).await)
     } else {
