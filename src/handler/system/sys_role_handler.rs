@@ -6,7 +6,7 @@ use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
-use crate::model::system::sys_user_role_model::UserRole;
+use crate::model::system::sys_user_role_model::{delete_user_role_by_role_id_user_id, UserRole};
 use crate::vo::system::sys_role_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -18,7 +18,8 @@ use rbatis::rbdc::db::ExecResult;
 use rbatis::rbdc::Error;
 use rbs::to_value;
 use std::sync::Arc;
-
+use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list, User};
+use crate::vo::system::sys_user_vo::UserListDataResp;
 /*
  *添加角色信息
  *author：刘飞华
@@ -140,6 +141,10 @@ pub async fn update_sys_role(
     log::info!("update_sys_role params: {:?}", &item);
     let rb = &state.batis;
 
+    if item.id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
+
     let res = Role::select_by_role_name(rb, &item.role_name).await;
     match res {
         Ok(r) => {
@@ -192,6 +197,10 @@ pub async fn update_sys_role_status(
 ) -> impl IntoResponse {
     log::info!("update_sys_role_status params: {:?}", &item);
     let rb = &state.batis;
+
+    if item.ids.contains(&1) {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
 
     let update_sql = format!(
         "update sys_role set status = ? where id in ({})",
@@ -383,6 +392,199 @@ pub async fn update_role_menu(
                 Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
             }
         }
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+/*
+ *查询已分配用户角色列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn allocated_list(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<AllocatedListReq>,
+) -> impl IntoResponse {
+    log::info!("update_role_menu params: {:?}", &item);
+
+    let rb = &state.batis;
+
+    //todo add query and page
+    let role_id = item.role_id;
+    // let mobile = item.mobile.as_deref().unwrap_or_default();
+    // let user_name = item.user_name.as_deref().unwrap_or_default();
+
+    let result = select_allocated_list(rb, &role_id).await;
+
+    match result {
+        Ok(d) => {
+            let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
+            for x in d {
+                sys_user_list_data.push(UserListDataResp {
+                    id: x.id.unwrap(),                                         //主键
+                    mobile: x.mobile,                                          //手机
+                    user_name: x.user_name,                                    //姓名
+                    avatar: x.avatar,                                          //头像路径
+                    status: x.status,     //状态(1:正常，0:禁用)
+                    sort: x.sort,         //排序
+                    dept_id: x.dept_id,   //部门ID
+                    login_ip: x.login_ip, //最后登录IP
+                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
+                    login_browser: x.login_browser, //浏览器类型
+                    login_os: x.login_os, //操作系统
+                    pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
+                    remark: x.remark,     //备注
+                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                })
+            }
+
+            //todo total
+            BaseResponse::ok_result_page(sys_user_list_data, 0)
+        }
+        Err(err) => BaseResponse::err_result_page(UserListDataResp::new(), err.to_string()),
+    }
+}
+
+/*
+ *查询未分配用户角色列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn unallocated_list(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<UnallocatedListReq>,
+) -> impl IntoResponse {
+    log::info!("update_role_menu params: {:?}", &item);
+    let role_id = item.role_id;
+
+    let rb = &state.batis;
+
+    let role_id = item.role_id;
+    //todo add query and page
+
+    // let mobile = item.mobile.as_deref().unwrap_or_default();
+    // let user_name = item.user_name.as_deref().unwrap_or_default();
+
+    let result = select_unallocated_list(rb, &role_id).await;
+
+    match result {
+        Ok(d) => {
+            let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
+            for x in d {
+                sys_user_list_data.push(UserListDataResp {
+                    id: x.id.unwrap(),                                         //主键
+                    mobile: x.mobile,                                          //手机
+                    user_name: x.user_name,                                    //姓名
+                    avatar: x.avatar,                                          //头像路径
+                    status: x.status,     //状态(1:正常，0:禁用)
+                    sort: x.sort,         //排序
+                    dept_id: x.dept_id,   //部门ID
+                    login_ip: x.login_ip, //最后登录IP
+                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
+                    login_browser: x.login_browser, //浏览器类型
+                    login_os: x.login_os, //操作系统
+                    pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
+                    remark: x.remark,     //备注
+                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                })
+            }
+
+            //todo total
+            BaseResponse::ok_result_page(sys_user_list_data, 0)
+        }
+        Err(err) => BaseResponse::err_result_page(UserListDataResp::new(), err.to_string()),
+    }
+}
+
+/*
+ *取消授权用户
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn cancel_auth_user(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<CancelAuthUserReq>,
+) -> impl IntoResponse {
+    log::info!("update_role_menu params: {:?}", &item);
+
+    let rb = &state.batis;
+
+    let result = delete_user_role_by_role_id_user_id(rb, &item.role_id, &item.user_id).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+}
+
+/*
+ *批量取消授权用户
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn cancel_auth_user_all(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<CancelAuthUserAllReq>,
+) -> impl IntoResponse {
+    log::info!("cancel_auth_user_all params: {:?}", &item);
+    let role_id = item.role_id;
+
+    let rb = &state.batis;
+
+    let update_sql = format!(
+        "delete from sys_user_role where role_id = ? and user_id in ({})",
+        item.user_ids
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<&str>>()
+            .join(", ")
+    );
+
+    let mut param = vec![to_value!(item.role_id)];
+    param.extend(item.user_ids.iter().map(|&id| to_value!(id)));
+    let result = rb.exec(&update_sql, param).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+/*
+ *批量选择用户授权
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn select_all_auth_user(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<SelectAuthUserAllReq>,
+) -> impl IntoResponse {
+    log::info!("select_all_auth_user params: {:?}", &item);
+    let role_id = item.role_id;
+
+    let rb = &state.batis;
+
+    let mut user_role: Vec<UserRole> = Vec::new();
+
+    for id in &item.user_ids {
+        let user_id = id.clone();
+        user_role.push(UserRole {
+            id: None,
+            create_time: Some(DateTime::now()),
+            role_id: role_id.clone(),
+            user_id,
+        })
+    }
+
+    let result = UserRole::insert_batch(rb, &user_role, item.user_ids.len() as u64).await;
+
+    match result {
+        Ok(_u) => BaseResponse::<String>::ok_result(),
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }

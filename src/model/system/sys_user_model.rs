@@ -1,6 +1,7 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use rbatis::RBatis;
 use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
 
@@ -71,3 +72,23 @@ impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:
         ` order by create_time desc `"},"sys_user");
 
 impl_select!(User{select_by_mobile(mobile:&str) -> Option => "`where mobile = #{mobile} limit 1`"},"sys_user");
+
+/*
+ *根据条件分页查询已配用户角色列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+#[sql("")]
+pub async fn select_allocated_list(rb: &RBatis, role_id: &i64) -> rbatis::Result<Vec<User>> {
+    impled!()
+}
+
+/*
+ *根据条件分页查询未分配用户角色列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+#[sql("")]
+pub async fn select_unallocated_list(rb: &RBatis, role_id: &i64) -> rbatis::Result<Vec<User>> {
+    impled!()
+}

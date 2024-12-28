@@ -163,3 +163,50 @@ pub struct UpdateRoleMenuReq {
     pub menu_ids: Vec<i64>,
     pub role_id: i64,
 }
+
+/*
+查询已分配用户角色列表
+*/
+#[derive(Debug, Deserialize)]
+pub struct AllocatedListReq {
+    pub role_id: i64,
+    pub mobile: Option<String>,
+    pub user_name: Option<String>,
+}
+
+/*
+查询未分配用户角色列表
+*/
+#[derive(Debug, Deserialize)]
+pub struct UnallocatedListReq {
+    pub role_id: i64,
+    pub mobile: Option<String>,
+    pub user_name: Option<String>,
+}
+
+/*
+取消授权用户
+*/
+#[derive(Debug, Deserialize)]
+pub struct CancelAuthUserReq {
+    pub user_id: i64,
+    pub role_id: i64,
+}
+
+/*
+批量取消授权用户
+*/
+#[derive(Debug, Deserialize)]
+pub struct CancelAuthUserAllReq {
+    pub user_ids: Vec<i64>,
+    pub role_id: i64,
+}
+
+/*
+批量选择用户授权
+*/
+#[derive(Debug, Deserialize)]
+pub struct SelectAuthUserAllReq {
+    pub user_ids: Vec<i64>,
+    pub role_id: i64,
+}
