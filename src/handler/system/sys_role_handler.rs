@@ -424,16 +424,19 @@ pub async fn allocated_list(
                     id: x.id.unwrap(),                                         //主键
                     mobile: x.mobile,                                          //手机
                     user_name: x.user_name,                                    //姓名
+                    nick_name: x.nick_name,                                    //用户昵称
+                    user_type: x.user_type.unwrap_or_default(),                //用户类型（00系统用户）
+                    email: x.email,                                            //用户邮箱
                     avatar: x.avatar,                                          //头像路径
-                    status: x.status,     //状态(1:正常，0:禁用)
-                    sort: x.sort,         //排序
-                    dept_id: x.dept_id,   //部门ID
-                    login_ip: x.login_ip, //最后登录IP
-                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
-                    login_browser: x.login_browser, //浏览器类型
-                    login_os: x.login_os, //操作系统
+                    status: x.status,                                          //状态(1:正常，0:禁用)
+                    sort: x.sort,                                              //排序
+                    dept_id: x.dept_id,                                        //部门ID
+                    login_ip: x.login_ip,                                      //最后登录IP
+                    login_date: x.login_date.unwrap().0.to_string(),           //最后登录时间
+                    login_browser: x.login_browser,                            //浏览器类型
+                    login_os: x.login_os,                                      //操作系统
                     pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
-                    remark: x.remark,     //备注
+                    remark: x.remark,                                          //备注
                     del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间
@@ -477,16 +480,19 @@ pub async fn unallocated_list(
                     id: x.id.unwrap(),                                         //主键
                     mobile: x.mobile,                                          //手机
                     user_name: x.user_name,                                    //姓名
+                    nick_name: x.nick_name,                                    //用户昵称
+                    user_type: x.user_type.unwrap_or_default(),                //用户类型（00系统用户）
+                    email: x.email,                                            //用户邮箱
                     avatar: x.avatar,                                          //头像路径
-                    status: x.status,     //状态(1:正常，0:禁用)
-                    sort: x.sort,         //排序
-                    dept_id: x.dept_id,   //部门ID
-                    login_ip: x.login_ip, //最后登录IP
-                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
-                    login_browser: x.login_browser, //浏览器类型
-                    login_os: x.login_os, //操作系统
+                    status: x.status,                                          //状态(1:正常，0:禁用)
+                    sort: x.sort,                                              //排序
+                    dept_id: x.dept_id,                                        //部门ID
+                    login_ip: x.login_ip,                                      //最后登录IP
+                    login_date: x.login_date.unwrap().0.to_string(),           //最后登录时间
+                    login_browser: x.login_browser,                            //浏览器类型
+                    login_os: x.login_os,                                      //操作系统
                     pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
-                    remark: x.remark,     //备注
+                    remark: x.remark,                                          //备注
                     del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间

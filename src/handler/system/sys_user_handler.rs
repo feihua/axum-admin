@@ -30,10 +30,43 @@ pub async fn add_sys_user(
     log::info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
+    let user_name_result = User::select_by_user_name(rb, &item.user_name).await;
+    match user_name_result {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("登录账号已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let mobile_result = User::select_by_mobile(rb, &item.mobile).await;
+    match mobile_result {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("手机号码已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let email_result = User::select_by_email(rb, &item.email).await;
+    match email_result {
+        Ok(r) => {
+            if r.is_some() {
+                return BaseResponse::<String>::err_result_msg("邮箱账号已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let sys_user = User {
         id: None,                                   //主键
         mobile: item.mobile,                        //手机
-        user_name: item.user_name,                  //姓名
+        user_name: item.user_name,                  //用户账号
+        nick_name: item.nick_name,                  //用户昵称
+        user_type: None,                            //用户类型（00系统用户）
+        email: item.email,                          //用户邮箱
         avatar: item.avatar,                        //头像路径
         password: "123456".to_string(),             //密码
         status: item.status,                        //状态(1:正常，0:禁用)
@@ -96,6 +129,36 @@ pub async fn update_sys_user(
     log::info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
 
+    let user_name_result = User::select_by_user_name(rb, &item.user_name).await;
+    match user_name_result {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("登录账号已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let mobile_result = User::select_by_mobile(rb, &item.mobile).await;
+    match mobile_result {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("手机号码已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let email_result = User::select_by_email(rb, &item.email).await;
+    match email_result {
+        Ok(r) => {
+            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+                return BaseResponse::<String>::err_result_msg("邮箱账号已存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let sys_user_result = User::select_by_id(rb, item.id).await;
     let u = match sys_user_result {
         Ok(user) => user,
@@ -109,7 +172,10 @@ pub async fn update_sys_user(
     let sys_user = User {
         id: Some(item.id),                          //主键
         mobile: item.mobile,                        //手机
-        user_name: item.user_name,                  //姓名
+        user_name: item.user_name,                  //用户账号
+        nick_name: item.nick_name,                  //用户昵称
+        user_type: None,                            //用户类型（00系统用户）
+        email: item.email,                          //用户邮箱
         avatar: item.avatar,                        //头像路径
         password: u.unwrap().password,              //密码
         status: item.status,                        //状态(1:正常，0:禁用)
@@ -239,6 +305,9 @@ pub async fn query_sys_user_detail(
                 id: x.id.unwrap(),                                         //主键
                 mobile: x.mobile,                                          //手机
                 user_name: x.user_name,                                    //姓名
+                nick_name: x.nick_name,                                    //用户昵称
+                user_type: x.user_type.unwrap_or_default(),                //用户类型（00系统用户）
+                email: x.email,                                            //用户邮箱
                 avatar: x.avatar,                                          //头像路径
                 status: x.status,                                          //状态(1:正常，0:禁用)
                 sort: x.sort,                                              //排序
@@ -291,17 +360,20 @@ pub async fn query_sys_user_list(
                     id: x.id.unwrap(),                                         //主键
                     mobile: x.mobile,                                          //手机
                     user_name: x.user_name,                                    //姓名
-                    avatar: x.avatar,                                          //头像路径
-                    status: x.status,     //状态(1:正常，0:禁用)
-                    sort: x.sort,         //排序
-                    dept_id: x.dept_id,   //部门ID
-                    login_ip: x.login_ip, //最后登录IP
+                    nick_name: x.nick_name,                                    //用户昵称
+                    user_type: x.user_type.unwrap_or_default(), //用户类型（00系统用户）
+                    email: x.email,                             //用户邮箱
+                    avatar: x.avatar,                           //头像路径
+                    status: x.status,                           //状态(1:正常，0:禁用)
+                    sort: x.sort,                               //排序
+                    dept_id: x.dept_id,                         //部门ID
+                    login_ip: x.login_ip,                       //最后登录IP
                     login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
-                    login_browser: x.login_browser, //浏览器类型
-                    login_os: x.login_os, //操作系统
+                    login_browser: x.login_browser,             //浏览器类型
+                    login_os: x.login_os,                       //操作系统
                     pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
-                    remark: x.remark,     //备注
-                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                    remark: x.remark,                           //备注
+                    del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间
                 })

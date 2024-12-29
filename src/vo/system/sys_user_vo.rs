@@ -9,7 +9,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AddUserReq {
     pub mobile: String,         //手机
-    pub user_name: String,      //姓名
+    pub user_name: String,      //用户账号
+    pub nick_name: String,      //用户昵称
+    pub email: String,          //用户邮箱
     pub avatar: String,         //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
     pub sort: i32,              //排序
@@ -32,7 +34,9 @@ pub struct DeleteUserReq {
 pub struct UpdateUserReq {
     pub id: i64,                //主键
     pub mobile: String,         //手机
-    pub user_name: String,      //姓名
+    pub user_name: String,      //用户账号
+    pub nick_name: String,      //用户昵称
+    pub email: String,          //用户邮箱
     pub avatar: String,         //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
     pub sort: i32,              //排序
@@ -65,7 +69,10 @@ pub struct QueryUserDetailReq {
 pub struct QueryUserDetailResp {
     pub id: i64,                 //主键
     pub mobile: String,          //手机
-    pub user_name: String,       //姓名
+    pub user_name: String,       //用户账号
+    pub nick_name: String,       //用户昵称
+    pub user_type: String,       //用户类型（00系统用户）
+    pub email: String,           //用户邮箱
     pub avatar: String,          //头像路径
     pub status: i8,              //状态(1:正常，0:禁用)
     pub sort: i32,               //排序
@@ -87,6 +94,9 @@ impl QueryUserDetailResp {
             id: 0,
             mobile: "".to_string(),
             user_name: "".to_string(),
+            nick_name: "".to_string(),
+            user_type: "".to_string(),
+            email: "".to_string(),
             avatar: "".to_string(),
             status: 0,
             sort: 0,
@@ -125,7 +135,10 @@ pub struct QueryUserListReq {
 pub struct UserListDataResp {
     pub id: i64,                 //主键
     pub mobile: String,          //手机
-    pub user_name: String,       //姓名
+    pub user_name: String,       //用户账号
+    pub nick_name: String,       //用户昵称
+    pub user_type: String,       //用户类型（00系统用户）
+    pub email: String,           //用户邮箱
     pub avatar: String,          //头像路径
     pub status: i8,              //状态(1:正常，0:禁用)
     pub sort: i32,               //排序

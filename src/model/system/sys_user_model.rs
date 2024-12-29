@@ -1,8 +1,8 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
-use rbatis::RBatis;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -14,7 +14,10 @@ use serde::{Deserialize, Serialize};
 pub struct User {
     pub id: Option<i64>,                   //主键
     pub mobile: String,                    //手机
-    pub user_name: String,                 //姓名
+    pub user_name: String,                 //用户账号
+    pub nick_name: String,                 //用户昵称
+    pub user_type: Option<String>,         //用户类型（00系统用户）
+    pub email: String,                     //用户邮箱
     pub avatar: String,                    //头像路径
     pub password: String,                  //密码
     pub status: i8,                        //状态(1:正常，0:禁用)
@@ -46,6 +49,27 @@ rbatis::crud!(User {}, "sys_user");
 impl_select!(User{select_by_id(id:i64) -> Option => "`where id = #{id} limit 1`"}, "sys_user");
 
 /*
+ *根据mobile查询用户信息
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+impl_select!(User{select_by_mobile(mobile:&str) -> Option => "`where mobile = #{mobile} limit 1`"},"sys_user");
+
+/*
+ *根据user_name查询用户信息
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+impl_select!(User{select_by_user_name(user_name:&str) -> Option => "`where user_name = #{user_name} limit 1`"}, "sys_user");
+
+/*
+ *根据email查询用户信息
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+impl_select!(User{select_by_email(email:&str) -> Option => "`where email = #{email} limit 1`"}, "sys_user");
+
+/*
  *分页查询用户信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
@@ -70,8 +94,6 @@ impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:
        ` and status_id = #{status_id} `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");
-
-impl_select!(User{select_by_mobile(mobile:&str) -> Option => "`where mobile = #{mobile} limit 1`"},"sys_user");
 
 /*
  *根据条件分页查询已配用户角色列表
