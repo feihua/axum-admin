@@ -1,8 +1,8 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
 use serde::{Deserialize, Serialize};
-
 /*
 添加用户信息请求参数
 */
@@ -67,25 +67,26 @@ pub struct QueryUserDetailReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryUserDetailResp {
-    pub id: i64,                 //主键
-    pub mobile: String,          //手机
-    pub user_name: String,       //用户账号
-    pub nick_name: String,       //用户昵称
-    pub user_type: String,       //用户类型（00系统用户）
-    pub email: String,           //用户邮箱
-    pub avatar: String,          //头像路径
-    pub status: i8,              //状态(1:正常，0:禁用)
-    pub sort: i32,               //排序
-    pub dept_id: i64,            //部门ID
-    pub login_ip: String,        //最后登录IP
-    pub login_date: String,      //最后登录时间
-    pub login_browser: String,   //浏览器类型
-    pub login_os: String,        //操作系统
-    pub pwd_update_date: String, //密码最后更新时间
-    pub remark: Option<String>,  //备注
-    pub del_flag: i8,            //删除标志（0代表删除 1代表存在）
-    pub create_time: String,     //创建时间
-    pub update_time: String,     //修改时间
+    pub id: i64,                        //主键
+    pub mobile: String,                 //手机
+    pub user_name: String,              //用户账号
+    pub nick_name: String,              //用户昵称
+    pub user_type: String,              //用户类型（00系统用户）
+    pub email: String,                  //用户邮箱
+    pub avatar: String,                 //头像路径
+    pub status: i8,                     //状态(1:正常，0:禁用)
+    pub sort: i32,                      //排序
+    pub dept_id: i64,                   //部门ID
+    pub login_ip: String,               //最后登录IP
+    pub login_date: String,             //最后登录时间
+    pub login_browser: String,          //浏览器类型
+    pub login_os: String,               //操作系统
+    pub pwd_update_date: String,        //密码最后更新时间
+    pub remark: Option<String>,         //备注
+    pub del_flag: i8,                   //删除标志（0代表删除 1代表存在）
+    pub create_time: String,            //创建时间
+    pub update_time: String,            //修改时间
+    pub dept_info: QueryDeptDetailResp, //部门详细信息
 }
 
 impl QueryUserDetailResp {
@@ -110,6 +111,20 @@ impl QueryUserDetailResp {
             del_flag: 0,
             create_time: "".to_string(),
             update_time: "".to_string(),
+            dept_info: QueryDeptDetailResp {
+                id: 0,
+                parent_id: 0,
+                ancestors: "".to_string(),
+                dept_name: "".to_string(),
+                sort: 0,
+                leader: "".to_string(),
+                phone: "".to_string(),
+                email: "".to_string(),
+                status: 0,
+                del_flag: 0,
+                create_time: "".to_string(),
+                update_time: "".to_string(),
+            },
         }
     }
 }

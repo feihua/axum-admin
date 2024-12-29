@@ -11,7 +11,7 @@ use crate::model::system::sys_dict_data_model::DictData;
 use crate::vo::system::sys_dict_data_vo::*;
 
 /*
- *添加字典数据表
+ *添加字典数据
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -29,7 +29,7 @@ pub async fn add_sys_dict_data(
         dict_value: item.dict_value,             //字典键值
         dict_type: item.dict_type,               //字典类型
         css_class: item.css_class,               //样式属性（其他样式扩展）
-        list_class: item.list_class,             //表格回显样式
+        list_class: item.list_class,             //格回显样式
         is_default: item.is_default,             //是否默认（Y是 N否）
         status: item.status,                     //门状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
@@ -46,7 +46,7 @@ pub async fn add_sys_dict_data(
 }
 
 /*
- *删除字典数据表
+ *删除字典数据
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -66,7 +66,7 @@ pub async fn delete_sys_dict_data(
 }
 
 /*
- *更新字典数据表
+ *更新字典数据
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -84,7 +84,7 @@ pub async fn update_sys_dict_data(
         dict_value: item.dict_value,             //字典键值
         dict_type: item.dict_type,               //字典类型
         css_class: item.css_class,               //样式属性（其他样式扩展）
-        list_class: item.list_class,             //表格回显样式
+        list_class: item.list_class,             //格回显样式
         is_default: item.is_default,             //是否默认（Y是 N否）
         status: item.status,                     //门状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
@@ -101,7 +101,7 @@ pub async fn update_sys_dict_data(
 }
 
 /*
- *更新字典数据表状态
+ *更新字典数据状态
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -132,7 +132,7 @@ pub async fn update_sys_dict_data_status(
 }
 
 /*
- *查询字典数据表详情
+ *查询字典数据详情
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -147,19 +147,26 @@ pub async fn query_sys_dict_data_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryDictDataDetailResp>::err_result_data(
+                    QueryDictDataDetailResp::new(),
+                    "字典数据不存在".to_string(),
+                );
+            }
+
             let x = d.unwrap();
 
             let sys_dict_data = QueryDictDataDetailResp {
-                dict_code: x.dict_code.unwrap(),                   //字典编码
-                dict_sort: x.dict_sort,                            //字典排序
-                dict_label: x.dict_label,                          //字典标签
-                dict_value: x.dict_value,                          //字典键值
-                dict_type: x.dict_type,                            //字典类型
-                css_class: x.css_class,                            //样式属性（其他样式扩展）
-                list_class: x.list_class,                          //表格回显样式
-                is_default: x.is_default,                          //是否默认（Y是 N否）
-                status: x.status,                                  //门状态（0：停用，1:正常）
-                remark: x.remark,                                  //备注
+                dict_code: x.dict_code.unwrap_or_default(), //字典编码
+                dict_sort: x.dict_sort,                     //字典排序
+                dict_label: x.dict_label,                   //字典标签
+                dict_value: x.dict_value,                   //字典键值
+                dict_type: x.dict_type,                     //字典类型
+                css_class: x.css_class,                     //样式属性（其他样式扩展）
+                list_class: x.list_class,                   //格回显样式
+                is_default: x.is_default,                   //是否默认（Y是 N否）
+                status: x.status,                           //门状态（0：停用，1:正常）
+                remark: x.remark,                           //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
@@ -174,7 +181,7 @@ pub async fn query_sys_dict_data_detail(
 }
 
 /*
- *查询字典数据表列表
+ *查询字典数据列
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -188,7 +195,7 @@ pub async fn query_sys_dict_data_list(
     //let dict_value = item.dict_value.as_deref().unwrap_or_default(); //字典键值
     //let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
     //let css_class = item.css_class.as_deref().unwrap_or_default(); //样式属性（其他样式扩展）
-    //let list_class = item.list_class.as_deref().unwrap_or_default(); //表格回显样式
+    //let list_class = item.list_class.as_deref().unwrap_or_default(); //格回显样式
     //let is_default = item.is_default.as_deref().unwrap_or_default(); //是否默认（Y是 N否）
     //let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
 
@@ -202,16 +209,16 @@ pub async fn query_sys_dict_data_list(
 
             for x in d.records {
                 sys_dict_data_list_data.push(DictDataListDataResp {
-                    dict_code: x.dict_code.unwrap(),                   //字典编码
-                    dict_sort: x.dict_sort,                            //字典排序
-                    dict_label: x.dict_label,                          //字典标签
-                    dict_value: x.dict_value,                          //字典键值
-                    dict_type: x.dict_type,                            //字典类型
-                    css_class: x.css_class,                            //样式属性（其他样式扩展）
-                    list_class: x.list_class,                          //表格回显样式
-                    is_default: x.is_default,                          //是否默认（Y是 N否）
-                    status: x.status,                                  //门状态（0：停用，1:正常）
-                    remark: x.remark,                                  //备注
+                    dict_code: x.dict_code.unwrap_or_default(), //字典编码
+                    dict_sort: x.dict_sort,                     //字典排序
+                    dict_label: x.dict_label,                   //字典标签
+                    dict_value: x.dict_value,                   //字典键值
+                    dict_type: x.dict_type,                     //字典类型
+                    css_class: x.css_class,                     //样式属性（其他样式扩展）
+                    list_class: x.list_class,                   //格回显样式
+                    is_default: x.is_default,                   //是否默认（Y是 N否）
+                    status: x.status,                           //门状态（0：停用，1:正常）
+                    remark: x.remark,                           //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间
                 })

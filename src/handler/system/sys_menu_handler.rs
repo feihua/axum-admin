@@ -8,7 +8,6 @@ use std::sync::Arc;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::vo::system::sys_menu_vo::*;
-
 /*
  *添加菜单信息
  *author：刘飞华
@@ -182,10 +181,16 @@ pub async fn query_sys_menu_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryMenuDetailResp>::err_result_data(
+                    QueryMenuDetailResp::new(),
+                    "菜单信息不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_menu = QueryMenuDetailResp {
-                id: x.id.unwrap(),                                 //主键
+                id: x.id.unwrap_or_default(),                      //主键
                 menu_name: x.menu_name,                            //菜单名称
                 menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
                 status: x.status,       //状态(1:正常，0:禁用)
@@ -227,7 +232,7 @@ pub async fn query_sys_menu_list(
             let mut sys_menu_list_data: Vec<MenuListDataResp> = Vec::new();
             for x in d {
                 sys_menu_list_data.push(MenuListDataResp {
-                    id: x.id.unwrap(),                                 //主键
+                    id: x.id.unwrap_or_default(),                      //主键
                     menu_name: x.menu_name,                            //菜单名称
                     menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
                     status: x.status,       //状态(1:正常，0:禁用)

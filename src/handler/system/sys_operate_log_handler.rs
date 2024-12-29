@@ -71,7 +71,7 @@ pub async fn query_sys_operate_log_detail(
             let x = d.unwrap();
 
             let sys_operate_log = QueryOperateLogDetailResp {
-                id: x.id.unwrap(),                                        //日志主键
+                id: x.id.unwrap_or_default(),                             //日志主键
                 title: x.title.unwrap_or_default(),                       //模块标题
                 business_type: x.business_type.unwrap_or_default(), //业务类型（0其它 1新增 2修改 3删除）
                 method: x.method.unwrap_or_default(),               //方法名称
@@ -145,7 +145,7 @@ pub async fn query_sys_operate_log_list(
 
             for x in d.records {
                 sys_operate_log_list_data.push(OperateLogListDataResp {
-                    id: x.id.unwrap(),                                        //日志主键
+                    id: x.id.unwrap_or_default(),                             //日志主键
                     title: x.title.unwrap_or_default(),                       //模块标题
                     business_type: x.business_type.unwrap_or_default(), //业务类型（0其它 1新增 2修改 3删除）
                     method: x.method.unwrap_or_default(),               //方法名称

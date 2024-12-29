@@ -1,4 +1,5 @@
 use crate::common::result::BaseResponse;
+use crate::model::system::sys_dept_model::Dept;
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
@@ -6,6 +7,7 @@ use crate::model::system::sys_user_post_model::UserPost;
 use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
+use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -14,7 +16,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::rbdc::Error;
 use rbatis::RBatis;
 use rbs::to_value;
 use std::collections::{HashMap, HashSet};
@@ -328,21 +329,22 @@ pub async fn update_sys_user_password(
     let sys_user_result = User::select_by_id(rb, user_id).await;
 
     match sys_user_result {
-        Ok(user_result) => match user_result {
-            None => BaseResponse::<String>::err_result_msg("用户不存在".to_string()),
-            Some(mut user) => {
-                if user.password != item.pwd {
-                    return BaseResponse::<String>::err_result_msg("旧密码不正确".to_string());
-                }
-                user.password = item.re_pwd;
-                let result = User::update_by_column(rb, &user, "id").await;
-
-                match result {
-                    Ok(_u) => BaseResponse::<String>::ok_result(),
-                    Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-                }
+        Ok(opt_user) => {
+            if opt_user.is_none() {
+                return BaseResponse::<String>::err_result_msg("用户不存在".to_string());
             }
-        },
+            let mut user = opt_user.unwrap();
+            if user.password != item.pwd {
+                return BaseResponse::<String>::err_result_msg("旧密码不正确".to_string());
+            }
+            user.password = item.re_pwd;
+            let result = User::update_by_column(rb, &user, "id").await;
+
+            match result {
+                Ok(_u) => BaseResponse::<String>::ok_result(),
+                Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+            }
+        }
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }
@@ -356,17 +358,56 @@ pub async fn query_sys_user_detail(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryUserDetailReq>,
 ) -> impl IntoResponse {
-    log::info!("query_sys_user_detail params: {:?}", &item);
+    log::info!("query sys_user_detail params: {:?}", &item);
     let rb = &state.batis;
 
     let result = User::select_by_id(rb, item.id).await;
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryUserDetailResp>::err_result_data(
+                    QueryUserDetailResp::new(),
+                    "用户不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
+            let dept_result = Dept::select_by_id(rb, &x.dept_id).await;
+            let dept = match dept_result {
+                Ok(opt_dept) => {
+                    if opt_dept.is_none() {
+                        return BaseResponse::<QueryUserDetailResp>::err_result_data(
+                            QueryUserDetailResp::new(),
+                            "查询用户详细信息失败,部门不存在".to_string(),
+                        );
+                    }
+                    let x = opt_dept.unwrap();
+                    QueryDeptDetailResp {
+                        id: x.id.unwrap_or_default(),                      //部门id
+                        parent_id: x.parent_id,                            //父部门id
+                        ancestors: x.ancestors,                            //祖级列表
+                        dept_name: x.dept_name,                            //部门名称
+                        sort: x.sort,                                      //显示顺序
+                        leader: x.leader,                                  //负责人
+                        phone: x.phone,                                    //联系电话
+                        email: x.email,                                    //邮箱
+                        status: x.status,     //部门状态（0：停用，1:正常）
+                        del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                        create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                        update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    }
+                }
+                Err(err) => {
+                    return BaseResponse::<QueryUserDetailResp>::err_result_data(
+                        QueryUserDetailResp::new(),
+                        err.to_string(),
+                    )
+                }
+            };
+
             let sys_user = QueryUserDetailResp {
-                id: x.id.unwrap(),                                         //主键
+                id: x.id.unwrap_or_default(),                              //主键
                 mobile: x.mobile,                                          //手机
                 user_name: x.user_name,                                    //姓名
                 nick_name: x.nick_name,                                    //用户昵称
@@ -385,6 +426,7 @@ pub async fn query_sys_user_detail(
                 del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                dept_info: dept,
             };
 
             BaseResponse::<QueryUserDetailResp>::ok_result_data(sys_user)
@@ -422,7 +464,7 @@ pub async fn query_sys_user_list(
             let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
             for x in d.records {
                 sys_user_list_data.push(UserListDataResp {
-                    id: x.id.unwrap(),                                         //主键
+                    id: x.id.unwrap_or_default(),                              //主键
                     mobile: x.mobile,                                          //手机
                     user_name: x.user_name,                                    //姓名
                     nick_name: x.nick_name,                                    //用户昵称

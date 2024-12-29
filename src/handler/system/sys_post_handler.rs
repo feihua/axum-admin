@@ -219,7 +219,7 @@ pub async fn query_sys_post_detail(
             let x = d.unwrap();
 
             let sys_post = QueryPostDetailResp {
-                id: x.id.unwrap(),                                 //岗位id
+                id: x.id.unwrap_or_default(),                      //岗位id
                 post_code: x.post_code,                            //岗位编码
                 post_name: x.post_name,                            //岗位名称
                 sort: x.sort,                                      //显示顺序
@@ -263,7 +263,7 @@ pub async fn query_sys_post_list(
 
             for x in d.records {
                 sys_post_list_data.push(PostListDataResp {
-                    id: x.id.unwrap(),                                 //岗位id
+                    id: x.id.unwrap_or_default(),                      //岗位id
                     post_code: x.post_code,                            //岗位编码
                     post_name: x.post_name,                            //岗位名称
                     sort: x.sort,                                      //显示顺序

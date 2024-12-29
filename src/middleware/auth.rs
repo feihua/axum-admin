@@ -1,7 +1,7 @@
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use axum::extract::Request;
-use axum::http::{HeaderValue, StatusCode};
+use axum::http::StatusCode;
 use axum::middleware::Next;
 use axum::{http, response};
 

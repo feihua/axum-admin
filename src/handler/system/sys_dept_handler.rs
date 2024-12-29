@@ -10,7 +10,6 @@ use crate::common::result::BaseResponse;
 use crate::model::system::sys_dept_model::{
     check_dept_exist_user, select_dept_count, select_normal_children_dept_by_id, Dept,
 };
-use crate::model::system::sys_notice_model::Notice;
 use crate::vo::system::sys_dept_vo::*;
 
 /*
@@ -202,7 +201,7 @@ pub async fn query_sys_dept_detail(
             let x = d.unwrap();
 
             let sys_dept = QueryDeptDetailResp {
-                id: x.id.unwrap(),                                 //部门id
+                id: x.id.unwrap_or_default(),                      //部门id
                 parent_id: x.parent_id,                            //父部门id
                 ancestors: x.ancestors,                            //祖级列表
                 dept_name: x.dept_name,                            //部门名称
@@ -253,7 +252,7 @@ pub async fn query_sys_dept_list(
 
             for x in d.records {
                 sys_dept_list_data.push(DeptListDataResp {
-                    id: x.id.unwrap(),                                 //部门id
+                    id: x.id.unwrap_or_default(),                      //部门id
                     parent_id: x.parent_id,                            //父部门id
                     ancestors: x.ancestors,                            //祖级列表
                     dept_name: x.dept_name,                            //部门名称

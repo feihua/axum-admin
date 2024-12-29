@@ -1,11 +1,9 @@
 use crate::common::result::BaseResponse;
-use crate::model::system::sys_dept_model::Dept;
-use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
-use crate::model::system::sys_post_model::Post;
+use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
-use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list, User};
+use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list};
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
 use crate::model::system::sys_user_role_model::{delete_user_role_by_role_id_user_id, UserRole};
 use crate::vo::system::sys_role_vo::*;
@@ -16,8 +14,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
-use rbatis::rbdc::db::ExecResult;
-use rbatis::rbdc::Error;
 use rbs::to_value;
 use std::sync::Arc;
 /*
@@ -29,7 +25,7 @@ pub async fn add_sys_role(
     State(state): State<Arc<AppState>>,
     Json(item): Json<AddRoleReq>,
 ) -> impl IntoResponse {
-    log::info!("add_sys_role params: {:?}", &item);
+    log::info!("add sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     let res = Role::select_by_role_name(rb, &item.role_name).await;
@@ -82,7 +78,7 @@ pub async fn delete_sys_role(
     State(state): State<Arc<AppState>>,
     Json(item): Json<DeleteRoleReq>,
 ) -> impl IntoResponse {
-    log::info!("delete_sys_role params: {:?}", &item);
+    log::info!("delete sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
@@ -138,7 +134,7 @@ pub async fn update_sys_role(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateRoleReq>,
 ) -> impl IntoResponse {
-    log::info!("update_sys_role params: {:?}", &item);
+    log::info!("update sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     if item.id == 1 {
@@ -195,7 +191,7 @@ pub async fn update_sys_role_status(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateRoleStatusReq>,
 ) -> impl IntoResponse {
-    log::info!("update_sys_role_status params: {:?}", &item);
+    log::info!("update sys_role_status params: {:?}", &item);
     let rb = &state.batis;
 
     if item.ids.contains(&1) {
@@ -237,10 +233,16 @@ pub async fn query_sys_role_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryRoleDetailResp>::err_result_data(
+                    QueryRoleDetailResp::new(),
+                    "角色不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_role = QueryRoleDetailResp {
-                id: x.id.unwrap(),                                 //主键
+                id: x.id.unwrap_or_default(),                      //主键
                 role_name: x.role_name,                            //名称
                 role_key: x.role_key,                              //角色权限字符串
                 data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
@@ -270,14 +272,14 @@ pub async fn query_sys_role_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryRoleListReq>,
 ) -> impl IntoResponse {
-    log::info!("query_sys_role_list params: {:?}", &item);
+    log::info!("query sys_role_list params: {:?}", &item);
     let rb = &state.batis;
 
     let role_name = item.role_name.as_deref().unwrap_or_default();
-    let status_id = item.status_id.unwrap_or(2);
+    let status = item.status_id.unwrap_or(2);
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Role::select_page_by_name(rb, page, role_name, status_id).await;
+    let result = Role::select_page_by_name(rb, page, role_name, status).await;
 
     match result {
         Ok(d) => {
@@ -286,7 +288,7 @@ pub async fn query_sys_role_list(
             let mut sys_role_list_data: Vec<RoleListDataResp> = Vec::new();
             for x in d.records {
                 sys_role_list_data.push(RoleListDataResp {
-                    id: x.id.unwrap(),                                 //主键
+                    id: x.id.unwrap_or_default(),                      //主键
                     role_name: x.role_name,                            //名称
                     role_key: x.role_key,                              //角色权限字符串
                     data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
@@ -314,7 +316,7 @@ pub async fn query_role_menu(
     State(state): State<Arc<AppState>>,
     Json(item): Json<QueryRoleMenuReq>,
 ) -> impl IntoResponse {
-    log::info!("query_role_menu params: {:?}", &item);
+    log::info!("query role_menu params: {:?}", &item);
     let rb = &state.batis;
 
     // 查询所有菜单
@@ -364,7 +366,7 @@ pub async fn update_role_menu(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateRoleMenuReq>,
 ) -> impl IntoResponse {
-    log::info!("update_role_menu params: {:?}", &item);
+    log::info!("update role_menu params: {:?}", &item);
     let role_id = item.role_id;
 
     let rb = &state.batis;
@@ -405,7 +407,7 @@ pub async fn allocated_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<AllocatedListReq>,
 ) -> impl IntoResponse {
-    log::info!("update_role_menu params: {:?}", &item);
+    log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
 
@@ -459,8 +461,7 @@ pub async fn unallocated_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UnallocatedListReq>,
 ) -> impl IntoResponse {
-    log::info!("update_role_menu params: {:?}", &item);
-    let role_id = item.role_id;
+    log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
 
@@ -515,7 +516,7 @@ pub async fn cancel_auth_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<CancelAuthUserReq>,
 ) -> impl IntoResponse {
-    log::info!("update_role_menu params: {:?}", &item);
+    log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
 
@@ -536,8 +537,7 @@ pub async fn cancel_auth_user_all(
     State(state): State<Arc<AppState>>,
     Json(item): Json<CancelAuthUserAllReq>,
 ) -> impl IntoResponse {
-    log::info!("cancel_auth_user_all params: {:?}", &item);
-    let role_id = item.role_id;
+    log::info!("cancel auth_user_all params: {:?}", &item);
 
     let rb = &state.batis;
 
@@ -569,7 +569,7 @@ pub async fn select_all_auth_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<SelectAuthUserAllReq>,
 ) -> impl IntoResponse {
-    log::info!("select_all_auth_user params: {:?}", &item);
+    log::info!("select all_auth_user params: {:?}", &item);
     let role_id = item.role_id;
 
     let rb = &state.batis;

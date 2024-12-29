@@ -168,7 +168,7 @@ pub async fn query_sys_notice_detail(
             let x = d.unwrap();
 
             let sys_notice = QueryNoticeDetailResp {
-                id: x.id.unwrap(),                                 //公告ID
+                id: x.id.unwrap_or_default(),                      //公告ID
                 notice_title: x.notice_title,                      //公告标题
                 notice_type: x.notice_type,                        //公告类型（1:通知,2:公告）
                 notice_content: x.notice_content,                  //公告内容
@@ -213,7 +213,7 @@ pub async fn query_sys_notice_list(
 
             for x in d.records {
                 data.push(NoticeListDataResp {
-                    id: x.id.unwrap(),                                 //公告ID
+                    id: x.id.unwrap_or_default(),                      //公告ID
                     notice_title: x.notice_title,                      //公告标题
                     notice_type: x.notice_type,                        //公告类型（1:通知,2:公告）
                     notice_content: x.notice_content,                  //公告内容

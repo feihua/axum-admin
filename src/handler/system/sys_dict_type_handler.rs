@@ -9,12 +9,9 @@ use std::sync::Arc;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dict_data_model::{count_dict_data_by_type, update_dict_data_type};
 use crate::model::system::sys_dict_type_model::DictType;
-use crate::model::system::sys_post_model::Post;
-use crate::model::system::sys_user_post_model::count_user_post_by_id;
 use crate::vo::system::sys_dict_type_vo::*;
-
 /*
- *添加字典类型表
+ *添加字典类型
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -56,7 +53,7 @@ pub async fn add_sys_dict_type(
 }
 
 /*
- *删除字典类型表
+ *删除字典类型
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -101,7 +98,7 @@ pub async fn delete_sys_dict_type(
 }
 
 /*
- *更新字典类型表
+ *更新字典类型
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -146,7 +143,7 @@ pub async fn update_sys_dict_type(
 }
 
 /*
- *更新字典类型表状态
+ *更新字典类型状态
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -177,7 +174,7 @@ pub async fn update_sys_dict_type_status(
 }
 
 /*
- *查询字典类型表详情
+ *查询字典类型详情
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -192,10 +189,16 @@ pub async fn query_sys_dict_type_detail(
 
     match result {
         Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<QueryDictTypeDetailResp>::err_result_data(
+                    QueryDictTypeDetailResp::new(),
+                    "字典类型不存在".to_string(),
+                );
+            }
             let x = d.unwrap();
 
             let sys_dict_type = QueryDictTypeDetailResp {
-                dict_id: x.dict_id.unwrap(),                       //字典主键
+                dict_id: x.dict_id.unwrap_or_default(),            //字典主键
                 dict_name: x.dict_name,                            //字典名称
                 dict_type: x.dict_type,                            //字典类型
                 status: x.status,                                  //门状态（0：停用，1:正常）
@@ -214,7 +217,7 @@ pub async fn query_sys_dict_type_detail(
 }
 
 /*
- *查询字典类型表列表
+ *查询字典类型列
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
@@ -238,7 +241,7 @@ pub async fn query_sys_dict_type_list(
 
             for x in d.records {
                 sys_dict_type_list_data.push(DictTypeListDataResp {
-                    dict_id: x.dict_id.unwrap(),                       //字典主键
+                    dict_id: x.dict_id.unwrap_or_default(),            //字典主键
                     dict_name: x.dict_name,                            //字典名称
                     dict_type: x.dict_type,                            //字典类型
                     status: x.status,                                  //门状态（0：停用，1:正常）
