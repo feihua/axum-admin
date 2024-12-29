@@ -5,7 +5,9 @@ use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list};
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
-use crate::model::system::sys_user_role_model::{delete_user_role_by_role_id_user_id, UserRole};
+use crate::model::system::sys_user_role_model::{
+    count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole,
+};
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserListDataResp;
 use crate::AppState;
@@ -16,6 +18,7 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
+
 /*
  *添加角色信息
  *author：刘飞华
@@ -28,20 +31,20 @@ pub async fn add_sys_role(
     log::info!("add sys_role params: {:?}", &item);
     let rb = &state.batis;
 
-    let res = Role::select_by_role_name(rb, &item.role_name).await;
-    match res {
-        Ok(r) => {
-            if r.is_some() {
+    let role_name_result = Role::select_by_role_name(rb, &item.role_name).await;
+    match role_name_result {
+        Ok(role) => {
+            if role.is_some() {
                 return BaseResponse::<String>::err_result_msg("角色名称已存在".to_string());
             }
         }
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
-    let res1 = Role::select_by_role_key(rb, &item.role_key).await;
-    match res1 {
-        Ok(r) => {
-            if r.is_some() {
+    let role_key_result = Role::select_by_role_key(rb, &item.role_key).await;
+    match role_key_result {
+        Ok(role) => {
+            if role.is_some() {
                 return BaseResponse::<String>::err_result_msg("角色权限已存在".to_string());
             }
         }
@@ -82,44 +85,49 @@ pub async fn delete_sys_role(
     let rb = &state.batis;
 
     let ids = item.ids.clone();
+
+    if ids.contains(&1) {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
+
     for id in ids {
-        let post_by_id = Role::select_by_id(rb, &id).await;
-        let p = match post_by_id {
-            Ok(p) => {
-                if p.is_none() {
+        let role_result = Role::select_by_id(rb, &id).await;
+        let role = match role_result {
+            Ok(opt_role) => {
+                if opt_role.is_none() {
                     return BaseResponse::<String>::err_result_msg(
                         "角色不存在,不能删除".to_string(),
                     );
                 } else {
-                    p.unwrap()
+                    opt_role.unwrap()
                 }
             }
             Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
         };
 
-        let res = count_user_post_by_id(rb, id).await;
-        if res.unwrap_or_default() > 0 {
-            let msg = format!("{}已分配,不能删除", p.role_name);
+        let count_user_role_result = count_user_role_by_role_id(rb, id).await;
+        if count_user_role_result.unwrap_or_default() > 0 {
+            let msg = format!("{}已分配,不能删除", role.role_name);
             return BaseResponse::<String>::err_result_msg(msg);
         }
     }
 
-    let result = RoleMenu::delete_in_column(rb, "role_id", &item.ids).await;
+    let delete_role_menu_result = RoleMenu::delete_in_column(rb, "role_id", &item.ids).await;
 
-    match result {
+    match delete_role_menu_result {
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
         _ => {}
     }
-    let result1 = RoleDept::delete_in_column(rb, "role_id", &item.ids).await;
+    let delete_role_dept_result = RoleDept::delete_in_column(rb, "role_id", &item.ids).await;
 
-    match result1 {
+    match delete_role_dept_result {
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
         _ => {}
     }
 
-    let result2 = Role::delete_in_column(rb, "id", &item.ids).await;
+    let delete_role_result = Role::delete_in_column(rb, "id", &item.ids).await;
 
-    match result2 {
+    match delete_role_result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
@@ -141,20 +149,20 @@ pub async fn update_sys_role(
         return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
     }
 
-    let res = Role::select_by_role_name(rb, &item.role_name).await;
-    match res {
-        Ok(r) => {
-            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+    let role_name_result = Role::select_by_role_name(rb, &item.role_name).await;
+    match role_name_result {
+        Ok(role) => {
+            if role.is_some() && role.unwrap().id.unwrap_or_default() != item.id {
                 return BaseResponse::<String>::err_result_msg("角色名称已存在".to_string());
             }
         }
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
-    let res1 = Role::select_by_role_key(rb, &item.role_key).await;
-    match res1 {
-        Ok(r) => {
-            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+    let role_key_result = Role::select_by_role_key(rb, &item.role_key).await;
+    match role_key_result {
+        Ok(role) => {
+            if role.is_some() && role.unwrap().id.unwrap_or_default() != item.id {
                 return BaseResponse::<String>::err_result_msg("角色权限已存在".to_string());
             }
         }
@@ -232,14 +240,14 @@ pub async fn query_sys_role_detail(
     let result = Role::select_by_id(rb, &item.id).await;
 
     match result {
-        Ok(d) => {
-            if d.is_none() {
+        Ok(opt_role) => {
+            if opt_role.is_none() {
                 return BaseResponse::<QueryRoleDetailResp>::err_result_data(
                     QueryRoleDetailResp::new(),
                     "角色不存在".to_string(),
                 );
             }
-            let x = d.unwrap();
+            let x = opt_role.unwrap();
 
             let sys_role = QueryRoleDetailResp {
                 id: x.id.unwrap_or_default(),                      //主键
@@ -320,40 +328,40 @@ pub async fn query_role_menu(
     let rb = &state.batis;
 
     // 查询所有菜单
-    let menu_list = Menu::select_all(rb).await.unwrap_or_default();
+    let menu_list_all = Menu::select_all(rb).await.unwrap_or_default();
 
-    let mut menu_data_list: Vec<MenuDataList> = Vec::new();
-    let mut role_menu_ids: Vec<i64> = Vec::new();
+    let mut menu_list: Vec<MenuDataList> = Vec::new();
+    let mut menu_ids: Vec<i64> = Vec::new();
 
-    for y in menu_list {
+    for y in menu_list_all {
         let x = y.clone();
-        menu_data_list.push(MenuDataList {
-            id: x.id.unwrap(),
+        menu_list.push(MenuDataList {
+            id: x.id.unwrap_or_default(),
             parent_id: x.parent_id,
             title: x.menu_name,
-            key: y.id.unwrap().to_string(),
+            key: y.id.unwrap_or_default().to_string(),
             label: y.menu_name,
             is_penultimate: y.parent_id == 2,
         });
-        role_menu_ids.push(x.id.unwrap())
+        menu_ids.push(x.id.unwrap())
     }
 
     //不是超级管理员的时候,就要查询角色和菜单的关联
     if item.role_id != 1 {
-        role_menu_ids.clear();
+        menu_ids.clear();
         let role_menu_list = query_menu_by_role(rb, item.role_id)
             .await
             .unwrap_or_default();
 
         for x in role_menu_list {
             let m_id = x.get("menu_id").unwrap().clone();
-            role_menu_ids.push(m_id)
+            menu_ids.push(m_id)
         }
     }
 
     BaseResponse::<QueryRoleMenuData>::ok_result_data(QueryRoleMenuData {
-        menu_ids: role_menu_ids,
-        menu_list: menu_data_list,
+        menu_ids,
+        menu_list,
     })
 }
 
@@ -375,11 +383,11 @@ pub async fn update_role_menu(
 
     match role_menu_result {
         Ok(_) => {
-            let mut menu_role: Vec<RoleMenu> = Vec::new();
+            let mut role_menu: Vec<RoleMenu> = Vec::new();
 
             for id in &item.menu_ids {
                 let menu_id = id.clone();
-                menu_role.push(RoleMenu {
+                role_menu.push(RoleMenu {
                     id: None,
                     create_time: Some(DateTime::now()),
                     menu_id,
@@ -387,7 +395,7 @@ pub async fn update_role_menu(
                 })
             }
 
-            let result = RoleMenu::insert_batch(rb, &menu_role, item.menu_ids.len() as u64).await;
+            let result = RoleMenu::insert_batch(rb, &role_menu, item.menu_ids.len() as u64).await;
 
             match result {
                 Ok(_u) => BaseResponse::<String>::ok_result(),

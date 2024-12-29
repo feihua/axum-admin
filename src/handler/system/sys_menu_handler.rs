@@ -22,8 +22,8 @@ pub async fn add_sys_menu(
 
     let res = Menu::select_by_menu_name(rb, &item.menu_name).await;
     match res {
-        Ok(r) => {
-            if r.is_some() {
+        Ok(opt_menu) => {
+            if opt_menu.is_some() {
                 return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
             }
         }
@@ -103,8 +103,8 @@ pub async fn update_sys_menu(
 
     let res = Menu::select_by_menu_name(rb, &item.menu_name).await;
     match res {
-        Ok(r) => {
-            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
+        Ok(opt_menu) => {
+            if opt_menu.is_some() && opt_menu.unwrap().id.unwrap_or_default() != item.id {
                 return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
             }
         }
@@ -180,14 +180,14 @@ pub async fn query_sys_menu_detail(
     let result = Menu::select_by_id(rb, &item.id).await;
 
     match result {
-        Ok(d) => {
-            if d.is_none() {
+        Ok(opt_menu) => {
+            if opt_menu.is_none() {
                 return BaseResponse::<QueryMenuDetailResp>::err_result_data(
                     QueryMenuDetailResp::new(),
                     "菜单信息不存在".to_string(),
                 );
             }
-            let x = d.unwrap();
+            let x = opt_menu.unwrap();
 
             let sys_menu = QueryMenuDetailResp {
                 id: x.id.unwrap_or_default(),                      //主键
@@ -228,10 +228,10 @@ pub async fn query_sys_menu_list(
     let result = Menu::select_all(rb).await;
 
     match result {
-        Ok(d) => {
-            let mut sys_menu_list_data: Vec<MenuListDataResp> = Vec::new();
-            for x in d {
-                sys_menu_list_data.push(MenuListDataResp {
+        Ok(list) => {
+            let mut menu_list: Vec<MenuListDataResp> = Vec::new();
+            for x in list {
+                menu_list.push(MenuListDataResp {
                     id: x.id.unwrap_or_default(),                      //主键
                     menu_name: x.menu_name,                            //菜单名称
                     menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
@@ -247,7 +247,7 @@ pub async fn query_sys_menu_list(
                 })
             }
 
-            BaseResponse::ok_result_page(sys_menu_list_data, 0)
+            BaseResponse::ok_result_page(menu_list, 0)
         }
         Err(err) => BaseResponse::err_result_page(MenuListDataResp::new(), err.to_string()),
     }

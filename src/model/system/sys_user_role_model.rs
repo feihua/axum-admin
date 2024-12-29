@@ -38,7 +38,7 @@ impl_select!(UserRole{is_admin(user_id:&i64) => "`where user_id = #{user_id} and
  *date：2024/12/12 14:41:44
  */
 #[sql("select count(1) from sys_user_role where role_id = ?")]
-pub async fn count_user_role_by_role_id(rb: &RBatis, role_id: &i64) -> rbatis::Result<i64> {
+pub async fn count_user_role_by_role_id(rb: &RBatis, role_id: i64) -> rbatis::Result<i64> {
     impled!()
 }
 
