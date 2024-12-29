@@ -25,6 +25,10 @@ pub fn build_sys_user_route() -> Router<Arc<AppState>> {
             post(sys_user_handler::update_sys_user_status),
         )
         .route(
+            "/system/user/reset_sys_user_password",
+            post(sys_user_handler::reset_sys_user_password),
+        )
+        .route(
             "/system/user/queryUserDetail",
             post(sys_user_handler::query_sys_user_detail),
         )

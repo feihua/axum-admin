@@ -2,6 +2,7 @@ use crate::common::result::BaseResponse;
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
+use crate::model::system::sys_user_post_model::UserPost;
 use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
@@ -13,11 +14,11 @@ use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::rbdc::Error;
 use rbatis::RBatis;
 use rbs::to_value;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
-
 /*
  *添加用户信息
  *author：刘飞华
@@ -97,16 +98,39 @@ pub async fn add_sys_user(
  *date：2024/12/12 14:41:44
  */
 pub async fn delete_sys_user(
+    headers: HeaderMap,
     State(state): State<Arc<AppState>>,
     Json(item): Json<DeleteUserReq>,
 ) -> impl IntoResponse {
     log::info!("delete sys_user params: {:?}", &item);
     let rb = &state.batis;
 
+    let user_id = headers
+        .get("user_id")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .parse::<i64>()
+        .unwrap();
+
     let ids = item.ids.clone();
-    //id为1的用户为系统预留用户,不能删除
+    if ids.contains(&user_id) {
+        return BaseResponse::<String>::err_result_msg("当前用户不能删除".to_string());
+    }
     if ids.contains(&1) {
-        return BaseResponse::<String>::err_result_msg("系统预留用户,不能删除".to_string());
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户".to_string());
+    }
+
+    let delete_user_role_result = UserRole::delete_in_column(rb, "user_id", &ids).await;
+    match delete_user_role_result {
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        _ => {}
+    }
+
+    let delete_user_post_result = UserPost::delete_in_column(rb, "user_id", &ids).await;
+    match delete_user_post_result {
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        _ => {}
     }
 
     let result = User::delete_in_column(rb, "id", &item.ids).await;
@@ -128,6 +152,22 @@ pub async fn update_sys_user(
 ) -> impl IntoResponse {
     log::info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
+
+    let id = item.id.clone();
+    if id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户".to_string());
+    }
+
+    let sys_user_result = User::select_by_id(rb, item.id).await;
+    let u = match sys_user_result {
+        Ok(user) => {
+            if user.is_none() {
+                return BaseResponse::<String>::err_result_msg("用户不存在".to_string());
+            }
+            user.unwrap()
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    };
 
     let user_name_result = User::select_by_user_name(rb, &item.user_name).await;
     match user_name_result {
@@ -159,16 +199,6 @@ pub async fn update_sys_user(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
-    let sys_user_result = User::select_by_id(rb, item.id).await;
-    let u = match sys_user_result {
-        Ok(user) => user,
-        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
-    };
-
-    if u.is_none() {
-        return BaseResponse::<String>::err_result_msg("用户不存在".to_string());
-    }
-
     let sys_user = User {
         id: Some(item.id),                          //主键
         mobile: item.mobile,                        //手机
@@ -177,7 +207,7 @@ pub async fn update_sys_user(
         user_type: None,                            //用户类型（00系统用户）
         email: item.email,                          //用户邮箱
         avatar: item.avatar,                        //头像路径
-        password: u.unwrap().password,              //密码
+        password: u.password,                       //密码
         status: item.status,                        //状态(1:正常，0:禁用)
         sort: item.sort,                            //排序
         dept_id: item.dept_id,                      //部门ID
@@ -206,7 +236,6 @@ pub async fn update_sys_user(
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user_status(
-    headers: HeaderMap,
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateUserStatusReq>,
 ) -> impl IntoResponse {
@@ -217,16 +246,6 @@ pub async fn update_sys_user_status(
     if ids.contains(&1) {
         return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户".to_string());
     }
-
-    let user_id = headers
-        .get("user_id")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .parse::<i64>()
-        .unwrap();
-
-    if user_id != 1 {}
 
     let update_sql = format!(
         "update sys_user set status = ? where id in ({})",
@@ -248,11 +267,49 @@ pub async fn update_sys_user_status(
 }
 
 /*
- *更新用户密码
+ *重置用户密码
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn reset_sys_user_password(
+    State(state): State<Arc<AppState>>,
+    Json(item): Json<ResetUserPwdReq>,
+) -> impl IntoResponse {
+    log::info!("update sys_user_password params: {:?}", &item);
+
+    let rb = &state.batis;
+
+    let id = item.id.clone();
+    if id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户".to_string());
+    }
+
+    let sys_user_result = User::select_by_id(rb, item.id).await;
+
+    match sys_user_result {
+        Ok(opt_user) => {
+            if opt_user.is_none() {
+                return BaseResponse::<String>::err_result_msg("用户不存在".to_string());
+            }
+            let mut user = opt_user.unwrap();
+            user.password = item.password;
+            let result = User::update_by_column(rb, &user, "id").await;
+            match result {
+                Ok(_u) => BaseResponse::<String>::ok_result(),
+                Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+            }
+        }
+        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+}
+
+/*
+ *用户修改自己的密码
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user_password(
+    headers: HeaderMap,
     State(state): State<Arc<AppState>>,
     Json(item): Json<UpdateUserPwdReq>,
 ) -> impl IntoResponse {
@@ -260,22 +317,29 @@ pub async fn update_sys_user_password(
 
     let rb = &state.batis;
 
-    let sys_user_result = User::select_by_id(rb, item.id).await;
+    let user_id = headers
+        .get("user_id")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .parse::<i64>()
+        .unwrap();
+
+    let sys_user_result = User::select_by_id(rb, user_id).await;
 
     match sys_user_result {
         Ok(user_result) => match user_result {
             None => BaseResponse::<String>::err_result_msg("用户不存在".to_string()),
             Some(mut user) => {
-                if user.password == item.pwd {
-                    user.password = item.re_pwd;
-                    let result = User::update_by_column(rb, &user, "id").await;
+                if user.password != item.pwd {
+                    return BaseResponse::<String>::err_result_msg("旧密码不正确".to_string());
+                }
+                user.password = item.re_pwd;
+                let result = User::update_by_column(rb, &user, "id").await;
 
-                    match result {
-                        Ok(_u) => BaseResponse::<String>::ok_result(),
-                        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-                    }
-                } else {
-                    BaseResponse::<String>::err_result_msg("旧密码不正确".to_string())
+                match result {
+                    Ok(_u) => BaseResponse::<String>::ok_result(),
+                    Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
                 }
             }
         },
@@ -346,10 +410,11 @@ pub async fn query_sys_user_list(
 
     let mobile = item.mobile.as_deref().unwrap_or_default();
     let user_name = item.user_name.as_deref().unwrap_or_default();
-    let status_id = item.status.unwrap_or(2);
+    let status = item.status.unwrap_or(2);
+    let dept_id = item.dept_id.unwrap_or_default();
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = User::select_page_by_name(rb, page, mobile, user_name, status_id).await;
+    let result = User::select_page_by_name(rb, page, mobile, user_name, status, dept_id).await;
 
     match result {
         Ok(d) => {

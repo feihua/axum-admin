@@ -84,7 +84,7 @@ impl_select_page!(User{select_page() =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:i8) =>"
+impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:i8,dept_id:i64) =>"
       where 1=1
       if mobile != null && mobile != '':
        ` and mobile = #{mobile} `
@@ -92,6 +92,8 @@ impl_select_page!(User{select_page_by_name(mobile:&str,user_name:&str,status_id:
        ` and user_name = #{user_name} `
      if status_id != 2:
        ` and status_id = #{status_id} `
+     if dept_id != 0:
+       ` (dept_id = #{dept_id} OR dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{dept_id}, ancestors) )) `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");
 

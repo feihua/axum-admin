@@ -126,6 +126,7 @@ pub struct QueryUserListReq {
     pub mobile: Option<String>,    //手机
     pub user_name: Option<String>, //姓名
     pub status: Option<i8>,        //状态(1:正常，0:禁用)
+    pub dept_id: Option<i64>,      //部门ID
 }
 
 /*
@@ -239,8 +240,16 @@ pub struct UpdateUserRoleReq {
 重置密码
 */
 #[derive(Debug, Deserialize)]
+pub struct ResetUserPwdReq {
+    pub id: i64,          //用户主键
+    pub password: String, //用户密码
+}
+
+/*
+重置密码
+*/
+#[derive(Debug, Deserialize)]
 pub struct UpdateUserPwdReq {
-    pub id: i64,        //用户主键
     pub pwd: String,    //用户密码
     pub re_pwd: String, //用户密码
 }
