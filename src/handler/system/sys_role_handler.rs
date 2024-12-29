@@ -4,7 +4,6 @@ use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list};
-use crate::model::system::sys_user_post_model::count_user_post_by_id;
 use crate::model::system::sys_user_role_model::{
     count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole,
 };
