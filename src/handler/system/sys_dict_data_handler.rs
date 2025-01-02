@@ -57,7 +57,7 @@ pub async fn delete_sys_dict_data(
     log::info!("delete sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = DictData::delete_in_column(rb, "id", &item.ids).await;
+    let result = DictData::delete_in_column(rb, "dict_code", &item.ids).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -92,7 +92,7 @@ pub async fn update_sys_dict_data(
         update_time: None,                       //修改时间
     };
 
-    let result = DictData::update_by_column(rb, &sys_dict_data, "id").await;
+    let result = DictData::update_by_column(rb, &sys_dict_data, "dict_code").await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -113,7 +113,7 @@ pub async fn update_sys_dict_data_status(
     let rb = &state.batis;
 
     let update_sql = format!(
-        "update sys_dict_data set status = ? where id in ({})",
+        "update sys_dict_data set status = ? where dict_code in ({})",
         item.ids
             .iter()
             .map(|_| "?")
@@ -191,16 +191,12 @@ pub async fn query_sys_dict_data_list(
 ) -> impl IntoResponse {
     log::info!("query sys_dict_data_list params: {:?}", &item);
     let rb = &state.batis;
-    //let dict_label = item.dict_label.as_deref().unwrap_or_default(); //字典标签
-    //let dict_value = item.dict_value.as_deref().unwrap_or_default(); //字典键值
-    //let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
-    //let css_class = item.css_class.as_deref().unwrap_or_default(); //样式属性（其他样式扩展）
-    //let list_class = item.list_class.as_deref().unwrap_or_default(); //格回显样式
-    //let is_default = item.is_default.as_deref().unwrap_or_default(); //是否默认（Y是 N否）
-    //let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
+    let dict_label = item.dict_label.as_deref().unwrap_or_default(); //字典标签
+    let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
+    let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = DictData::select_page(rb, page).await;
+    let result = DictData::select_dict_data_list(rb, page, dict_label, dict_type, status).await;
 
     let mut sys_dict_data_list_data: Vec<DictDataListDataResp> = Vec::new();
     match result {

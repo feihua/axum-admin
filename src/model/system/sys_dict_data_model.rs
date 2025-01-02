@@ -39,7 +39,7 @@ rbatis::crud!(DictData {}, "sys_dict_data");
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(DictData{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_data");
+impl_select!(DictData{select_by_id(dict_code:&i64) -> Option => "`where dict_code = #{dict_code} limit 1`"}, "sys_dict_data");
 
 /*
  *分页查询字典数据表
@@ -56,11 +56,16 @@ impl_select_page!(DictData{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(DictData{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(DictData{select_dict_data_list(dict_label:&str, dict_type:&str, status:i8) =>"
+    where 1=1
+     if dict_label != null && dict_label != '':
+      ` and dict_label = #{dict_label} `
+     if dict_type != null && dict_type != '':
+      ` and dict_type = #{dict_type} `
+     if status != 2:
+      ` and status = #{status} `
+     if !sql.contains('count'):
+      ` order by create_time desc"
 },"sys_dict_data");
 
 /*
