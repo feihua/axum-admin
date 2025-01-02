@@ -249,12 +249,12 @@ pub async fn query_sys_post_list(
 ) -> impl IntoResponse {
     log::info!("query sys_post_list params: {:?}", &item);
     let rb = &state.batis;
-    //let post_code = item.post_code.as_deref().unwrap_or_default(); //岗位编码
-    //let post_name = item.post_name.as_deref().unwrap_or_default(); //岗位名称
-    //let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
+    let post_code = item.post_code.as_deref().unwrap_or_default(); //岗位编码
+    let post_name = item.post_name.as_deref().unwrap_or_default(); //岗位名称
+    let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Post::select_page(rb, page).await;
+    let result = Post::select_post_list(rb, page, post_code, post_name, status).await;
 
     let mut sys_post_list_data: Vec<PostListDataResp> = Vec::new();
     match result {

@@ -65,9 +65,14 @@ impl_select_page!(Post{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Post{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(Post{select_post_list(post_code:&str, post_name:&str, status:i8) =>"
+    where 1=1
+     if post_code != null && post_code != '':
+      ` and post_code = #{post_code} `
+     if post_name != null && post_name != '':
+      ` and post_name = #{post_name} `
+     if status != 2:
+      ` and status = #{status} `
+     if !sql.contains('count'):
+      ` order by create_time desc"
 },"sys_post");
