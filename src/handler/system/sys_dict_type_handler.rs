@@ -134,7 +134,7 @@ pub async fn update_sys_dict_type(
         update_time: None,                       //修改时间
     };
 
-    let result = DictType::update_by_column(rb, &sys_dict_type, "id").await;
+    let result = DictType::update_by_column(rb, &sys_dict_type, "dict_id").await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),
@@ -155,7 +155,7 @@ pub async fn update_sys_dict_type_status(
     let rb = &state.batis;
 
     let update_sql = format!(
-        "update sys_dict_type set status = ? where id in ({})",
+        "update sys_dict_type set status = ? where dict_id in ({})",
         item.ids
             .iter()
             .map(|_| "?")
@@ -227,12 +227,12 @@ pub async fn query_sys_dict_type_list(
 ) -> impl IntoResponse {
     log::info!("query sys_dict_type_list params: {:?}", &item);
     let rb = &state.batis;
-    //let dict_name = item.dict_name.as_deref().unwrap_or_default(); //字典名称
-    //let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
-    //let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
+    let dict_name = item.dict_name.as_deref().unwrap_or_default(); //字典名称
+    let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
+    let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = DictType::select_page(rb, page).await;
+    let result = DictType::select_dict_type_list(rb, page, dict_name, dict_type, status).await;
 
     let mut sys_dict_type_list_data: Vec<DictTypeListDataResp> = Vec::new();
     match result {

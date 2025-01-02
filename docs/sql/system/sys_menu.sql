@@ -91,9 +91,9 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询岗位列', 3, 1, 6, 38, '', '/api/system/post/queryPostList', '', '查询岗位列');
 
 -- 配置字典类型权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典类型管理', 2, 1, 6, 2, '/system/dictType', '', '', '字典类型管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典类型', 2, 1, 6, 2, '/system/dictType', '', '', '字典类型管理');
 
-select * from sys_menu where menu_name='字典类型管理';
+select * from sys_menu where menu_name='字典类型';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加字典类型', 3, 1, 1, 45, '', '/api/system/dictType/addDictType', '', '添加字典类型');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除字典类型', 3, 1, 2, 45, '', '/api/system/dictType/deleteDictType', '', '删除字典类型');

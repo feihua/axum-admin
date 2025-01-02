@@ -33,14 +33,14 @@ rbatis::crud!(DictType {}, "sys_dict_type");
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
+impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where dict_id = #{id} limit 1`"}, "sys_dict_type");
 
 /*
  *根据dict_type查询字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(DictType{select_by_dict_type(id:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
+impl_select!(DictType{select_by_dict_type(dict_type:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
 
 /*
  *分页查询字典类型
@@ -57,9 +57,14 @@ impl_select_page!(DictType{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(DictType{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(DictType{select_dict_type_list(dict_name:&str, dict_type:&str, status:i8) =>"
+    where 1=1
+     if dict_name != null && dict_name != '':
+      ` and dict_name = #{dict_name} `
+     if dict_type != null && dict_type != '':
+      ` and dict_type = #{dict_type} `
+     if status != 2:
+      ` and status = #{status} `
+     if !sql.contains('count'):
+      ` order by create_time desc"
 },"sys_dict_type");
