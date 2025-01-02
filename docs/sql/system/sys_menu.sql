@@ -115,7 +115,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典数据列', 3, 1, 6, 52, '', '/api/system/dictData/queryDictDataList', '', '查询字典数据列');
 
 -- 配置通知公告权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('通知公告管理', 2, 1, 8, 2, '/system/notice', '', '', '通知公告管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('通知公告', 2, 1, 8, 2, '/system/notice', '', '', '通知公告管理');
 
 select * from sys_menu where menu_name='通知公告';
 
