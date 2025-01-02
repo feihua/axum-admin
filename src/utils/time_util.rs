@@ -8,6 +8,6 @@ use rbatis::rbdc::DateTime;
 pub fn time_to_string(t: Option<DateTime>) -> String {
     match t {
         None => "".to_string(),
-        Some(x) => x.0.to_string(),
+        Some(x) => x.format("YYYY-MM-DD hh:mm:ss"),
     }
 }

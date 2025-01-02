@@ -168,7 +168,7 @@ pub async fn query_sys_dict_data_detail(
                 is_default: x.is_default,                   //是否默认（Y是 N否）
                 status: x.status,                           //状态（0：停用，1:正常）
                 remark: x.remark,                           //备注
-                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
@@ -216,7 +216,7 @@ pub async fn query_sys_dict_data_list(
                     is_default: x.is_default,                   //是否默认（Y是 N否）
                     status: x.status,                           //状态（0：停用，1:正常）
                     remark: x.remark,                           //备注
-                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    create_time: time_to_string(x.create_time), //创建时间
                     update_time: time_to_string(x.update_time), //修改时间
                 })
             }

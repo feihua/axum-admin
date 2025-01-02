@@ -202,18 +202,18 @@ pub async fn query_sys_dept_detail(
             let x = d.unwrap();
 
             let sys_dept = QueryDeptDetailResp {
-                id: x.id.unwrap_or_default(),                      //部门id
-                parent_id: x.parent_id,                            //父部门id
-                ancestors: x.ancestors,                            //祖级列表
-                dept_name: x.dept_name,                            //部门名称
-                sort: x.sort,                                      //显示顺序
-                leader: x.leader,                                  //负责人
-                phone: x.phone,                                    //联系电话
-                email: x.email,                                    //邮箱
-                status: x.status,                                  //部状态（0：停用，1:正常）
-                del_flag: x.del_flag.unwrap_or_default(),          //删除标志（0代表删除 1代表存在）
-                create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: time_to_string(x.update_time),        //修改时间
+                id: x.id.unwrap_or_default(),               //部门id
+                parent_id: x.parent_id,                     //父部门id
+                ancestors: x.ancestors,                     //祖级列表
+                dept_name: x.dept_name,                     //部门名称
+                sort: x.sort,                               //显示顺序
+                leader: x.leader,                           //负责人
+                phone: x.phone,                             //联系电话
+                email: x.email,                             //邮箱
+                status: x.status,                           //部状态（0：停用，1:正常）
+                del_flag: x.del_flag.unwrap_or_default(),   //删除标志（0代表删除 1代表存在）
+                create_time: time_to_string(x.create_time), //创建时间
+                update_time: time_to_string(x.update_time), //修改时间
             };
 
             BaseResponse::<QueryDeptDetailResp>::ok_result_data(sys_dept)
@@ -250,17 +250,17 @@ pub async fn query_sys_dept_list(
 
             for x in d.records {
                 sys_dept_list_data.push(DeptListDataResp {
-                    id: x.id.unwrap_or_default(),                      //部门id
-                    parent_id: x.parent_id,                            //父部门id
-                    ancestors: x.ancestors,                            //祖级列表
-                    dept_name: x.dept_name,                            //部门名称
-                    sort: x.sort,                                      //显示顺序
-                    leader: x.leader,                                  //负责人
-                    phone: x.phone,                                    //联系电话
-                    email: x.email,                                    //邮箱
-                    status: x.status,                                  //部状态（0：停用，1:正常）
-                    del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
-                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    id: x.id.unwrap_or_default(),               //部门id
+                    parent_id: x.parent_id,                     //父部门id
+                    ancestors: x.ancestors,                     //祖级列表
+                    dept_name: x.dept_name,                     //部门名称
+                    sort: x.sort,                               //显示顺序
+                    leader: x.leader,                           //负责人
+                    phone: x.phone,                             //联系电话
+                    email: x.email,                             //邮箱
+                    status: x.status,                           //部状态（0：停用，1:正常）
+                    del_flag: x.del_flag.unwrap_or_default(),   //删除标志（0代表删除 1代表存在）
+                    create_time: time_to_string(x.create_time), //创建时间
                     update_time: time_to_string(x.update_time), //修改时间
                 })
             }

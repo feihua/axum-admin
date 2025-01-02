@@ -219,14 +219,14 @@ pub async fn query_sys_post_detail(
             let x = d.unwrap();
 
             let sys_post = QueryPostDetailResp {
-                id: x.id.unwrap_or_default(),                      //岗位id
-                post_code: x.post_code,                            //岗位编码
-                post_name: x.post_name,                            //岗位名称
-                sort: x.sort,                                      //显示顺序
-                status: x.status,                                  //部状态（0：停用，1:正常）
-                remark: x.remark,                                  //备注
-                create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: time_to_string(x.update_time),        //更新时间
+                id: x.id.unwrap_or_default(),               //岗位id
+                post_code: x.post_code,                     //岗位编码
+                post_name: x.post_name,                     //岗位名称
+                sort: x.sort,                               //显示顺序
+                status: x.status,                           //部状态（0：停用，1:正常）
+                remark: x.remark,                           //备注
+                create_time: time_to_string(x.create_time), //创建时间
+                update_time: time_to_string(x.update_time), //更新时间
             };
 
             BaseResponse::<QueryPostDetailResp>::ok_result_data(sys_post)
@@ -263,14 +263,14 @@ pub async fn query_sys_post_list(
 
             for x in d.records {
                 sys_post_list_data.push(PostListDataResp {
-                    id: x.id.unwrap_or_default(),                      //岗位id
-                    post_code: x.post_code,                            //岗位编码
-                    post_name: x.post_name,                            //岗位名称
-                    sort: x.sort,                                      //显示顺序
-                    status: x.status,                                  //部状态（0：停用，1:正常）
-                    remark: x.remark,                                  //备注
-                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: time_to_string(x.update_time),        //更新时间
+                    id: x.id.unwrap_or_default(),               //岗位id
+                    post_code: x.post_code,                     //岗位编码
+                    post_name: x.post_name,                     //岗位名称
+                    sort: x.sort,                               //显示顺序
+                    status: x.status,                           //部状态（0：停用，1:正常）
+                    remark: x.remark,                           //备注
+                    create_time: time_to_string(x.create_time), //创建时间
+                    update_time: time_to_string(x.update_time), //更新时间
                 })
             }
 

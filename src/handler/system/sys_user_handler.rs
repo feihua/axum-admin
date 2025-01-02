@@ -385,17 +385,17 @@ pub async fn query_sys_user_detail(
                     }
                     let x = opt_dept.unwrap();
                     QueryDeptDetailResp {
-                        id: x.id.unwrap_or_default(),                      //部门id
-                        parent_id: x.parent_id,                            //父部门id
-                        ancestors: x.ancestors,                            //祖级列表
-                        dept_name: x.dept_name,                            //部门名称
-                        sort: x.sort,                                      //显示顺序
-                        leader: x.leader,                                  //负责人
-                        phone: x.phone,                                    //联系电话
-                        email: x.email,                                    //邮箱
-                        status: x.status, //部状态（0：停用，1:正常）
+                        id: x.id.unwrap_or_default(),               //部门id
+                        parent_id: x.parent_id,                     //父部门id
+                        ancestors: x.ancestors,                     //祖级列表
+                        dept_name: x.dept_name,                     //部门名称
+                        sort: x.sort,                               //显示顺序
+                        leader: x.leader,                           //负责人
+                        phone: x.phone,                             //联系电话
+                        email: x.email,                             //邮箱
+                        status: x.status,                           //部状态（0：停用，1:正常）
                         del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
-                        create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                        create_time: time_to_string(x.create_time), //创建时间
                         update_time: time_to_string(x.update_time), //修改时间
                     }
                 }
@@ -425,7 +425,7 @@ pub async fn query_sys_user_detail(
                 pwd_update_date: time_to_string(x.pwd_update_date), //密码最后更新时间
                 remark: x.remark,                                   //备注
                 del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
-                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
                 dept_info: dept,
             };
@@ -482,7 +482,7 @@ pub async fn query_sys_user_list(
                     pwd_update_date: time_to_string(x.pwd_update_date), //密码最后更新时间
                     remark: x.remark,                                   //备注
                     del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
-                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    create_time: time_to_string(x.create_time), //创建时间
                     update_time: time_to_string(x.update_time), //修改时间
                 })
             }
@@ -600,15 +600,15 @@ pub async fn query_user_role(
 
     for x in sys_role.unwrap() {
         sys_role_list.push(RoleList {
-            id: x.id.unwrap(),                                 //主键
-            role_name: x.role_name,                            //名称
-            role_key: x.role_key,                              //角色权限字符串
+            id: x.id.unwrap(),                          //主键
+            role_name: x.role_name,                     //名称
+            role_key: x.role_key,                       //角色权限字符串
             data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
             status: x.status,         //状态(1:正常，0:禁用)
             sort: x.sort,             //排序
             remark: x.remark,         //备注
             del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
-            create_time: x.create_time.unwrap().0.to_string(), //创建时间
+            create_time: time_to_string(x.create_time), //创建时间
             update_time: time_to_string(x.update_time), //修改时间
         });
     }

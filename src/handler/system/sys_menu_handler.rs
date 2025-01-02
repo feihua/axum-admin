@@ -193,18 +193,18 @@ pub async fn query_sys_menu_detail(
             let x = opt_menu.unwrap();
 
             let sys_menu = QueryMenuDetailResp {
-                id: x.id.unwrap_or_default(),                      //主键
-                menu_name: x.menu_name,                            //菜单名称
-                menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
-                visible: x.visible,     //菜单状态（0:隐藏, 显示:1）
-                status: x.status,       //状态(1:正常，0:禁用)
-                sort: x.sort,           //排序
-                parent_id: x.parent_id, //父ID
-                menu_url: x.menu_url.unwrap_or_default(), //路由路径
-                api_url: x.api_url.unwrap_or_default(), //接口URL
+                id: x.id.unwrap_or_default(),               //主键
+                menu_name: x.menu_name,                     //菜单名称
+                menu_type: x.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
+                visible: x.visible,                         //菜单状态（0:隐藏, 显示:1）
+                status: x.status,                           //状态(1:正常，0:禁用)
+                sort: x.sort,                               //排序
+                parent_id: x.parent_id,                     //父ID
+                menu_url: x.menu_url.unwrap_or_default(),   //路由路径
+                api_url: x.api_url.unwrap_or_default(),     //接口URL
                 menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
-                remark: x.remark.unwrap_or_default(), //备注
-                create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                remark: x.remark.unwrap_or_default(),       //备注
+                create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
@@ -236,8 +236,8 @@ pub async fn query_sys_menu_list(
             let mut menu_list: Vec<MenuListDataResp> = Vec::new();
             for x in list {
                 menu_list.push(MenuListDataResp {
-                    id: x.id.unwrap_or_default(),                      //主键
-                    menu_name: x.menu_name,                            //菜单名称
+                    id: x.id.unwrap_or_default(),               //主键
+                    menu_name: x.menu_name,                     //菜单名称
                     menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
                     visible: x.visible,     //菜单状态（0:隐藏, 显示:1）
                     status: x.status,       //状态(1:正常，0:禁用)
@@ -247,7 +247,7 @@ pub async fn query_sys_menu_list(
                     api_url: x.api_url.unwrap_or_default(), //接口URL
                     menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
                     remark: x.remark.unwrap_or_default(), //备注
-                    create_time: x.create_time.unwrap().0.to_string(), //创建时间
+                    create_time: time_to_string(x.create_time), //创建时间
                     update_time: time_to_string(x.update_time), //修改时间
                 })
             }
