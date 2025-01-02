@@ -4,6 +4,7 @@ create table sys_menu
         primary key,
     menu_name   varchar(50)                            not null comment '菜单名称',
     menu_type   tinyint      default 1                 not null comment '菜单类型(1：目录   2：菜单   3：按钮)',
+    visible     tinyint      default 1                 not null comment '菜单状态（0:隐藏, 显示:1）',
     `status`    tinyint      default 1                 not null comment '状态(1:正常，0:禁用)',
     sort        int          default 1                 not null comment '排序',
     parent_id   bigint       default 0                 not null comment '父ID',
@@ -103,9 +104,9 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典类型列', 3, 1, 6, 45, '', '/api/system/dictType/queryDictTypeList', '', '查询字典类型列');
 
 -- 配置字典数据权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据管理', 2, 1, 7, 2, '/system/dictData', '', '', '字典数据管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据', 2, 1, 7, 2, '/system/dictData', '', '', '字典数据管理');
 
-select * from sys_menu where menu_name='字典数据管理';
+select * from sys_menu where menu_name='字典数据';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加字典数据', 3, 1, 1, 52, '', '/api/system/dictData/addDictData', '', '添加字典数据');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除字典数据', 3, 1, 2, 52, '', '/api/system/dictData/deleteDictData', '', '删除字典数据');
@@ -126,33 +127,36 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告详情', 3, 1, 5, 59, '', '/api/system/notice/queryNoticeDetail', '', '查询通知公告详情');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告列', 3, 1, 6, 59, '', '/api/system/notice/queryNoticeList', '', '查询通知公告列');
 
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('日志管理', 1, 1, 2, 0, '/log', '', 'SettingOutlined', '日志管理');
+select * from sys_menu where menu_name='日志管理';
+
 -- 配置系统访问记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('登录日志', 2, 1, 9, 2, '/system/loginLog', '', '', '系统访问记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('登录日志', 2, 1, 9, 66, '/system/loginLog', '', '', '系统访问记录管理');
 
 select * from sys_menu where menu_name='登录日志';
 
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加系统访问记录', 3, 1, 1, 66, '', '/api/system/loginLog/addLoginLog', '', '添加系统访问记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除系统访问记录', 3, 1, 2, 66, '', '/api/system/loginLog/deleteLoginLog', '', '删除系统访问记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空系统登录日志', 3, 1, 3, 66, '', '/api/system/loginLog/cleanLoginLog', '', '清空系统登录日志');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录状态', 3, 1, 4, 66, '', '/api/system/loginLog/updateLoginLogStatus', '', '更新系统访问记录状态');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录详情', 3, 1, 5, 66, '', '/api/system/loginLog/queryLoginLogDetail', '', '查询系统访问记录详情');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录列', 3, 1, 6, 66, '', '/api/system/loginLog/queryLoginLogList', '', '查询系统访问记录列');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加系统访问记录', 3, 1, 1, 67, '', '/api/system/loginLog/addLoginLog', '', '添加系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除系统访问记录', 3, 1, 2, 67, '', '/api/system/loginLog/deleteLoginLog', '', '删除系统访问记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空系统登录日志', 3, 1, 3, 67, '', '/api/system/loginLog/cleanLoginLog', '', '清空系统登录日志');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新系统访问记录状态', 3, 1, 4, 67, '', '/api/system/loginLog/updateLoginLogStatus', '', '更新系统访问记录状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录详情', 3, 1, 5, 67, '', '/api/system/loginLog/queryLoginLogDetail', '', '查询系统访问记录详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询系统访问记录列', 3, 1, 6, 67, '', '/api/system/loginLog/queryLoginLogList', '', '查询系统访问记录列');
 
 
 -- 配置操作日志记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志', 2, 1, 10, 2, '/system/operateLog', '', '', '操作日志记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志', 2, 1, 10, 66, '/system/operateLog', '', '', '操作日志记录管理');
 
 select * from sys_menu where menu_name='操作日志';
 
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加操作日志记录', 3, 1, 1, 73, '', '/api/system/operateLog/addOperateLog', '', '添加操作日志记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除操作日志记录', 3, 1, 2, 73, '', '/api/system/operateLog/deleteOperateLog', '', '删除操作日志记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空操作日志记录', 3, 1, 3, 73, '', '/api/system/operateLog/cleanOperateLog', '', '清空操作日志记录');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录状态', 3, 1, 4, 73, '', '/api/system/operateLog/updateOperateLogStatus', '', '更新操作日志记录状态');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录详情', 3, 1, 5, 73, '', '/api/system/operateLog/queryOperateLogDetail', '', '查询操作日志记录详情');
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录列', 3, 1, 6, 73, '', '/api/system/operateLog/queryOperateLogList', '', '查询操作日志记录列');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加操作日志记录', 3, 1, 1, 74, '', '/api/system/operateLog/addOperateLog', '', '添加操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除操作日志记录', 3, 1, 2, 74, '', '/api/system/operateLog/deleteOperateLog', '', '删除操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('清空操作日志记录', 3, 1, 3, 74, '', '/api/system/operateLog/cleanOperateLog', '', '清空操作日志记录');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('更新操作日志记录状态', 3, 1, 4, 74, '', '/api/system/operateLog/updateOperateLogStatus', '', '更新操作日志记录状态');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录详情', 3, 1, 5, 74, '', '/api/system/operateLog/queryOperateLogDetail', '', '查询操作日志记录详情');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询操作日志记录列', 3, 1, 6, 74, '', '/api/system/operateLog/queryOperateLogList', '', '查询操作日志记录列');
 
 
-INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('其他', 1, 1, 2, 0, '/other', '', 'SettingOutlined', '其他');
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('其他', 1, 1, 3, 0, '/other', '', 'SettingOutlined', '其他');
 
 
 

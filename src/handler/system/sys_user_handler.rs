@@ -739,6 +739,9 @@ pub async fn query_user_menu(
                     let mut sys_menu_ids: HashSet<i64> = HashSet::new();
 
                     for x in sys_menu_list {
+                        if x.visible == 0 {
+                            continue;
+                        }
                         if x.menu_type != 3 {
                             sys_menu_ids.insert(x.id.unwrap_or_default().clone());
                             sys_menu_ids.insert(x.parent_id.clone());

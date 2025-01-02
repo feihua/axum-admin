@@ -16,6 +16,7 @@ pub struct Menu {
     pub id: Option<i64>,               //主键
     pub menu_name: String,             //菜单名称
     pub menu_type: i8,                 //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,                   //菜单状态（0:隐藏, 显示:1）
     pub status: i8,                    //状态(1:正常，0:禁用)
     pub sort: i32,                     //排序
     pub parent_id: i64,                //父ID

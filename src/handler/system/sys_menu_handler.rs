@@ -35,6 +35,7 @@ pub async fn add_sys_menu(
         id: None,                               //主键
         menu_name: item.menu_name,              //菜单名称
         menu_type: item.menu_type,              //菜单类型(1：目录   2：菜单   3：按钮)
+        visible: item.visible,                  //菜单状态（0:隐藏, 显示:1）
         status: item.status,                    //状态(1:正常，0:禁用)
         sort: item.sort,                        //排序
         parent_id: item.parent_id.unwrap_or(0), //父ID
@@ -116,6 +117,7 @@ pub async fn update_sys_menu(
         id: Some(item.id),         //主键
         menu_name: item.menu_name, //菜单名称
         menu_type: item.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
+        visible: item.visible,     //菜单状态（0:隐藏, 显示:1）
         status: item.status,       //状态(1:正常，0:禁用)
         sort: item.sort,           //排序
         parent_id: item.parent_id, //父ID
@@ -194,6 +196,7 @@ pub async fn query_sys_menu_detail(
                 id: x.id.unwrap_or_default(),                      //主键
                 menu_name: x.menu_name,                            //菜单名称
                 menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
+                visible: x.visible,     //菜单状态（0:隐藏, 显示:1）
                 status: x.status,       //状态(1:正常，0:禁用)
                 sort: x.sort,           //排序
                 parent_id: x.parent_id, //父ID
@@ -236,6 +239,7 @@ pub async fn query_sys_menu_list(
                     id: x.id.unwrap_or_default(),                      //主键
                     menu_name: x.menu_name,                            //菜单名称
                     menu_type: x.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
+                    visible: x.visible,     //菜单状态（0:隐藏, 显示:1）
                     status: x.status,       //状态(1:正常，0:禁用)
                     sort: x.sort,           //排序
                     parent_id: x.parent_id, //父ID

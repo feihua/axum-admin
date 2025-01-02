@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct AddMenuReq {
     pub menu_name: String,         //菜单名称
     pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,               //菜单状态（0:隐藏, 显示:1）
     pub status: i8,                //状态(1:正常，0:禁用)
     pub sort: i32,                 //排序
     pub parent_id: Option<i64>,    //父ID
@@ -35,6 +36,7 @@ pub struct UpdateMenuReq {
     pub id: i64,                   //主键
     pub menu_name: String,         //菜单名称
     pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,               //菜单状态（0:隐藏, 显示:1）
     pub status: i8,                //状态(1:正常，0:禁用)
     pub sort: i32,                 //排序
     pub parent_id: i64,            //父ID
@@ -69,6 +71,7 @@ pub struct QueryMenuDetailResp {
     pub id: i64,             //主键
     pub menu_name: String,   //菜单名称
     pub menu_type: i8,       //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,         //菜单状态（0:隐藏, 显示:1）
     pub status: i8,          //状态(1:正常，0:禁用)
     pub sort: i32,           //排序
     pub parent_id: i64,      //父ID
@@ -86,6 +89,7 @@ impl QueryMenuDetailResp {
             id: 0,
             menu_name: "".to_string(),
             menu_type: 0,
+            visible: 0,
             status: 0,
             sort: 0,
             parent_id: 0,
@@ -115,6 +119,7 @@ pub struct MenuListDataResp {
     pub id: i64,             //主键
     pub menu_name: String,   //菜单名称
     pub menu_type: i8,       //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,         //菜单状态（0:隐藏, 显示:1）
     pub status: i8,          //状态(1:正常，0:禁用)
     pub sort: i32,           //排序
     pub parent_id: i64,      //父ID
