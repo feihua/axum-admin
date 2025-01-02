@@ -35,18 +35,18 @@ pub async fn add_sys_dept(
     }
 
     let sys_dept = Dept {
-        id: None,                  //部门id
-        parent_id: item.parent_id, //父部门id
-        ancestors: item.ancestors, //祖级列表
-        dept_name: item.dept_name, //部门名称
-        sort: item.sort,           //显示顺序
-        leader: item.leader,       //负责人
-        phone: item.phone,         //联系电话
-        email: item.email,         //邮箱
-        status: item.status,       //部门状态（0：停用，1:正常）
-        del_flag: 1,               //删除标志（0代表删除 1代表存在）
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
+        id: None,                                      //部门id
+        parent_id: item.parent_id,                     //父部门id
+        ancestors: item.ancestors.unwrap_or_default(), //祖级列表
+        dept_name: item.dept_name,                     //部门名称
+        sort: item.sort,                               //显示顺序
+        leader: item.leader,                           //负责人
+        phone: item.phone,                             //联系电话
+        email: item.email,                             //邮箱
+        status: item.status,                           //部状态（0：停用，1:正常）
+        del_flag: Some(1),                             //删除标志（0代表删除 1代表存在）
+        create_time: None,                             //创建时间
+        update_time: None,                             //修改时间
     };
 
     let result = Dept::insert(rb, &sys_dept).await;
@@ -131,8 +131,8 @@ pub async fn update_sys_dept(
         leader: item.leader,       //负责人
         phone: item.phone,         //联系电话
         email: item.email,         //邮箱
-        status: item.status,       //部门状态（0：停用，1:正常）
-        del_flag: item.del_flag,   //删除标志（0代表删除 1代表存在）
+        status: item.status,       //部状态（0：停用，1:正常）
+        del_flag: None,            //删除标志（0代表删除 1代表存在）
         create_time: None,         //创建时间
         update_time: None,         //修改时间
     };
@@ -209,8 +209,8 @@ pub async fn query_sys_dept_detail(
                 leader: x.leader,                                  //负责人
                 phone: x.phone,                                    //联系电话
                 email: x.email,                                    //邮箱
-                status: x.status,                                  //部门状态（0：停用，1:正常）
-                del_flag: x.del_flag,                              //删除标志（0代表删除 1代表存在）
+                status: x.status,                                  //部状态（0：停用，1:正常）
+                del_flag: x.del_flag.unwrap_or_default(),          //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
             };
@@ -236,14 +236,11 @@ pub async fn query_sys_dept_list(
     log::info!("query sys_dept_list params: {:?}", &item);
     let rb = &state.batis;
 
-    // let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
-    // let leader = item.leader.as_deref().unwrap_or_default(); //负责人
-    // let phone = item.phone.as_deref().unwrap_or_default(); //联系电话
-    // let email = item.email.as_deref().unwrap_or_default(); //邮箱
-    // let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
+    let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
+    let status = item.status.unwrap_or(2); //部状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Dept::select_page(rb, page).await;
+    let result = Dept::select_page_dept_list(rb, page, dept_name, status).await;
 
     let mut sys_dept_list_data: Vec<DeptListDataResp> = Vec::new();
     match result {
@@ -260,8 +257,8 @@ pub async fn query_sys_dept_list(
                     leader: x.leader,                                  //负责人
                     phone: x.phone,                                    //联系电话
                     email: x.email,                                    //邮箱
-                    status: x.status,                                  //部门状态（0：停用，1:正常）
-                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                    status: x.status,                                  //部状态（0：停用，1:正常）
+                    del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间
                 })

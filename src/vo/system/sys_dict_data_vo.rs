@@ -15,7 +15,7 @@ pub struct AddDictDataReq {
     pub css_class: String,      //样式属性（其他样式扩展）
     pub list_class: String,     //表格回显样式
     pub is_default: String,     //是否默认（Y是 N否）
-    pub status: i8,             //门状态（0：停用，1:正常）
+    pub status: i8,             //状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -40,7 +40,7 @@ pub struct UpdateDictDataReq {
     pub css_class: String,      //样式属性（其他样式扩展）
     pub list_class: String,     //表格回显样式
     pub is_default: String,     //是否默认（Y是 N否）
-    pub status: i8,             //门状态（0：停用，1:正常）
+    pub status: i8,             //状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -74,7 +74,7 @@ pub struct QueryDictDataDetailResp {
     pub css_class: String,   //样式属性（其他样式扩展）
     pub list_class: String,  //表格回显样式
     pub is_default: String,  //是否默认（Y是 N否）
-    pub status: i8,          //门状态（0：停用，1:正常）
+    pub status: i8,          //状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间
@@ -91,7 +91,7 @@ impl QueryDictDataDetailResp {
             css_class: "".to_string(),   //样式属性（其他样式扩展）
             list_class: "".to_string(),  //表格回显样式
             is_default: "".to_string(),  //是否默认（Y是 N否）
-            status: 0,                   //门状态（0：停用，1:正常）
+            status: 0,                   //状态（0：停用，1:正常）
             remark: "".to_string(),      //备注
             create_time: "".to_string(), //创建时间
             update_time: "".to_string(), //修改时间
@@ -111,7 +111,7 @@ pub struct QueryDictDataListReq {
     pub dict_label: Option<String>, //字典标签
     pub dict_value: Option<String>, //字典键值
     pub dict_type: Option<String>,  //字典类型
-    pub status: Option<i8>,         //门状态（0：停用，1:正常）
+    pub status: Option<i8>,         //状态（0：停用，1:正常）
 }
 
 /*
@@ -127,7 +127,7 @@ pub struct DictDataListDataResp {
     pub css_class: String,   //样式属性（其他样式扩展）
     pub list_class: String,  //表格回显样式
     pub is_default: String,  //是否默认（Y是 N否）
-    pub status: i8,          //门状态（0：停用，1:正常）
+    pub status: i8,          //状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间

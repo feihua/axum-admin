@@ -31,7 +31,7 @@ pub async fn add_sys_dict_data(
         css_class: item.css_class,               //样式属性（其他样式扩展）
         list_class: item.list_class,             //格回显样式
         is_default: item.is_default,             //是否默认（Y是 N否）
-        status: item.status,                     //门状态（0：停用，1:正常）
+        status: item.status,                     //状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //修改时间
@@ -86,7 +86,7 @@ pub async fn update_sys_dict_data(
         css_class: item.css_class,               //样式属性（其他样式扩展）
         list_class: item.list_class,             //格回显样式
         is_default: item.is_default,             //是否默认（Y是 N否）
-        status: item.status,                     //门状态（0：停用，1:正常）
+        status: item.status,                     //状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //修改时间
@@ -165,7 +165,7 @@ pub async fn query_sys_dict_data_detail(
                 css_class: x.css_class,                     //样式属性（其他样式扩展）
                 list_class: x.list_class,                   //格回显样式
                 is_default: x.is_default,                   //是否默认（Y是 N否）
-                status: x.status,                           //门状态（0：停用，1:正常）
+                status: x.status,                           //状态（0：停用，1:正常）
                 remark: x.remark,                           //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
@@ -193,7 +193,7 @@ pub async fn query_sys_dict_data_list(
     let rb = &state.batis;
     let dict_label = item.dict_label.as_deref().unwrap_or_default(); //字典标签
     let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
-    let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
+    let status = item.status.unwrap_or(2); //状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = DictData::select_dict_data_list(rb, page, dict_label, dict_type, status).await;
@@ -213,7 +213,7 @@ pub async fn query_sys_dict_data_list(
                     css_class: x.css_class,                     //样式属性（其他样式扩展）
                     list_class: x.list_class,                   //格回显样式
                     is_default: x.is_default,                   //是否默认（Y是 N否）
-                    status: x.status,                           //门状态（0：停用，1:正常）
+                    status: x.status,                           //状态（0：停用，1:正常）
                     remark: x.remark,                           //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间

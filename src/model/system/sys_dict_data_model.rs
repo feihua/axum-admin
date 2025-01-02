@@ -21,7 +21,7 @@ pub struct DictData {
     pub css_class: String,             //样式属性（其他样式扩展）
     pub list_class: String,            //表格回显样式
     pub is_default: String,            //是否默认（Y是 N否）
-    pub status: i8,                    //门状态（0：停用，1:正常）
+    pub status: i8,                    //状态（0：停用，1:正常）
     pub remark: String,                //备注
     pub create_time: Option<DateTime>, //创建时间
     pub update_time: Option<DateTime>, //修改时间

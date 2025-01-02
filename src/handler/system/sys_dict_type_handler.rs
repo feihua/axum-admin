@@ -38,7 +38,7 @@ pub async fn add_sys_dict_type(
         dict_id: None,                           //字典主键
         dict_name: item.dict_name,               //字典名称
         dict_type: item.dict_type,               //字典类型
-        status: item.status,                     //门状态（0：停用，1:正常）
+        status: item.status,                     //状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //修改时间
@@ -128,7 +128,7 @@ pub async fn update_sys_dict_type(
         dict_id: Some(item.dict_id),             //字典主键
         dict_name: item.dict_name,               //字典名称
         dict_type: item.dict_type,               //字典类型
-        status: item.status,                     //门状态（0：停用，1:正常）
+        status: item.status,                     //状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //修改时间
@@ -201,7 +201,7 @@ pub async fn query_sys_dict_type_detail(
                 dict_id: x.dict_id.unwrap_or_default(),            //字典主键
                 dict_name: x.dict_name,                            //字典名称
                 dict_type: x.dict_type,                            //字典类型
-                status: x.status,                                  //门状态（0：停用，1:正常）
+                status: x.status,                                  //状态（0：停用，1:正常）
                 remark: x.remark,                                  //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //修改时间
@@ -229,7 +229,7 @@ pub async fn query_sys_dict_type_list(
     let rb = &state.batis;
     let dict_name = item.dict_name.as_deref().unwrap_or_default(); //字典名称
     let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
-    let status = item.status.unwrap_or(2); //门状态（0：停用，1:正常）
+    let status = item.status.unwrap_or(2); //状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = DictType::select_dict_type_list(rb, page, dict_name, dict_type, status).await;
@@ -244,7 +244,7 @@ pub async fn query_sys_dict_type_list(
                     dict_id: x.dict_id.unwrap_or_default(),            //字典主键
                     dict_name: x.dict_name,                            //字典名称
                     dict_type: x.dict_type,                            //字典类型
-                    status: x.status,                                  //门状态（0：停用，1:正常）
+                    status: x.status,                                  //状态（0：停用，1:正常）
                     remark: x.remark,                                  //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //修改时间

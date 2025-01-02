@@ -11,7 +11,7 @@ pub struct AddPostReq {
     pub post_code: String,      //岗位编码
     pub post_name: String,      //岗位名称
     pub sort: i32,              //显示顺序
-    pub status: i8,             //部门状态（0：停用，1:正常）
+    pub status: i8,             //部状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -32,7 +32,7 @@ pub struct UpdatePostReq {
     pub post_code: String,      //岗位编码
     pub post_name: String,      //岗位名称
     pub sort: i32,              //显示顺序
-    pub status: i8,             //部门状态（0：停用，1:正常）
+    pub status: i8,             //部状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -62,7 +62,7 @@ pub struct QueryPostDetailResp {
     pub post_code: String,   //岗位编码
     pub post_name: String,   //岗位名称
     pub sort: i32,           //显示顺序
-    pub status: i8,          //部门状态（0：停用，1:正常）
+    pub status: i8,          //部状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //更新时间
@@ -75,7 +75,7 @@ impl QueryPostDetailResp {
             post_code: "".to_string(),   //岗位编码
             post_name: "".to_string(),   //岗位名称
             sort: 0,                     //显示顺序
-            status: 0,                   //部门状态（0：停用，1:正常）
+            status: 0,                   //部状态（0：停用，1:正常）
             remark: "".to_string(),      //备注
             create_time: "".to_string(), //创建时间
             update_time: "".to_string(), //更新时间
@@ -94,7 +94,7 @@ pub struct QueryPostListReq {
     pub page_size: u64,
     pub post_code: Option<String>, //岗位编码
     pub post_name: Option<String>, //岗位名称
-    pub status: Option<i8>,        //部门状态（0：停用，1:正常）
+    pub status: Option<i8>,        //部状态（0：停用，1:正常）
 }
 
 /*
@@ -106,7 +106,7 @@ pub struct PostListDataResp {
     pub post_code: String,   //岗位编码
     pub post_name: String,   //岗位名称
     pub sort: i32,           //显示顺序
-    pub status: i8,          //部门状态（0：停用，1:正常）
+    pub status: i8,          //部状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //更新时间

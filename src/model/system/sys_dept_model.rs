@@ -21,8 +21,8 @@ pub struct Dept {
     pub leader: String,                //负责人
     pub phone: String,                 //联系电话
     pub email: String,                 //邮箱
-    pub status: i8,                    //部门状态（0：停用，1:正常）
-    pub del_flag: i8,                  //删除标志（0代删除 1代存在）
+    pub status: i8,                    //部状态（0：停用，1:正常）
+    pub del_flag: Option<i8>,          //删除标志（0代删除 1代存在）
     pub create_time: Option<DateTime>, //创建时间
     pub update_time: Option<DateTime>, //修改时间
 }
@@ -63,11 +63,14 @@ impl_select_page!(Dept{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Dept{select_page_by_name(name:&str) =>"
-     if name != null && name != '':
-       where real_name != #{name}
-     if name == '':
-       where real_name != ''"
+impl_select_page!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
+    where 1=1
+     if dept_name != null && dept_name != '':
+      ` and dept_name = #{dept_name} `
+     if status != 2:
+      ` and status = #{status} `
+     if !sql.contains('count'):
+      ` order by create_time desc"
 },"sys_dept");
 
 /*

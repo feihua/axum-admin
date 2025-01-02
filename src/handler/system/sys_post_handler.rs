@@ -51,7 +51,7 @@ pub async fn add_sys_post(
         post_code: item.post_code,               //岗位编码
         post_name: item.post_name,               //岗位名称
         sort: item.sort,                         //显示顺序
-        status: item.status,                     //部门状态（0：停用，1:正常）
+        status: item.status,                     //部状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //更新时间
@@ -149,7 +149,7 @@ pub async fn update_sys_post(
         post_code: item.post_code,               //岗位编码
         post_name: item.post_name,               //岗位名称
         sort: item.sort,                         //显示顺序
-        status: item.status,                     //部门状态（0：停用，1:正常）
+        status: item.status,                     //部状态（0：停用，1:正常）
         remark: item.remark.unwrap_or_default(), //备注
         create_time: None,                       //创建时间
         update_time: None,                       //更新时间
@@ -223,7 +223,7 @@ pub async fn query_sys_post_detail(
                 post_code: x.post_code,                            //岗位编码
                 post_name: x.post_name,                            //岗位名称
                 sort: x.sort,                                      //显示顺序
-                status: x.status,                                  //部门状态（0：停用，1:正常）
+                status: x.status,                                  //部状态（0：停用，1:正常）
                 remark: x.remark,                                  //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
                 update_time: x.update_time.unwrap().0.to_string(), //更新时间
@@ -251,7 +251,7 @@ pub async fn query_sys_post_list(
     let rb = &state.batis;
     let post_code = item.post_code.as_deref().unwrap_or_default(); //岗位编码
     let post_name = item.post_name.as_deref().unwrap_or_default(); //岗位名称
-    let status = item.status.unwrap_or(2); //部门状态（0：停用，1:正常）
+    let status = item.status.unwrap_or(2); //部状态（0：停用，1:正常）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
     let result = Post::select_post_list(rb, page, post_code, post_name, status).await;
@@ -267,7 +267,7 @@ pub async fn query_sys_post_list(
                     post_code: x.post_code,                            //岗位编码
                     post_name: x.post_name,                            //岗位名称
                     sort: x.sort,                                      //显示顺序
-                    status: x.status,                                  //部门状态（0：停用，1:正常）
+                    status: x.status,                                  //部状态（0：停用，1:正常）
                     remark: x.remark,                                  //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
                     update_time: x.update_time.unwrap().0.to_string(), //更新时间

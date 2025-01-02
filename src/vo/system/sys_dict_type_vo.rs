@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct AddDictTypeReq {
     pub dict_name: String,      //字典名称
     pub dict_type: String,      //字典类型
-    pub status: i8,             //门状态（0：停用，1:正常）
+    pub status: i8,             //状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -30,7 +30,7 @@ pub struct UpdateDictTypeReq {
     pub dict_id: i64,           //字典主键
     pub dict_name: String,      //字典名称
     pub dict_type: String,      //字典类型
-    pub status: i8,             //门状态（0：停用，1:正常）
+    pub status: i8,             //状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
@@ -59,7 +59,7 @@ pub struct QueryDictTypeDetailResp {
     pub dict_id: i64,        //字典主键
     pub dict_name: String,   //字典名称
     pub dict_type: String,   //字典类型
-    pub status: i8,          //门状态（0：停用，1:正常）
+    pub status: i8,          //状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间
@@ -71,7 +71,7 @@ impl QueryDictTypeDetailResp {
             dict_id: 0,                  //字典主键
             dict_name: "".to_string(),   //字典名称
             dict_type: "".to_string(),   //字典类型
-            status: 0,                   //门状态（0：停用，1:正常）
+            status: 0,                   //状态（0：停用，1:正常）
             remark: "".to_string(),      //备注
             create_time: "".to_string(), //创建时间
             update_time: "".to_string(), //修改时间
@@ -90,7 +90,7 @@ pub struct QueryDictTypeListReq {
     pub page_size: u64,
     pub dict_name: Option<String>, //字典名称
     pub dict_type: Option<String>, //字典类型
-    pub status: Option<i8>,        //门状态（0：停用，1:正常）
+    pub status: Option<i8>,        //状态（0：停用，1:正常）
 }
 
 /*
@@ -101,7 +101,7 @@ pub struct DictTypeListDataResp {
     pub dict_id: i64,        //字典主键
     pub dict_name: String,   //字典名称
     pub dict_type: String,   //字典类型
-    pub status: i8,          //门状态（0：停用，1:正常）
+    pub status: i8,          //状态（0：停用，1:正常）
     pub remark: String,      //备注
     pub create_time: String, //创建时间
     pub update_time: String, //修改时间

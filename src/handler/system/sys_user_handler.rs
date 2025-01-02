@@ -392,8 +392,8 @@ pub async fn query_sys_user_detail(
                         leader: x.leader,                                  //负责人
                         phone: x.phone,                                    //联系电话
                         email: x.email,                                    //邮箱
-                        status: x.status,     //部门状态（0：停用，1:正常）
-                        del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
+                        status: x.status, //部状态（0：停用，1:正常）
+                        del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
                         create_time: x.create_time.unwrap().0.to_string(), //创建时间
                         update_time: x.update_time.unwrap().0.to_string(), //修改时间
                     }
