@@ -1,5 +1,6 @@
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_notice_model::Notice;
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_notice_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -8,7 +9,6 @@ use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbs::to_value;
 use std::sync::Arc;
-
 /*
  *添加通知公告表
  *author：刘飞华
@@ -175,7 +175,7 @@ pub async fn query_sys_notice_detail(
                 status: x.status,                                  //公告状态（0:关闭,1:正常 ）
                 remark: x.remark,                                  //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time),        //修改时间
             };
 
             BaseResponse::<QueryNoticeDetailResp>::ok_result_data(sys_notice)
@@ -220,7 +220,7 @@ pub async fn query_sys_notice_list(
                     status: x.status,                                  //公告状态（0:关闭,1:正常 ）
                     remark: x.remark,                                  //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time),        //修改时间
                 })
             }
 

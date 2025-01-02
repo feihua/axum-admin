@@ -7,6 +7,7 @@ use crate::model::system::sys_user_post_model::UserPost;
 use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
@@ -395,7 +396,7 @@ pub async fn query_sys_user_detail(
                         status: x.status, //部状态（0：停用，1:正常）
                         del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
                         create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                        update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                        update_time: time_to_string(x.update_time), //修改时间
                     }
                 }
                 Err(err) => {
@@ -425,7 +426,7 @@ pub async fn query_sys_user_detail(
                 remark: x.remark,                                          //备注
                 del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time), //修改时间
                 dept_info: dept,
             };
 
@@ -464,25 +465,25 @@ pub async fn query_sys_user_list(
             let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
             for x in d.records {
                 sys_user_list_data.push(UserListDataResp {
-                    id: x.id.unwrap_or_default(),                              //主键
-                    mobile: x.mobile,                                          //手机
-                    user_name: x.user_name,                                    //姓名
-                    nick_name: x.nick_name,                                    //用户昵称
-                    user_type: x.user_type.unwrap_or_default(), //用户类型（00系统用户）
-                    email: x.email,                             //用户邮箱
-                    avatar: x.avatar,                           //头像路径
-                    status: x.status,                           //状态(1:正常，0:禁用)
-                    sort: x.sort,                               //排序
-                    dept_id: x.dept_id,                         //部门ID
-                    login_ip: x.login_ip,                       //最后登录IP
-                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
-                    login_browser: x.login_browser,             //浏览器类型
-                    login_os: x.login_os,                       //操作系统
-                    pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
-                    remark: x.remark,                           //备注
-                    del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
+                    id: x.id.unwrap_or_default(),                       //主键
+                    mobile: x.mobile,                                   //手机
+                    user_name: x.user_name,                             //姓名
+                    nick_name: x.nick_name,                             //用户昵称
+                    user_type: x.user_type.unwrap_or_default(),         //用户类型（00系统用户）
+                    email: x.email,                                     //用户邮箱
+                    avatar: x.avatar,                                   //头像路径
+                    status: x.status,                                   //状态(1:正常，0:禁用)
+                    sort: x.sort,                                       //排序
+                    dept_id: x.dept_id,                                 //部门ID
+                    login_ip: x.login_ip,                               //最后登录IP
+                    login_date: time_to_string(x.login_date),           //最后登录时间
+                    login_browser: x.login_browser,                     //浏览器类型
+                    login_os: x.login_os,                               //操作系统
+                    pwd_update_date: time_to_string(x.pwd_update_date), //密码最后更新时间
+                    remark: x.remark,                                   //备注
+                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 
@@ -608,7 +609,7 @@ pub async fn query_user_role(
             remark: x.remark,         //备注
             del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
             create_time: x.create_time.unwrap().0.to_string(), //创建时间
-            update_time: x.update_time.unwrap().0.to_string(), //修改时间
+            update_time: time_to_string(x.update_time), //修改时间
         });
     }
 

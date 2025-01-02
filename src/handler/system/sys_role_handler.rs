@@ -7,6 +7,7 @@ use crate::model::system::sys_user_model::{select_allocated_list, select_unalloc
 use crate::model::system::sys_user_role_model::{
     count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole,
 };
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserListDataResp;
 use crate::AppState;
@@ -17,7 +18,6 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
 use rbs::to_value;
 use std::sync::Arc;
-
 /*
  *添加角色信息
  *author：刘飞华
@@ -258,7 +258,7 @@ pub async fn query_sys_role_detail(
                 remark: x.remark,         //备注
                 del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time), //修改时间
             };
 
             BaseResponse::<QueryRoleDetailResp>::ok_result_data(sys_role)
@@ -304,7 +304,7 @@ pub async fn query_sys_role_list(
                     remark: x.remark,         //备注
                     del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 
@@ -448,7 +448,7 @@ pub async fn allocated_list(
                     remark: x.remark,                           //备注
                     del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 
@@ -503,7 +503,7 @@ pub async fn unallocated_list(
                     remark: x.remark,                           //备注
                     del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 

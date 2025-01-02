@@ -1,6 +1,7 @@
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_post_model::Post;
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_post_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -9,7 +10,6 @@ use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbs::to_value;
 use std::sync::Arc;
-
 /*
  *添加岗位信息表
  *author：刘飞华
@@ -226,7 +226,7 @@ pub async fn query_sys_post_detail(
                 status: x.status,                                  //部状态（0：停用，1:正常）
                 remark: x.remark,                                  //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //更新时间
+                update_time: time_to_string(x.update_time),        //更新时间
             };
 
             BaseResponse::<QueryPostDetailResp>::ok_result_data(sys_post)
@@ -270,7 +270,7 @@ pub async fn query_sys_post_list(
                     status: x.status,                                  //部状态（0：停用，1:正常）
                     remark: x.remark,                                  //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //更新时间
+                    update_time: time_to_string(x.update_time),        //更新时间
                 })
             }
 

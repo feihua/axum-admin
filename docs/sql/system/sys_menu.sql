@@ -127,9 +127,9 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询通知公告列', 3, 1, 6, 59, '', '/api/system/notice/queryNoticeList', '', '查询通知公告列');
 
 -- 配置系统访问记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('系统访问记录管理', 2, 1, 9, 2, '/system/loginLog', '', '', '系统访问记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('登录日志', 2, 1, 9, 2, '/system/loginLog', '', '', '系统访问记录管理');
 
-select * from sys_menu where menu_name='系统访问记录管理';
+select * from sys_menu where menu_name='登录日志';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加系统访问记录', 3, 1, 1, 66, '', '/api/system/loginLog/addLoginLog', '', '添加系统访问记录');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除系统访问记录', 3, 1, 2, 66, '', '/api/system/loginLog/deleteLoginLog', '', '删除系统访问记录');
@@ -140,9 +140,9 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 
 
 -- 配置操作日志记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志记录管理', 2, 1, 10, 2, '/system/operateLog', '', '', '操作日志记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志', 2, 1, 10, 2, '/system/operateLog', '', '', '操作日志记录管理');
 
-select * from sys_menu where menu_name='操作日志记录管理';
+select * from sys_menu where menu_name='操作日志';
 
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('添加操作日志记录', 3, 1, 1, 73, '', '/api/system/operateLog/addOperateLog', '', '添加操作日志记录');
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('删除操作日志记录', 3, 1, 2, 73, '', '/api/system/operateLog/deleteOperateLog', '', '删除操作日志记录');

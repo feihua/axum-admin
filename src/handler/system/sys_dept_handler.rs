@@ -10,6 +10,7 @@ use crate::common::result::BaseResponse;
 use crate::model::system::sys_dept_model::{
     check_dept_exist_user, select_dept_count, select_normal_children_dept_by_id, Dept,
 };
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dept_vo::*;
 
 /*
@@ -212,7 +213,7 @@ pub async fn query_sys_dept_detail(
                 status: x.status,                                  //部状态（0：停用，1:正常）
                 del_flag: x.del_flag.unwrap_or_default(),          //删除标志（0代表删除 1代表存在）
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time),        //修改时间
             };
 
             BaseResponse::<QueryDeptDetailResp>::ok_result_data(sys_dept)
@@ -260,7 +261,7 @@ pub async fn query_sys_dept_list(
                     status: x.status,                                  //部状态（0：停用，1:正常）
                     del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 

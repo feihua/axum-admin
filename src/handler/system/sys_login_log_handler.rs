@@ -109,7 +109,8 @@ pub async fn query_sys_login_log_list(
     let status = item.status.unwrap_or(2); //登录状态(0:失败,1:成功)
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = LoginLog::select_page_by_name(rb, page, name, ipaddr, browser, os, &status).await;
+    let result =
+        LoginLog::select_login_log_list(rb, page, name, ipaddr, browser, os, &status).await;
 
     let mut sys_login_log_list_data: Vec<LoginLogListDataResp> = Vec::new();
     match result {

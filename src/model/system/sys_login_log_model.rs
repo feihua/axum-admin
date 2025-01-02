@@ -53,7 +53,7 @@ impl_select_page!(LoginLog{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(LoginLog{select_page_by_name(name:&str, ipaddr:&str,browser:&str,os:&str,status:&i8) =>"
+impl_select_page!(LoginLog{select_login_log_list(name:&str, ipaddr:&str,browser:&str,os:&str,status:&i8) =>"
     where 1=1
      if name != '':
        ` and login_name = #{name} `

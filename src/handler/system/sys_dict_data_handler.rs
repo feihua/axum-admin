@@ -8,6 +8,7 @@ use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dict_data_model::DictData;
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dict_data_vo::*;
 
 /*
@@ -168,7 +169,7 @@ pub async fn query_sys_dict_data_detail(
                 status: x.status,                           //状态（0：停用，1:正常）
                 remark: x.remark,                           //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time), //修改时间
             };
 
             BaseResponse::<QueryDictDataDetailResp>::ok_result_data(sys_dict_data)
@@ -216,7 +217,7 @@ pub async fn query_sys_dict_data_list(
                     status: x.status,                           //状态（0：停用，1:正常）
                     remark: x.remark,                           //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 

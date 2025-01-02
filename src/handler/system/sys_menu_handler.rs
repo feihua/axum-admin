@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_menu_vo::*;
 /*
  *添加菜单信息
@@ -201,7 +202,7 @@ pub async fn query_sys_menu_detail(
                 menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
                 remark: x.remark.unwrap_or_default(), //备注
                 create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                update_time: time_to_string(x.update_time), //修改时间
             };
 
             BaseResponse::<QueryMenuDetailResp>::ok_result_data(sys_menu)
@@ -243,7 +244,7 @@ pub async fn query_sys_menu_list(
                     menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
                     remark: x.remark.unwrap_or_default(), //备注
                     create_time: x.create_time.unwrap().0.to_string(), //创建时间
-                    update_time: x.update_time.unwrap().0.to_string(), //修改时间
+                    update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 
