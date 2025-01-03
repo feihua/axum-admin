@@ -10,7 +10,6 @@ create table sys_user
     email           varchar(50)  default ''                not null comment '用户邮箱',
     password        varchar(64)                            not null comment '密码',
     status          tinyint      default 1                 not null comment '状态(1:正常，0:禁用)',
-    sort            int          default 1                 not null comment '排序',
     dept_id         bigint       default 1                 not null comment '部门ID',
     login_ip        varchar(128) default ''                not null comment '最后登录IP',
     login_date      datetime comment '最后登录时间',
@@ -26,6 +25,6 @@ create table sys_user
 ) comment '用户信息';
 
 
-INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, sort, remark) VALUES (1, '18613030111', 'admin','admin', 'xx@qq.com','123456', 1, 1, '超级管理员');
-INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, sort, remark) VALUES (2, '18613030222', 'test', 'test', '123@qq.com','123456', 1, 2,'演示权限');
+INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, remark) VALUES (1, '18613030111', 'admin','admin', 'xx@qq.com','123456', 1,  '超级管理员');
+INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, remark) VALUES (2, '18613030222', 'test', 'test', '123@qq.com','123456', 1, '演示权限');
 

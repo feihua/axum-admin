@@ -698,7 +698,6 @@ pub async fn query_user_role(
             role_key: x.role_key,                       //角色权限字符串
             data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
             status: x.status,         //状态(1:正常，0:禁用)
-            sort: x.sort,             //排序
             remark: x.remark,         //备注
             del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
             create_time: time_to_string(x.create_time), //创建时间
