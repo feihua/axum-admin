@@ -65,11 +65,11 @@ impl_select_page!(Role{select_page() =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select_page!(Role{select_page_by_name(role_name:&str,status_id:i8) =>"
+impl_select_page!(Role{select_sys_role_list(role_name:&str,status:i8) =>"
       where 1=1
      if role_name != null && role_name != '':
        ` and role_name = #{role_name} `
-     if status_id != 2:
-       ` and status_id = #{status_id} `
+     if status != 2:
+       ` and status = #{status} `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_role");

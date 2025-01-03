@@ -283,7 +283,7 @@ pub async fn query_sys_role_list(
     let status = item.status_id.unwrap_or(2);
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Role::select_page_by_name(rb, page, role_name, status).await;
+    let result = Role::select_sys_role_list(rb, page, role_name, status).await;
 
     match result {
         Ok(d) => {

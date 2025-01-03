@@ -496,7 +496,7 @@ pub async fn query_sys_user_list(
     let dept_id = item.dept_id.unwrap_or_default();
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = User::select_page_by_name(rb, page, mobile, user_name, status, dept_id).await;
+    let result = User::select_sys_user_list(rb, page, mobile, user_name, status, dept_id).await;
 
     match result {
         Ok(d) => {
@@ -683,7 +683,7 @@ pub async fn query_user_role(
     let user_role = UserRole::select_by_column(rb, "user_id", item.user_id).await;
     let mut user_role_ids: Vec<i64> = Vec::new();
 
-    for x in user_role.unwrap() {
+    for x in user_role.unwrap_or_default() {
         user_role_ids.push(x.role_id);
     }
 
@@ -691,18 +691,20 @@ pub async fn query_user_role(
 
     let mut sys_role_list: Vec<RoleList> = Vec::new();
 
-    for x in sys_role.unwrap() {
-        sys_role_list.push(RoleList {
-            id: x.id.unwrap(),                          //主键
-            role_name: x.role_name,                     //名称
-            role_key: x.role_key,                       //角色权限字符串
-            data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
-            status: x.status,         //状态(1:正常，0:禁用)
-            remark: x.remark,         //备注
-            del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
-            create_time: time_to_string(x.create_time), //创建时间
-            update_time: time_to_string(x.update_time), //修改时间
-        });
+    for x in sys_role.unwrap_or_default() {
+        if x.status == 1 {
+            sys_role_list.push(RoleList {
+                id: x.id.unwrap_or_default(),               //主键
+                role_name: x.role_name,                     //名称
+                role_key: x.role_key,                       //角色权限字符串
+                data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+                status: x.status,         //状态(1:正常，0:禁用)
+                remark: x.remark,         //备注
+                del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
+                create_time: time_to_string(x.create_time), //创建时间
+                update_time: time_to_string(x.update_time), //修改时间
+            });
+        }
     }
 
     BaseResponse::<QueryUserRoleResp>::ok_result_data(QueryUserRoleResp {
