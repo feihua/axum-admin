@@ -1,7 +1,7 @@
 use regex::Regex;
 
 #[derive(Debug)]
-pub struct UserAgentParserUtil {
+pub struct UserAgentUtil {
     pub platform: String,       //平台信息
     pub os: String,             //操作系统信息
     pub arch: String,           //体系结构信息
@@ -12,9 +12,9 @@ pub struct UserAgentParserUtil {
     pub extra: String,          //其他信息（可选）
 }
 
-impl UserAgentParserUtil {
+impl UserAgentUtil {
     pub fn new(user_agent: &str) -> Self {
-        let mut parse = UserAgentParserUtil {
+        let mut parse = UserAgentUtil {
             platform: "".to_string(),
             os: "".to_string(),
             arch: "".to_string(),

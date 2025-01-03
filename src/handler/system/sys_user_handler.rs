@@ -9,7 +9,7 @@ use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use crate::utils::time_util::time_to_string;
-use crate::utils::user_agent_parse::UserAgentParserUtil;
+use crate::utils::user_agent_util::UserAgentUtil;
 use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
@@ -509,8 +509,8 @@ pub async fn login(
     let rb = &state.batis;
 
     let user_agent = headers.get("User-Agent").unwrap().to_str().unwrap();
-
-    let agent = UserAgentParserUtil::new(user_agent);
+    log::info!("user agent: {:?}", user_agent);
+    let agent = UserAgentUtil::new(user_agent);
 
     let user_result = User::select_by_mobile(rb, &item.mobile).await;
     log::info!("query user by mobile: {:?}", user_result);
@@ -577,13 +577,7 @@ pub async fn login(
  *author：刘飞华
  *date：2025/01/02 17:01:13
  */
-async fn add_login_log(
-    rb: &RBatis,
-    name: String,
-    status: i8,
-    msg: String,
-    agent: UserAgentParserUtil,
-) {
+async fn add_login_log(rb: &RBatis, name: String, status: i8, msg: String, agent: UserAgentUtil) {
     let sys_login_log = LoginLog {
         id: None,                             //访问ID
         login_name: name,                     //登录账号
