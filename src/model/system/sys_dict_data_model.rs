@@ -42,6 +42,20 @@ rbatis::crud!(DictData {}, "sys_dict_data");
 impl_select!(DictData{select_by_id(dict_code:&i64) -> Option => "`where dict_code = #{dict_code} limit 1`"}, "sys_dict_data");
 
 /*
+ *根据dict_type和dict_label查询字典数据表
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+impl_select!(DictData{select_by_dict_label(dict_type:&str, dict_label:&str) -> Option => "`where dict_type = #{dict_type} and dict_label = #{dict_label}`"}, "sys_dict_data");
+
+/*
+ *根据dict_type和dict_value查询字典数据表
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+impl_select!(DictData{select_by_dict_value(dict_type:&str, dict_value:&str) -> Option => "`where dict_type = #{dict_type} and dict_value = #{dict_value}`"}, "sys_dict_data");
+
+/*
  *分页查询字典数据表
  *author：刘飞华
  *date：2024/12/25 10:01:11
