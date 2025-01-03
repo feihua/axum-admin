@@ -28,8 +28,14 @@ pub struct QueryLoginLogDetailResp {
     pub login_name: String,     //登录账号
     pub ipaddr: String,         //登录IP地址
     pub login_location: String, //登录地点
+    pub platform: String,       //平台信息
     pub browser: String,        //浏览器类型
+    pub version: String,        //浏览器版本
     pub os: String,             //操作系统
+    pub arch: String,           //体系结构信息
+    pub engine: String,         //渲染引擎信息
+    pub engine_details: String, //渲染引擎详细信息
+    pub extra: String,          //其他信息（可选）
     pub status: i8,             //登录状态(0:失败,1:成功)
     pub msg: String,            //提示消息
     pub login_time: String,     //访问时间
@@ -42,8 +48,14 @@ impl QueryLoginLogDetailResp {
             login_name: "".to_string(),     //登录账号
             ipaddr: "".to_string(),         //登录IP地址
             login_location: "".to_string(), //登录地点
+            platform: "".to_string(),       //平台信息
             browser: "".to_string(),        //浏览器类型
+            version: "".to_string(),        //浏览器版本
             os: "".to_string(),             //操作系统
+            arch: "".to_string(),           //体系结构信息
+            engine: "".to_string(),         //渲染引擎信息
+            engine_details: "".to_string(), //渲染引擎详细信息
+            extra: "".to_string(),          //其他信息（可选）
             status: 0,                      //登录状态(0:失败,1:成功)
             msg: "".to_string(),            //提示消息
             login_time: "".to_string(),     //访问时间
@@ -77,8 +89,14 @@ pub struct LoginLogListDataResp {
     pub login_name: String,     //登录账号
     pub ipaddr: String,         //登录IP地址
     pub login_location: String, //登录地点
+    pub platform: String,       //平台信息
     pub browser: String,        //浏览器类型
+    pub version: String,        //浏览器版本
     pub os: String,             //操作系统
+    pub arch: String,           //体系结构信息
+    pub engine: String,         //渲染引擎信息
+    pub engine_details: String, //渲染引擎详细信息
+    pub extra: String,          //其他信息（可选）
     pub status: i8,             //登录状态(0:失败,1:成功)
     pub msg: String,            //提示消息
     pub login_time: String,     //访问时间

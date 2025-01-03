@@ -72,12 +72,18 @@ pub async fn query_sys_login_log_detail(
             let x = d.unwrap();
 
             let sys_login_log = QueryLoginLogDetailResp {
-                id: x.id.unwrap_or_default(),             //访问ID
+                id: x.id.unwrap(),                        //访问ID
                 login_name: x.login_name,                 //登录账号
                 ipaddr: x.ipaddr,                         //登录IP地址
                 login_location: x.login_location,         //登录地点
+                platform: x.platform,                     //平台信息
                 browser: x.browser,                       //浏览器类型
+                version: x.version,                       //浏览器版本
                 os: x.os,                                 //操作系统
+                arch: x.arch,                             //体系结构信息
+                engine: x.engine,                         //渲染引擎信息
+                engine_details: x.engine_details,         //渲染引擎详细信息
+                extra: x.extra,                           //其他信息（可选）
                 status: x.status,                         //登录状态(0:失败,1:成功)
                 msg: x.msg,                               //提示消息
                 login_time: time_to_string(x.login_time), //访问时间
@@ -120,12 +126,18 @@ pub async fn query_sys_login_log_list(
 
             for x in d.records {
                 sys_login_log_list_data.push(LoginLogListDataResp {
-                    id: x.id.unwrap_or_default(),             //访问ID
+                    id: x.id.unwrap(),                        //访问ID
                     login_name: x.login_name,                 //登录账号
                     ipaddr: x.ipaddr,                         //登录IP地址
                     login_location: x.login_location,         //登录地点
+                    platform: x.platform,                     //平台信息
                     browser: x.browser,                       //浏览器类型
+                    version: x.version,                       //浏览器版本
                     os: x.os,                                 //操作系统
+                    arch: x.arch,                             //体系结构信息
+                    engine: x.engine,                         //渲染引擎信息
+                    engine_details: x.engine_details,         //渲染引擎详细信息
+                    extra: x.extra,                           //其他信息（可选）
                     status: x.status,                         //登录状态(0:失败,1:成功)
                     msg: x.msg,                               //提示消息
                     login_time: time_to_string(x.login_time), //访问时间

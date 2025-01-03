@@ -1,5 +1,6 @@
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dept_model::Dept;
+use crate::model::system::sys_login_log_model::LoginLog;
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
@@ -8,6 +9,7 @@ use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use crate::utils::time_util::time_to_string;
+use crate::utils::user_agent_parse::UserAgentParserUtil;
 use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
@@ -499,43 +501,63 @@ pub async fn query_sys_user_list(
  *date：2024/12/12 14:41:44
  */
 pub async fn login(
+    headers: HeaderMap,
     State(state): State<Arc<AppState>>,
     Json(item): Json<UserLoginReq>,
 ) -> impl IntoResponse {
     log::info!("user login params: {:?}, {:?}", &item, state.batis);
     let rb = &state.batis;
 
+    let user_agent = headers.get("User-Agent").unwrap().to_str().unwrap();
+
+    let agent = UserAgentParserUtil::new(user_agent);
+
     let user_result = User::select_by_mobile(rb, &item.mobile).await;
-    log::info!("select_by_mobile: {:?}", user_result);
+    log::info!("query user by mobile: {:?}", user_result);
 
     match user_result {
         Ok(u) => match u {
-            None => BaseResponse::<String>::err_result_msg("用户不存在".to_string()),
+            None => {
+                add_login_log(rb, item.mobile, 0, "用户不存在".to_string(), agent).await;
+                BaseResponse::<String>::err_result_msg("用户不存在".to_string())
+            }
             Some(user) => {
                 let id = user.id.unwrap();
                 let username = user.user_name;
                 let password = user.password;
 
                 if password.ne(&item.password) {
+                    add_login_log(rb, item.mobile, 0, "密码不正确".to_string(), agent).await;
                     return BaseResponse::<String>::err_result_msg("密码不正确".to_string());
                 }
 
                 let btn_menu = query_btn_menu(&id, rb.clone()).await;
 
                 if btn_menu.len() == 0 {
+                    add_login_log(
+                        rb,
+                        item.mobile,
+                        0,
+                        "用户没有分配角色或者菜单,不能登录".to_string(),
+                        agent,
+                    )
+                    .await;
                     return BaseResponse::<String>::err_result_msg(
                         "用户没有分配角色或者菜单,不能登录".to_string(),
                     );
                 }
 
                 match JWTToken::new(id, &username, btn_menu).create_token("123") {
-                    Ok(token) => BaseResponse::<String>::ok_result_data(token),
+                    Ok(token) => {
+                        add_login_log(rb, item.mobile, 1, "登录成功".to_string(), agent).await;
+                        BaseResponse::<String>::ok_result_data(token)
+                    }
                     Err(err) => {
                         let er = match err {
                             WhoUnfollowedError::JwtTokenError(s) => s,
                             _ => "no math error".to_string(),
                         };
-
+                        add_login_log(rb, item.mobile, 0, "生成token异常".to_string(), agent).await;
                         BaseResponse::<String>::err_result_msg(er)
                     }
                 }
@@ -543,9 +565,50 @@ pub async fn login(
         },
 
         Err(err) => {
+            add_login_log(rb, item.mobile, 0, "查询用户异常".to_string(), agent).await;
             log::info!("select_by_column: {:?}", err);
             BaseResponse::<String>::err_result_msg("查询用户异常".to_string())
         }
+    }
+}
+
+/*
+ *添加登录日志
+ *author：刘飞华
+ *date：2025/01/02 17:01:13
+ */
+async fn add_login_log(
+    rb: &RBatis,
+    name: String,
+    status: i8,
+    msg: String,
+    agent: UserAgentParserUtil,
+) {
+    let sys_login_log = LoginLog {
+        id: None,                             //访问ID
+        login_name: name,                     //登录账号
+        ipaddr: "todo".to_string(),           //登录IP地址
+        login_location: "todo".to_string(),   //登录地点
+        platform: agent.platform,             //平台信息
+        browser: agent.browser,               //浏览器类型
+        version: agent.version,               //浏览器版本
+        os: agent.os,                         //操作系统
+        arch: agent.arch,                     //体系结构信息
+        engine: agent.engine,                 //渲染引擎信息
+        engine_details: agent.engine_details, //渲染引擎详细信息
+        extra: agent.extra,                   //其他信息（可选）
+        status,                               //登录状态(0:失败,1:成功)
+        msg,                                  //提示消息
+        login_time: None,                     //访问时间
+    };
+
+    match LoginLog::insert(rb, &sys_login_log).await {
+        Ok(_u) => log::info!("add_login_log success: {:?}", sys_login_log),
+        Err(err) => log::error!(
+            "add_login_log error params: {:?}, error message: {:?}",
+            sys_login_log,
+            err.to_string()
+        ),
     }
 }
 
@@ -707,7 +770,6 @@ pub async fn query_user_menu(
     match result {
         Ok(sys_user) => {
             match sys_user {
-                // 用户不存在的情况
                 None => Json(BaseResponse {
                     msg: "用户不存在".to_string(),
                     code: 1,

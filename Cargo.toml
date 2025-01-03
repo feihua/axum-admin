@@ -24,3 +24,4 @@ jsonwebtoken = "9.3.0"
 redis = "0.27.5"
 
 thiserror = "2.0.3"
+regex = "1.11.1"
