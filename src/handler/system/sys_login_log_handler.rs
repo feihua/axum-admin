@@ -72,7 +72,7 @@ pub async fn query_sys_login_log_detail(
             let x = d.unwrap();
 
             let sys_login_log = QueryLoginLogDetailResp {
-                id: x.id.unwrap(),                        //访问ID
+                id: x.id.unwrap_or_default(),             //访问ID
                 login_name: x.login_name,                 //登录账号
                 ipaddr: x.ipaddr,                         //登录IP地址
                 login_location: x.login_location,         //登录地点
@@ -126,7 +126,7 @@ pub async fn query_sys_login_log_list(
 
             for x in d.records {
                 sys_login_log_list_data.push(LoginLogListDataResp {
-                    id: x.id.unwrap(),                        //访问ID
+                    id: x.id.unwrap_or_default(),             //访问ID
                     login_name: x.login_name,                 //登录账号
                     ipaddr: x.ipaddr,                         //登录IP地址
                     login_location: x.login_location,         //登录地点
