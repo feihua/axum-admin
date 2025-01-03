@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
+use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_login_log_vo::*;
 
 /*
@@ -71,15 +72,15 @@ pub async fn query_sys_login_log_detail(
             let x = d.unwrap();
 
             let sys_login_log = QueryLoginLogDetailResp {
-                id: x.id.unwrap_or_default(),                    //访问ID
-                login_name: x.login_name,                        //登录账号
-                ipaddr: x.ipaddr,                                //登录IP地址
-                login_location: x.login_location,                //登录地点
-                browser: x.browser,                              //浏览器类型
-                os: x.os,                                        //操作系统
-                status: x.status,                                //登录状态(0:失败,1:成功)
-                msg: x.msg,                                      //提示消息
-                login_time: x.login_time.unwrap().0.to_string(), //访问时间
+                id: x.id.unwrap_or_default(),             //访问ID
+                login_name: x.login_name,                 //登录账号
+                ipaddr: x.ipaddr,                         //登录IP地址
+                login_location: x.login_location,         //登录地点
+                browser: x.browser,                       //浏览器类型
+                os: x.os,                                 //操作系统
+                status: x.status,                         //登录状态(0:失败,1:成功)
+                msg: x.msg,                               //提示消息
+                login_time: time_to_string(x.login_time), //访问时间
             };
 
             BaseResponse::<QueryLoginLogDetailResp>::ok_result_data(sys_login_log)
@@ -119,15 +120,15 @@ pub async fn query_sys_login_log_list(
 
             for x in d.records {
                 sys_login_log_list_data.push(LoginLogListDataResp {
-                    id: x.id.unwrap_or_default(),                    //访问ID
-                    login_name: x.login_name,                        //登录账号
-                    ipaddr: x.ipaddr,                                //登录IP地址
-                    login_location: x.login_location,                //登录地点
-                    browser: x.browser,                              //浏览器类型
-                    os: x.os,                                        //操作系统
-                    status: x.status,                                //登录状态(0:失败,1:成功)
-                    msg: x.msg,                                      //提示消息
-                    login_time: x.login_time.unwrap().0.to_string(), //访问时间
+                    id: x.id.unwrap_or_default(),             //访问ID
+                    login_name: x.login_name,                 //登录账号
+                    ipaddr: x.ipaddr,                         //登录IP地址
+                    login_location: x.login_location,         //登录地点
+                    browser: x.browser,                       //浏览器类型
+                    os: x.os,                                 //操作系统
+                    status: x.status,                         //登录状态(0:失败,1:成功)
+                    msg: x.msg,                               //提示消息
+                    login_time: time_to_string(x.login_time), //访问时间
                 })
             }
 
