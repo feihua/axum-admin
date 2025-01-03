@@ -438,7 +438,6 @@ pub async fn allocated_list(
                     email: x.email,                             //用户邮箱
                     avatar: x.avatar,                           //头像路径
                     status: x.status,                           //状态(1:正常，0:禁用)
-                    sort: x.sort,                               //排序
                     dept_id: x.dept_id,                         //部门ID
                     login_ip: x.login_ip,                       //最后登录IP
                     login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
@@ -493,7 +492,6 @@ pub async fn unallocated_list(
                     email: x.email,                             //用户邮箱
                     avatar: x.avatar,                           //头像路径
                     status: x.status,                           //状态(1:正常，0:禁用)
-                    sort: x.sort,                               //排序
                     dept_id: x.dept_id,                         //部门ID
                     login_ip: x.login_ip,                       //最后登录IP
                     login_date: x.login_date.unwrap().0.to_string(), //最后登录时间

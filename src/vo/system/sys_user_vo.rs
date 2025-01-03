@@ -11,12 +11,13 @@ pub struct AddUserReq {
     pub mobile: String,         //手机
     pub user_name: String,      //用户账号
     pub nick_name: String,      //用户昵称
+    pub password: String,       //用户密码
     pub email: String,          //用户邮箱
-    pub avatar: String,         //头像路径
+    pub avatar: Option<String>, //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
     pub dept_id: i64,           //部门ID
     pub remark: Option<String>, //备注
+    pub post_ids: Vec<i64>,     //岗位ids
 }
 
 /*
@@ -37,12 +38,11 @@ pub struct UpdateUserReq {
     pub user_name: String,      //用户账号
     pub nick_name: String,      //用户昵称
     pub email: String,          //用户邮箱
-    pub avatar: String,         //头像路径
+    pub avatar: Option<String>, //头像路径
     pub status: i8,             //状态(1:正常，0:禁用)
-    pub sort: i32,              //排序
     pub dept_id: i64,           //部门ID
     pub remark: Option<String>, //备注
-    pub del_flag: i8,           //删除标志（0代表删除 1代表存在）
+    pub post_ids: Vec<i64>,     //岗位ids
 }
 
 /*
@@ -75,7 +75,6 @@ pub struct QueryUserDetailResp {
     pub email: String,                  //用户邮箱
     pub avatar: String,                 //头像路径
     pub status: i8,                     //状态(1:正常，0:禁用)
-    pub sort: i32,                      //排序
     pub dept_id: i64,                   //部门ID
     pub login_ip: String,               //最后登录IP
     pub login_date: String,             //最后登录时间
@@ -87,6 +86,7 @@ pub struct QueryUserDetailResp {
     pub create_time: String,            //创建时间
     pub update_time: String,            //修改时间
     pub dept_info: QueryDeptDetailResp, //部门详细信息
+    pub post_ids: Vec<i64>,             //岗位ids
 }
 
 impl QueryUserDetailResp {
@@ -100,7 +100,6 @@ impl QueryUserDetailResp {
             email: "".to_string(),
             avatar: "".to_string(),
             status: 0,
-            sort: 0,
             dept_id: 0,
             login_ip: "".to_string(),
             login_date: "".to_string(),
@@ -125,6 +124,7 @@ impl QueryUserDetailResp {
                 create_time: "".to_string(),
                 update_time: "".to_string(),
             },
+            post_ids: vec![],
         }
     }
 }
@@ -157,7 +157,6 @@ pub struct UserListDataResp {
     pub email: String,           //用户邮箱
     pub avatar: String,          //头像路径
     pub status: i8,              //状态(1:正常，0:禁用)
-    pub sort: i32,               //排序
     pub dept_id: i64,            //部门ID
     pub login_ip: String,        //最后登录IP
     pub login_date: String,      //最后登录时间

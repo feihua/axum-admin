@@ -21,7 +21,6 @@ pub struct User {
     pub avatar: String,                    //头像路径
     pub password: String,                  //密码
     pub status: i8,                        //状态(1:正常，0:禁用)
-    pub sort: i32,                         //排序
     pub dept_id: i64,                      //部门ID
     pub login_ip: String,                  //最后登录IP
     pub login_date: Option<DateTime>,      //最后登录时间

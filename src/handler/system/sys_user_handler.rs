@@ -18,6 +18,7 @@ use axum::http::HeaderMap;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::to_value;
@@ -65,33 +66,48 @@ pub async fn add_sys_user(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
+    let avatar = item.avatar.unwrap_or(
+        "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"
+            .to_string(),
+    );
     let sys_user = User {
-        id: None,                                   //主键
-        mobile: item.mobile,                        //手机
-        user_name: item.user_name,                  //用户账号
-        nick_name: item.nick_name,                  //用户昵称
-        user_type: None,                            //用户类型（00系统用户）
-        email: item.email,                          //用户邮箱
-        avatar: item.avatar,                        //头像路径
-        password: "123456".to_string(),             //密码
-        status: item.status,                        //状态(1:正常，0:禁用)
-        sort: item.sort,                            //排序
-        dept_id: item.dept_id,                      //部门ID
-        login_ip: "item.login_ip".to_string(),      //最后登录IP
-        login_date: Some(Default::default()),       //最后登录时间
-        login_browser: "item.login_ip".to_string(), //浏览器类型
-        login_os: "item.login_ip".to_string(),      //操作系统
-        pwd_update_date: Some(Default::default()),  //密码最后更新时间
-        remark: item.remark,                        //备注
-        del_flag: 1,                                //删除标志（0代表删除 1代表存在）
-        create_time: None,                          //创建时间
-        update_time: None,                          //修改时间
+        id: None,                                  //主键
+        mobile: item.mobile,                       //手机
+        user_name: item.user_name,                 //用户账号
+        nick_name: item.nick_name,                 //用户昵称
+        user_type: Some("01".to_string()),         //用户类型（00系统用户）
+        email: item.email,                         //用户邮箱
+        avatar,                                    //头像路径
+        password: item.password,                   //密码
+        status: item.status,                       //状态(1:正常，0:禁用)
+        dept_id: item.dept_id,                     //部门ID
+        login_ip: "".to_string(),                  //最后登录IP
+        login_date: None,                          //最后登录时间
+        login_browser: "".to_string(),             //浏览器类型
+        login_os: "".to_string(),                  //操作系统
+        pwd_update_date: Some(Default::default()), //密码最后更新时间
+        remark: item.remark,                       //备注
+        del_flag: 1,                               //删除标志（0代表删除 1代表存在）
+        create_time: None,                         //创建时间
+        update_time: None,                         //修改时间
     };
 
     let result = User::insert(rb, &sys_user).await;
 
     match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Ok(u) => {
+            let mut user_post_list: Vec<UserPost> = Vec::new();
+            for post_id in item.post_ids {
+                user_post_list.push(UserPost {
+                    user_id: u.last_insert_id.i64(),
+                    post_id,
+                })
+            }
+            match UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await {
+                Ok(_u) => BaseResponse::<String>::ok_result(),
+                Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+            }
+        }
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }
@@ -203,6 +219,10 @@ pub async fn update_sys_user(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
+    let avatar = item.avatar.unwrap_or(
+        "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png"
+            .to_string(),
+    );
     let sys_user = User {
         id: Some(item.id),                          //主键
         mobile: item.mobile,                        //手机
@@ -210,10 +230,9 @@ pub async fn update_sys_user(
         nick_name: item.nick_name,                  //用户昵称
         user_type: None,                            //用户类型（00系统用户）
         email: item.email,                          //用户邮箱
-        avatar: item.avatar,                        //头像路径
+        avatar,                                     //头像路径
         password: u.password,                       //密码
         status: item.status,                        //状态(1:正常，0:禁用)
-        sort: item.sort,                            //排序
         dept_id: item.dept_id,                      //部门ID
         login_ip: "item.login_ip".to_string(),      //最后登录IP
         login_date: Some(Default::default()),       //最后登录时间
@@ -221,7 +240,7 @@ pub async fn update_sys_user(
         login_os: "item.login_ip".to_string(),      //操作系统
         pwd_update_date: Some(Default::default()),  //密码最后更新时间
         remark: item.remark,                        //备注
-        del_flag: item.del_flag,                    //删除标志（0代表删除 1代表存在）
+        del_flag: u.del_flag,                       //删除标志（0代表删除 1代表存在）
         create_time: None,                          //创建时间
         update_time: None,                          //修改时间
     };
@@ -229,7 +248,20 @@ pub async fn update_sys_user(
     let result = User::update_by_column(rb, &sys_user, "id").await;
 
     match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
+        Ok(_u) => {
+            let _ = UserPost::delete_by_column(rb, "user_id", &item.id).await;
+            let mut user_post_list: Vec<UserPost> = Vec::new();
+            for post_id in item.post_ids {
+                user_post_list.push(UserPost {
+                    user_id: sys_user.id.unwrap_or_default(),
+                    post_id,
+                })
+            }
+            match UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await {
+                Ok(_u) => BaseResponse::<String>::ok_result(),
+                Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
+            }
+        }
         Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 }
@@ -409,6 +441,11 @@ pub async fn query_sys_user_detail(
                 }
             };
 
+            let result = UserPost::select_by_column(rb, "user_id", item.id)
+                .await
+                .unwrap_or_default();
+            let post_ids = result.iter().map(|x| x.post_id).collect::<Vec<i64>>();
+
             let sys_user = QueryUserDetailResp {
                 id: x.id.unwrap_or_default(),                       //主键
                 mobile: x.mobile,                                   //手机
@@ -418,7 +455,6 @@ pub async fn query_sys_user_detail(
                 email: x.email,                                     //用户邮箱
                 avatar: x.avatar,                                   //头像路径
                 status: x.status,                                   //状态(1:正常，0:禁用)
-                sort: x.sort,                                       //排序
                 dept_id: x.dept_id,                                 //部门ID
                 login_ip: x.login_ip,                               //最后登录IP
                 login_date: time_to_string(x.login_date),           //最后登录时间
@@ -430,6 +466,7 @@ pub async fn query_sys_user_detail(
                 create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
                 dept_info: dept,
+                post_ids,
             };
 
             BaseResponse::<QueryUserDetailResp>::ok_result_data(sys_user)
@@ -475,7 +512,6 @@ pub async fn query_sys_user_list(
                     email: x.email,                                     //用户邮箱
                     avatar: x.avatar,                                   //头像路径
                     status: x.status,                                   //状态(1:正常，0:禁用)
-                    sort: x.sort,                                       //排序
                     dept_id: x.dept_id,                                 //部门ID
                     login_ip: x.login_ip,                               //最后登录IP
                     login_date: time_to_string(x.login_date),           //最后登录时间
