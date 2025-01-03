@@ -102,10 +102,6 @@ impl QueryDeptDetailResp {
 */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct QueryDeptListReq {
-    #[serde(rename = "current")]
-    pub page_no: u64,
-    #[serde(rename = "pageSize")]
-    pub page_size: u64,
     pub dept_name: Option<String>, //部门名称
     pub leader: Option<String>,    //负责人
     pub phone: Option<String>,     //联系电话

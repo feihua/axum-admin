@@ -63,7 +63,7 @@ impl_select_page!(Dept{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
+impl_select!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
     where 1=1
      if dept_name != null && dept_name != '':
       ` and dept_name = #{dept_name} `

@@ -2,7 +2,6 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
-use rbatis::plugin::page::PageRequest;
 use rbs::to_value;
 use std::sync::Arc;
 
@@ -240,15 +239,12 @@ pub async fn query_sys_dept_list(
     let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
     let status = item.status.unwrap_or(2); //部状态（0：停用，1:正常）
 
-    let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Dept::select_page_dept_list(rb, page, dept_name, status).await;
+    let result = Dept::select_page_dept_list(rb, dept_name, status).await;
 
     let mut sys_dept_list_data: Vec<DeptListDataResp> = Vec::new();
     match result {
         Ok(d) => {
-            let total = d.total;
-
-            for x in d.records {
+            for x in d {
                 sys_dept_list_data.push(DeptListDataResp {
                     id: x.id.unwrap_or_default(),               //部门id
                     parent_id: x.parent_id,                     //父部门id
@@ -265,8 +261,8 @@ pub async fn query_sys_dept_list(
                 })
             }
 
-            BaseResponse::ok_result_page(sys_dept_list_data, total)
+            BaseResponse::ok_result_data(sys_dept_list_data)
         }
-        Err(err) => BaseResponse::err_result_page(DeptListDataResp::new(), err.to_string()),
+        Err(err) => BaseResponse::err_result_data(DeptListDataResp::new(), err.to_string()),
     }
 }
