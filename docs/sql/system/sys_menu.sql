@@ -104,7 +104,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询字典类型列', 3, 1, 6, 45, '', '/api/system/dictType/queryDictTypeList', '', '查询字典类型列');
 
 -- 配置字典数据权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据', 2, 1, 7, 2, '/system/dictData', '', '', '字典数据管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, visible, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('字典数据', 2, 1, 0,7, 2, '/system/dictData', '', '', '字典数据管理');
 
 select * from sys_menu where menu_name='字典数据';
 
