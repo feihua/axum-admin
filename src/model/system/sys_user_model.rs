@@ -83,7 +83,7 @@ impl_select_page!(User{select_page() =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select_page!(User{select_sys_user_list(mobile:&str,user_name:&str,status_id:i8,dept_id:i64) =>"
+impl_select_page!(User{select_sys_user_list(mobile:&str,user_name:&str,status:i8,dept_id:i64) =>"
       where 1=1
       if mobile != null && mobile != '':
        ` and mobile = #{mobile} `
