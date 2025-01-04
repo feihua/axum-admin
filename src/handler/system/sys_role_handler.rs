@@ -57,7 +57,7 @@ pub async fn add_sys_role(
         data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
         status: item.status,         //状态(1:正常，0:禁用)
         remark: item.remark.unwrap_or_default(), //备注
-        del_flag: 1,                 //删除标志（0代表删除 1代表存在）
+        del_flag: None,              //删除标志（0代表删除 1代表存在）
         create_time: None,           //创建时间
         update_time: None,           //修改时间
     };
@@ -174,7 +174,7 @@ pub async fn update_sys_role(
         data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
         status: item.status,         //状态(1:正常，0:禁用)
         remark: item.remark.unwrap_or_default(), //备注
-        del_flag: item.del_flag,     //删除标志（0代表删除 1代表存在）
+        del_flag: None,              //删除标志（0代表删除 1代表存在）
         create_time: None,           //创建时间
         update_time: None,           //修改时间
     };
@@ -280,10 +280,11 @@ pub async fn query_sys_role_list(
     let rb = &state.batis;
 
     let role_name = item.role_name.as_deref().unwrap_or_default();
+    let role_key = item.role_key.as_deref().unwrap_or_default();
     let status = item.status_id.unwrap_or(2);
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Role::select_sys_role_list(rb, page, role_name, status).await;
+    let result = Role::select_sys_role_list(rb, page, role_name, role_key, status).await;
 
     match result {
         Ok(d) => {
