@@ -92,7 +92,7 @@ impl_select_page!(User{select_sys_user_list(mobile:&str,user_name:&str,status:i8
      if status != 2:
        ` and status = #{status} `
      if dept_id != 0:
-       ` (dept_id = #{dept_id} OR dept_id IN ( SELECT t.dept_id FROM sys_dept t WHERE find_in_set(#{dept_id}, ancestors) )) `
+       ` and (dept_id = #{dept_id} OR dept_id IN (SELECT dept_id FROM sys_dept WHERE find_in_set(#{dept_id}, ancestors))) `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");
 
