@@ -31,20 +31,33 @@ pub async fn add_sys_menu(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
+    let menu_url = item.menu_url.clone();
+    if menu_url.is_some() {
+        let res = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await;
+        match res {
+            Ok(opt_menu) => {
+                if opt_menu.is_some() {
+                    return BaseResponse::<String>::err_result_msg("路由路径已存在".to_string());
+                }
+            }
+            Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        }
+    }
+
     let sys_menu = Menu {
-        id: None,                               //主键
-        menu_name: item.menu_name,              //菜单名称
-        menu_type: item.menu_type,              //菜单类型(1：目录   2：菜单   3：按钮)
-        visible: item.visible,                  //菜单状态（0:隐藏, 显示:1）
-        status: item.status,                    //状态(1:正常，0:禁用)
-        sort: item.sort,                        //排序
-        parent_id: item.parent_id.unwrap_or(0), //父ID
-        menu_url: item.menu_url,                //路由路径
-        api_url: item.api_url,                  //接口URL
-        menu_icon: item.menu_icon,              //菜单图标
-        remark: item.remark,                    //备注
-        create_time: None,                      //创建时间
-        update_time: None,                      //修改时间
+        id: None,                                      //主键
+        menu_name: item.menu_name,                     //菜单名称
+        menu_type: item.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
+        visible: item.visible,                         //菜单状态（0:隐藏, 显示:1）
+        status: item.status,                           //状态(1:正常，0:禁用)
+        sort: item.sort,                               //排序
+        parent_id: item.parent_id.unwrap_or_default(), //上级菜单
+        menu_url: item.menu_url,                       //路由路径
+        api_url: item.api_url,                         //接口URL
+        menu_icon: item.menu_icon,                     //菜单图标
+        remark: item.remark,                           //备注
+        create_time: None,                             //创建时间
+        update_time: None,                             //修改时间
     };
 
     let result = Menu::insert(rb, &sys_menu).await;
@@ -111,6 +124,19 @@ pub async fn update_sys_menu(
             }
         }
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
+    let menu_url = item.menu_url.clone();
+    if menu_url.is_some() {
+        let res = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await;
+        match res {
+            Ok(opt_menu) => {
+                if opt_menu.is_some() && opt_menu.unwrap().id.unwrap_or_default() != item.id {
+                    return BaseResponse::<String>::err_result_msg("路由路径已存在".to_string());
+                }
+            }
+            Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+        }
     }
 
     let sys_menu = Menu {

@@ -59,6 +59,13 @@ impl_select!(Menu{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`
 impl_select!(Menu{select_by_menu_name(menu_name:&str) -> Option => "`where menu_name = #{menu_name} limit 1`"}, "sys_menu");
 
 /*
+ *根据menu_url查询菜单信息
+ *author：刘飞华
+ *date：2025/01/04 22:24:01
+ */
+impl_select!(Menu{select_by_menu_url(menu_url:&str) -> Option => "`where menu_url = #{menu_url} limit 1`"}, "sys_menu");
+
+/*
  *根据ids查询菜单信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
