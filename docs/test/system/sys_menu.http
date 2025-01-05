@@ -70,3 +70,7 @@ Authorization: Bearer {{token}}
 
 }
 
+###查询菜单信息列表 queryMenuListSimple
+GET {{host}}/api/system/menu/queryMenuListSimple
+Authorization: Bearer {{token}}
+

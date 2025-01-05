@@ -283,3 +283,30 @@ pub async fn query_sys_menu_list(
         Err(err) => BaseResponse::err_result_page(MenuListDataResp::new(), err.to_string()),
     }
 }
+
+/*
+ *查询菜单信息列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> impl IntoResponse {
+    let rb = &state.batis;
+
+    let result = Menu::select_menu_list(rb).await;
+
+    match result {
+        Ok(list) => {
+            let mut menu_list: Vec<MenuListSimpleDataResp> = Vec::new();
+            for x in list {
+                menu_list.push(MenuListSimpleDataResp {
+                    id: x.id.unwrap_or_default(), //主键
+                    menu_name: x.menu_name,       //菜单名称
+                    parent_id: x.parent_id,       //父ID
+                })
+            }
+
+            BaseResponse::ok_result_data(menu_list)
+        }
+        Err(err) => BaseResponse::err_result_data(MenuListSimpleDataResp::new(), err.to_string()),
+    }
+}

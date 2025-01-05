@@ -136,3 +136,19 @@ impl MenuListDataResp {
         Vec::new()
     }
 }
+
+/*
+查询菜单信息列表响应参数
+*/
+#[derive(Debug, Serialize, Deserialize)]
+pub struct MenuListSimpleDataResp {
+    pub id: i64,           //主键
+    pub menu_name: String, //菜单名称
+    pub parent_id: i64,    //父ID
+}
+
+impl MenuListSimpleDataResp {
+    pub fn new() -> Vec<MenuListSimpleDataResp> {
+        Vec::new()
+    }
+}

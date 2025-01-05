@@ -1,6 +1,6 @@
 use crate::handler::system::sys_menu_handler;
 use crate::AppState;
-use axum::routing::post;
+use axum::routing::{get, post};
 use axum::Router;
 use std::sync::Arc;
 
@@ -31,6 +31,10 @@ pub fn build_sys_menu_route() -> Router<Arc<AppState>> {
         .route(
             "/system/menu/queryMenuList",
             post(sys_menu_handler::query_sys_menu_list),
+        )
+        .route(
+            "/system/menu/queryMenuListSimple",
+            get(sys_menu_handler::query_sys_menu_list_simple),
         )
     //记得在main.rs中添加路由build_sys_menu_route()
 }
