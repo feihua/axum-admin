@@ -124,6 +124,25 @@ pub async fn update_sys_dept(
         return BaseResponse::<String>::err_result_msg("上级部门不能是自己".to_string());
     }
 
+    let res = Dept::select_by_id(rb, &item.parent_id).await;
+    match res {
+        Ok(r) => match r {
+            None => {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新失败,上能部门不存在".to_string(),
+                )
+            }
+            Some(dept) => {
+                if dept.status == 0 {
+                    return BaseResponse::<String>::err_result_msg(
+                        "部门停用，不允许更新".to_string(),
+                    );
+                }
+            }
+        },
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let res = Dept::select_by_dept_name(rb, &item.dept_name).await;
     match res {
         Ok(r) => {
