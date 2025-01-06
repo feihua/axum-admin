@@ -101,3 +101,14 @@ Authorization: Bearer {{token}}
   "pageSize": 10,
   "role_id": 1
 }
+
+###查询未分配用户角色列表 unallocated_list
+POST {{host}}/api/system/role/unallocated_list
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "role_id": 1
+}

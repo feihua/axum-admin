@@ -4,7 +4,6 @@
 use rbatis::executor::Executor;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::rbdc::Error;
-use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
 /*
@@ -123,9 +122,9 @@ async fn select_allocated_list(
 }
 
 /*
- *根据条件分页查询已配用户角色数量
- *author：刘飞华
- *date：2024/12/12 14:41:44
+ * 描述：根据条件分页查询已配用户角色数量
+ * author：刘飞华
+ * date：2025/1/6 16:13
  */
 #[py_sql(
     "`select count(1) from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
@@ -144,11 +143,47 @@ async fn count_allocated_list(
 }
 
 /*
- *根据条件分页查询未分配用户角色列表
- *author：刘飞华
- *date：2024/12/12 14:41:44
+ * 描述：根据条件分页查询未分配用户角色列表
+ * author：刘飞华
+ * date：2025/1/6 16:17
  */
-#[sql("")]
-pub async fn select_unallocated_list(rb: &RBatis, role_id: &i64) -> rbatis::Result<Vec<User>> {
+#[py_sql(
+    "`select * from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+            if mobile != '':
+                ` and u.mobile = #{mobile} `
+            if user_name != '':
+                ` and u.user_name = #{user_name} `
+            ) limit #{page_no},#{page_size}` "
+)]
+pub async fn select_unallocated_list(
+    rb: &dyn Executor,
+    role_id: i64,
+    user_name: &str,
+    mobile: &str,
+    page_no: u64,
+    page_size: u64,
+) -> rbatis::Result<Vec<User>> {
+    impled!()
+}
+
+/*
+ * 描述：根据条件分页查询未分配用户角色数量
+ * author：刘飞华
+ * date：2025/1/6 16:17
+ */
+#[py_sql(
+    "`select count(1) from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+            if mobile != '':
+                ` and u.mobile = #{mobile} `
+            if user_name != '':
+                ` and u.user_name = #{user_name} `
+            )` "
+)]
+pub async fn count_unallocated_list(
+    rb: &dyn Executor,
+    role_id: i64,
+    user_name: &str,
+    mobile: &str,
+) -> rbatis::Result<u64> {
     impled!()
 }
