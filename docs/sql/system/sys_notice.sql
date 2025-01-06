@@ -12,5 +12,7 @@ create table sys_notice
 ) comment '通知公告表';
 
 
+INSERT INTO rustdb.sys_notice (notice_title, notice_type, notice_content, status) VALUES ('测试通知1', 1, '这是一条测试通知内容', 1);
+INSERT INTO rustdb.sys_notice (notice_title, notice_type, notice_content, status) VALUES ('测试公告2', 2, '这是一条测试公告内容', 1);
 
 

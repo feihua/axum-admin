@@ -10,3 +10,8 @@ create table sys_post
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment = '岗位信息表';
+
+INSERT INTO rustdb.sys_post (post_code, post_name, sort, status, remark) VALUES ('ceo', '董事长', 1, 1, '');
+INSERT INTO rustdb.sys_post (post_code, post_name, sort, status, remark) VALUES ('se', '项目经理', 2, 1, '');
+INSERT INTO rustdb.sys_post (post_code, post_name, sort, status, remark) VALUES ('hr', '人力资源', 3, 1, '');
+INSERT INTO rustdb.sys_post (post_code, post_name, sort, status, remark) VALUES ('user', '普通员工', 1, 1, '');

@@ -11,3 +11,5 @@ create table sys_dict_type
     unique (dict_type)
 ) comment = '字典类型表';
 
+INSERT INTO rustdb.sys_dict_type (dict_name, dict_type, status, remark) VALUES ('用户性别', 'sys_user_sex', 1, '用户性别列表');
+INSERT INTO rustdb.sys_dict_type (dict_name, dict_type, status, remark) VALUES ('通知类型', 'sys_notice_type', 1, '通知类型列表');
