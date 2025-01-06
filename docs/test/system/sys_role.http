@@ -90,3 +90,14 @@ Authorization: Bearer {{token}}
     3
   ]
 }
+
+###查询已分配用户角色列表 allocated_list
+POST {{host}}/api/system/role/allocated_list
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "current": 1,
+  "pageSize": 10,
+  "role_id": 1
+}

@@ -40,5 +40,9 @@ pub fn build_sys_role_route() -> Router<Arc<AppState>> {
             "/system/role/updateRoleMenu",
             post(sys_role_handler::update_role_menu),
         )
+        .route(
+            "/system/role/allocated_list",
+            post(sys_role_handler::allocated_list),
+        )
     //记得在main.rs中添加路由build_sys_role_route()
 }

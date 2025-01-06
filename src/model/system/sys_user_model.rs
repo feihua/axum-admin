@@ -1,7 +1,9 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use rbatis::executor::Executor;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::rbdc::Error;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
@@ -101,8 +103,43 @@ impl_select_page!(User{select_sys_user_list(mobile:&str,user_name:&str,status:i8
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-#[sql("")]
-pub async fn select_allocated_list(rb: &RBatis, role_id: &i64) -> rbatis::Result<Vec<User>> {
+#[py_sql(
+    "`select * from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+            if mobile != '':
+                ` and u.mobile = #{mobile} `
+            if user_name != '':
+                ` and u.user_name = #{user_name} `
+            limit #{page_no},#{page_size}` "
+)]
+async fn select_allocated_list(
+    rb: &dyn Executor,
+    role_id: i64,
+    user_name: &str,
+    mobile: &str,
+    page_no: u64,
+    page_size: u64,
+) -> Result<Vec<User>, Error> {
+    impled!()
+}
+
+/*
+ *根据条件分页查询已配用户角色数量
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+#[py_sql(
+    "`select count(1) from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+            if mobile != '':
+                ` and u.mobile = #{mobile} `
+            if user_name != '':
+                ` and u.user_name = #{user_name} `"
+)]
+async fn count_allocated_list(
+    rb: &dyn Executor,
+    role_id: i64,
+    user_name: &str,
+    mobile: &str,
+) -> Result<u64, Error> {
     impled!()
 }
 

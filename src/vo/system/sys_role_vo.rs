@@ -164,6 +164,10 @@ pub struct UpdateRoleMenuReq {
 */
 #[derive(Debug, Deserialize)]
 pub struct AllocatedListReq {
+    #[serde(rename = "current")]
+    pub page_no: u64,
+    #[serde(rename = "pageSize")]
+    pub page_size: u64,
     pub role_id: i64,
     pub mobile: Option<String>,
     pub user_name: Option<String>,
@@ -174,6 +178,10 @@ pub struct AllocatedListReq {
 */
 #[derive(Debug, Deserialize)]
 pub struct UnallocatedListReq {
+    #[serde(rename = "current")]
+    pub page_no: u64,
+    #[serde(rename = "pageSize")]
+    pub page_size: u64,
     pub role_id: i64,
     pub mobile: Option<String>,
     pub user_name: Option<String>,

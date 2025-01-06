@@ -3,7 +3,9 @@ use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
-use crate::model::system::sys_user_model::{select_allocated_list, select_unallocated_list};
+use crate::model::system::sys_user_model::{
+    count_allocated_list, select_allocated_list, select_unallocated_list,
+};
 use crate::model::system::sys_user_role_model::{
     count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole,
 };
@@ -415,41 +417,45 @@ pub async fn allocated_list(
 
     let rb = &state.batis;
 
-    //todo add query and page
+    let page_no = item.page_no;
+    let page_size = item.page_size;
     let role_id = item.role_id;
-    // let mobile = item.mobile.as_deref().unwrap_or_default();
-    // let user_name = item.user_name.as_deref().unwrap_or_default();
+    let mobile = item.mobile.as_deref().unwrap_or_default();
+    let user_name = item.user_name.as_deref().unwrap_or_default();
 
-    let result = select_allocated_list(rb, &role_id).await;
+    let page_no = (page_no - 1) * page_size;
+    let result = select_allocated_list(rb, role_id, user_name, mobile, page_no, page_size).await;
 
     match result {
         Ok(d) => {
             let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();
             for x in d {
                 sys_user_list_data.push(UserListDataResp {
-                    id: x.id.unwrap(),                                         //主键
-                    mobile: x.mobile,                                          //手机
-                    user_name: x.user_name,                                    //姓名
-                    nick_name: x.nick_name,                                    //用户昵称
-                    user_type: x.user_type.unwrap_or_default(), //用户类型（00系统用户）
-                    email: x.email,                             //用户邮箱
-                    avatar: x.avatar,                           //头像路径
-                    status: x.status,                           //状态(1:正常，0:禁用)
-                    dept_id: x.dept_id,                         //部门ID
-                    login_ip: x.login_ip,                       //最后登录IP
-                    login_date: x.login_date.unwrap().0.to_string(), //最后登录时间
-                    login_browser: x.login_browser,             //浏览器类型
-                    login_os: x.login_os,                       //操作系统
-                    pwd_update_date: x.pwd_update_date.unwrap().0.to_string(), //密码最后更新时间
-                    remark: x.remark,                           //备注
-                    del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
+                    id: x.id.unwrap(),                                  //主键
+                    mobile: x.mobile,                                   //手机
+                    user_name: x.user_name,                             //姓名
+                    nick_name: x.nick_name,                             //用户昵称
+                    user_type: x.user_type.unwrap_or_default(),         //用户类型（00系统用户）
+                    email: x.email,                                     //用户邮箱
+                    avatar: x.avatar,                                   //头像路径
+                    status: x.status,                                   //状态(1:正常，0:禁用)
+                    dept_id: x.dept_id,                                 //部门ID
+                    login_ip: x.login_ip,                               //最后登录IP
+                    login_date: time_to_string(x.login_date),           //最后登录时间
+                    login_browser: x.login_browser,                     //浏览器类型
+                    login_os: x.login_os,                               //操作系统
+                    pwd_update_date: time_to_string(x.pwd_update_date), //密码最后更新时间
+                    remark: x.remark,                                   //备注
+                    del_flag: x.del_flag, //删除标志（0代表删除 1代表存在）
                     create_time: time_to_string(x.create_time), //创建时间
                     update_time: time_to_string(x.update_time), //修改时间
                 })
             }
 
-            //todo total
-            BaseResponse::ok_result_page(sys_user_list_data, 0)
+            let total = count_allocated_list(rb, role_id, user_name, mobile)
+                .await
+                .unwrap_or_default();
+            BaseResponse::ok_result_page(sys_user_list_data, total)
         }
         Err(err) => BaseResponse::err_result_page(UserListDataResp::new(), err.to_string()),
     }
