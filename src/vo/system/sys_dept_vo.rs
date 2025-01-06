@@ -8,14 +8,13 @@ use serde::{Deserialize, Serialize};
 */
 #[derive(Debug, Serialize, Deserialize)]
 pub struct AddDeptReq {
-    pub parent_id: i64,            //父部门id
-    pub ancestors: Option<String>, //祖级列表
-    pub dept_name: String,         //部门名称
-    pub sort: i32,                 //显示顺序
-    pub leader: String,            //负责人
-    pub phone: String,             //联系电话
-    pub email: String,             //邮箱
-    pub status: i8,                //部状态（0：停用，1:正常）
+    pub parent_id: i64,    //父部门id
+    pub dept_name: String, //部门名称
+    pub sort: i32,         //显示顺序
+    pub leader: String,    //负责人
+    pub phone: String,     //联系电话
+    pub email: String,     //邮箱
+    pub status: i8,        //部状态（0：停用，1:正常）
 }
 
 /*
@@ -33,7 +32,6 @@ pub struct DeleteDeptReq {
 pub struct UpdateDeptReq {
     pub id: i64,           //部门id
     pub parent_id: i64,    //父部门id
-    pub ancestors: String, //祖级列表
     pub dept_name: String, //部门名称
     pub sort: i32,         //显示顺序
     pub leader: String,    //负责人

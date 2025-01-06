@@ -78,7 +78,7 @@ impl_select!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-#[sql("select count(*) from sys_dept where status = 1 and del_flag = '1' and find_in_set(?}, ancestors)")]
+#[sql("select count(*) from sys_dept where status = 1 and del_flag = '1' and find_in_set(?, ancestors)")]
 pub async fn select_normal_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
     impled!()
 }
@@ -100,5 +100,15 @@ pub async fn select_dept_count(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
  */
 #[sql("select count(1) from sys_user where dept_id = ? and del_flag = '1'")]
 pub async fn check_dept_exist_user(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
+    impled!()
+}
+
+/*
+ * 描述：根据部门id查询是所有下级部门
+ * author：刘飞华
+ * date：2025/1/6 11:29
+ */
+#[sql("select * from sys_dept where find_in_set(?, ancestors)")]
+pub async fn select_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Vec<Dept>> {
     impled!()
 }
