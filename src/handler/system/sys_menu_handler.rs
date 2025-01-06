@@ -278,14 +278,14 @@ pub async fn query_sys_menu_list(
                 })
             }
 
-            BaseResponse::ok_result_page(menu_list, 0)
+            BaseResponse::ok_result_data(menu_list)
         }
-        Err(err) => BaseResponse::err_result_page(MenuListDataResp::new(), err.to_string()),
+        Err(err) => BaseResponse::err_result_data(MenuListDataResp::new(), err.to_string()),
     }
 }
 
 /*
- *查询菜单信息列表
+ *查询菜单信息(排除按钮)
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
