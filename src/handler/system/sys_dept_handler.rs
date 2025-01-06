@@ -34,6 +34,25 @@ pub async fn add_sys_dept(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
+    let res = Dept::select_by_id(rb, &item.parent_id).await;
+    match res {
+        Ok(r) => match r {
+            None => {
+                return BaseResponse::<String>::err_result_msg(
+                    "添加失败,上能部门不存在".to_string(),
+                )
+            }
+            Some(dept) => {
+                if dept.status == 0 {
+                    return BaseResponse::<String>::err_result_msg(
+                        "部门停用，不允许添加".to_string(),
+                    );
+                }
+            }
+        },
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let sys_dept = Dept {
         id: None,                                      //部门id
         parent_id: item.parent_id,                     //父部门id
