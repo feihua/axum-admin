@@ -25,7 +25,7 @@ pub async fn add_sys_dept(
     log::info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    let res = Dept::select_by_dept_name(rb, &item.dept_name).await;
+    let res = Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await;
     match res {
         Ok(r) => {
             if r.is_some() {
@@ -152,7 +152,7 @@ pub async fn update_sys_dept(
         Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     };
 
-    let res = Dept::select_by_dept_name(rb, &item.dept_name).await;
+    let res = Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await;
     match res {
         Ok(r) => {
             if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
