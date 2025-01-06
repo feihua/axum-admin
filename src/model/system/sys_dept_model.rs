@@ -70,7 +70,7 @@ impl_select!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
      if status != 2:
       ` and status = #{status} `
      if !sql.contains('count'):
-      ` order by create_time desc"
+      ` order by sort"
 },"sys_dept");
 
 /*
