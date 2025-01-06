@@ -91,8 +91,8 @@ Authorization: Bearer {{token}}
   ]
 }
 
-###查询已分配用户角色列表 allocated_list
-POST {{host}}/api/system/role/allocated_list
+###查询已分配用户角色列表 queryAllocatedList
+POST {{host}}/api/system/role/queryAllocatedList
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -102,8 +102,8 @@ Authorization: Bearer {{token}}
   "role_id": 1
 }
 
-###查询未分配用户角色列表 unallocated_list
-POST {{host}}/api/system/role/unallocated_list
+###查询未分配用户角色列表 queryUnallocatedList
+POST {{host}}/api/system/role/queryUnallocatedList
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

@@ -409,7 +409,7 @@ pub async fn update_role_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn allocated_list(
+pub async fn query_allocated_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<AllocatedListReq>,
 ) -> impl IntoResponse {
@@ -466,7 +466,7 @@ pub async fn allocated_list(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn unallocated_list(
+pub async fn query_unallocated_list(
     State(state): State<Arc<AppState>>,
     Json(item): Json<UnallocatedListReq>,
 ) -> impl IntoResponse {
@@ -544,7 +544,7 @@ pub async fn cancel_auth_user(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn cancel_auth_user_all(
+pub async fn batch_cancel_auth_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<CancelAuthUserAllReq>,
 ) -> impl IntoResponse {
@@ -576,7 +576,7 @@ pub async fn cancel_auth_user_all(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn select_all_auth_user(
+pub async fn batch_auth_user(
     State(state): State<Arc<AppState>>,
     Json(item): Json<SelectAuthUserAllReq>,
 ) -> impl IntoResponse {

@@ -41,12 +41,24 @@ pub fn build_sys_role_route() -> Router<Arc<AppState>> {
             post(sys_role_handler::update_role_menu),
         )
         .route(
-            "/system/role/allocated_list",
-            post(sys_role_handler::allocated_list),
+            "/system/role/queryAllocatedList",
+            post(sys_role_handler::query_allocated_list),
         )
         .route(
-            "/system/role/unallocated_list",
-            post(sys_role_handler::unallocated_list),
+            "/system/role/queryUnallocatedList",
+            post(sys_role_handler::query_unallocated_list),
+        )
+        .route(
+            "/system/role/cancelAuthUser",
+            post(sys_role_handler::cancel_auth_user),
+        )
+        .route(
+            "/system/role/batchCancelAuthUser",
+            post(sys_role_handler::batch_cancel_auth_user),
+        )
+        .route(
+            "/system/role/batchAuthUser",
+            post(sys_role_handler::batch_auth_user),
         )
     //记得在main.rs中添加路由build_sys_role_route()
 }
