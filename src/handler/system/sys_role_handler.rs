@@ -531,7 +531,7 @@ pub async fn cancel_auth_user(
 
     let rb = &state.batis;
 
-    let result = delete_user_role_by_role_id_user_id(rb, &item.role_id, &item.user_id).await;
+    let result = delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id).await;
 
     match result {
         Ok(_u) => BaseResponse::<String>::ok_result(),

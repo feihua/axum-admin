@@ -50,8 +50,8 @@ pub async fn count_user_role_by_role_id(rb: &RBatis, role_id: i64) -> rbatis::Re
 #[sql("delete from sys_user_role where role_id = ? and user_id = ?")]
 pub async fn delete_user_role_by_role_id_user_id(
     rb: &RBatis,
-    role_id: &i64,
-    user_id: &i64,
-) -> rbatis::Result<i64> {
+    role_id: i64,
+    user_id: i64,
+) -> Option<i64> {
     impled!()
 }
