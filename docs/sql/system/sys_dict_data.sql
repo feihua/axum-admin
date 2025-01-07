@@ -16,10 +16,10 @@ create table sys_dict_data
 )comment = '字典数据表';
 
 
-INSERT INTO rustdb.sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (1, '男', '0', 'sys_user_sex', '1', '1', 'N', 1, '性别男');
-INSERT INTO rustdb.sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (2, '女', '1', 'sys_user_sex', '1', '1', 'N', 1, '性别女');
-INSERT INTO rustdb.sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (3, '未知', '2', 'sys_user_sex', '1', '1', 'N', 1, '性别未知');
-INSERT INTO rustdb.sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (1, '通知', '1', 'sys_notice_type', '1', '1', 'N', 1, '通知');
-INSERT INTO rustdb.sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (2, '公告', '2', 'sys_notice_type', '1', '1', 'N', 1, '公告');
+INSERT INTO sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (1, '男', '0', 'sys_user_sex', '1', '1', 'N', 1, '性别男');
+INSERT INTO sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (2, '女', '1', 'sys_user_sex', '1', '1', 'N', 1, '性别女');
+INSERT INTO sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (3, '未知', '2', 'sys_user_sex', '1', '1', 'N', 1, '性别未知');
+INSERT INTO sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (1, '通知', '1', 'sys_notice_type', '1', '1', 'N', 1, '通知');
+INSERT INTO sys_dict_data (dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, remark) VALUES (2, '公告', '2', 'sys_notice_type', '1', '1', 'N', 1, '公告');
 
 
