@@ -148,7 +148,7 @@ async fn count_allocated_list(
  * date：2025/1/6 16:17
  */
 #[py_sql(
-    "`select u.* from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+    "`select * from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
             if mobile != '':
                 ` and u.mobile = #{mobile} `
             if user_name != '':

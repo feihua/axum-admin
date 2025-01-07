@@ -529,6 +529,10 @@ pub async fn cancel_auth_user(
 ) -> impl IntoResponse {
     log::info!("update role_menu params: {:?}", &item);
 
+    if item.role_id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
+
     let rb = &state.batis;
 
     let result = delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id).await;
@@ -549,6 +553,10 @@ pub async fn batch_cancel_auth_user(
     Json(item): Json<CancelAuthUserAllReq>,
 ) -> impl IntoResponse {
     log::info!("cancel auth_user_all params: {:?}", &item);
+
+    if item.role_id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
 
     let rb = &state.batis;
 
@@ -582,6 +590,10 @@ pub async fn batch_auth_user(
 ) -> impl IntoResponse {
     log::info!("select all_auth_user params: {:?}", &item);
     let role_id = item.role_id;
+
+    if item.role_id == 1 {
+        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
+    }
 
     let rb = &state.batis;
 
