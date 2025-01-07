@@ -558,6 +558,7 @@ pub async fn login(
                 BaseResponse::<String>::err_result_msg("用户不存在".to_string())
             }
             Some(user) => {
+                let mut s_user = user.clone();
                 let id = user.id.unwrap();
                 let username = user.user_name;
                 let password = user.password;
@@ -585,7 +586,17 @@ pub async fn login(
 
                 match JWTToken::new(id, &username, btn_menu).create_token("123") {
                     Ok(token) => {
-                        add_login_log(rb, item.mobile, 1, "登录成功".to_string(), agent).await;
+                        add_login_log(rb, item.mobile, 1, "登录成功".to_string(), agent.clone())
+                            .await;
+                        s_user.login_os = agent.os;
+                        s_user.login_browser = agent.browser;
+                        s_user.login_date = Some(DateTime::now());
+                        let res = User::update_by_column(rb, &s_user, "id").await;
+                        if res.is_err() {
+                            return BaseResponse::<String>::err_result_msg(
+                                "更新用户登录后的信息失败".to_string(),
+                            );
+                        }
                         BaseResponse::<String>::ok_result_data(token)
                     }
                     Err(err) => {

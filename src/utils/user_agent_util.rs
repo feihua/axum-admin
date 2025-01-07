@@ -1,6 +1,6 @@
 use regex::Regex;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct UserAgentUtil {
     pub platform: String,       //平台信息
     pub os: String,             //操作系统信息
