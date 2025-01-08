@@ -4,9 +4,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "notice_title": "123ggg",
-    "notice_type": 1,
-    "notice_content": "sdfs",
+    "noticeTitle": "123ggg",
+    "noticeType": 1,
+    "noticeContent": "sdfs",
     "status": 1,
     "remark": "sfdsdf"
 
@@ -28,9 +28,9 @@ Authorization: Bearer {{token}}
 
 {
   "id": 1,
-  "notice_title": "123ggg",
-  "notice_type": 0,
-  "notice_content": "sdfs",
+  "noticeTitle": "123ggg",
+  "noticeType": 0,
+  "noticeContent": "sdfs",
   "status": 0,
   "remark": "sfdsdf"
 }
@@ -60,15 +60,15 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 #{
-#  "current": 1,
+#  "pageNo": 1,
 #  "pageSize": 10,
-#    "notice_title": "",
-#    "notice_type": 0,
+#    "noticeTitle": "",
+#    "noticeType": 0,
 #    "status": 0
 #}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10,
-  "notice_type": 1
+  "noticeType": 1
 }

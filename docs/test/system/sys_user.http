@@ -19,8 +19,8 @@ Authorization: Bearer {{token}}
 
 {
   "mobile": "123123123",
-  "user_name": "22334",
-  "status_id": 1,
+  "userName": "22334",
+  "status": 1,
   "sort": 11,
   "remark": "22334"
 }
@@ -42,9 +42,9 @@ Authorization: Bearer {{token}}
 {
     "id": 13,
     "mobile": "",
-    "user_name": "",
+    "userName": "",
     "password": "",
-    "status_id": 0,
+    "status": 0,
     "sort": 0,
     "remark": ""
 }
@@ -74,11 +74,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo1": 1,
   "pageSize": 10,
   "mobile": "",
-  "user_name": "",
-  "status_id": 1
+  "userName": "",
+  "status": 1
 }
 
 ###查询用户角色列表 queryUserRole
@@ -87,7 +87,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "user_id": 1
+  "userId": 1
 }
 
 ###更新用户角色列表 updateUserRole
@@ -96,6 +96,6 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "user_id": 2,
-  "role_ids": [1,2]
+  "userId": 2,
+  "roleIds": [1,2]
 }

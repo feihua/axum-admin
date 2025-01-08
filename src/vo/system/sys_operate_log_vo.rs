@@ -74,9 +74,7 @@ impl QueryOperateLogDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryOperateLogListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub title: Option<String>,            //模块标题
     pub business_type: Option<i8>,        //业务类型（0其它 1新增 2修改 3删除）

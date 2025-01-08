@@ -138,9 +138,7 @@ impl QueryUserDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryUserListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub mobile: Option<String>,    //手机
     pub user_name: Option<String>, //姓名

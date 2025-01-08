@@ -108,9 +108,7 @@ impl QueryDictDataDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDictDataListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub dict_label: Option<String>, //字典标签
     pub dict_value: Option<String>, //字典键值

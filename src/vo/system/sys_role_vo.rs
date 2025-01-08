@@ -94,9 +94,7 @@ impl QueryRoleDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryRoleListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub role_name: Option<String>, //名称
     pub status_id: Option<i8>,     //状态(1:正常，0:禁用)
@@ -173,9 +171,7 @@ pub struct UpdateRoleMenuReq {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct AllocatedListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub role_id: i64,
     pub mobile: Option<String>,
@@ -188,9 +184,7 @@ pub struct AllocatedListReq {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UnallocatedListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub role_id: i64,
     pub mobile: Option<String>,

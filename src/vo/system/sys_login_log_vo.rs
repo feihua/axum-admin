@@ -70,9 +70,7 @@ impl QueryLoginLogDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryLoginLogListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub login_name: Option<String>,     //登录账号
     pub ipaddr: Option<String>,         //登录IP地址

@@ -92,9 +92,7 @@ impl QueryNoticeDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryNoticeListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub notice_title: Option<String>, //公告标题
     pub notice_type: Option<i8>,      //公告类型（1:通知,2:公告）

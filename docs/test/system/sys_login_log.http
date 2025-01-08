@@ -29,7 +29,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10
 }
 

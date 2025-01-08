@@ -4,13 +4,13 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_sort": 1,
-    "dict_label": "1",
-    "dict_value": "1",
-    "dict_type": "1",
-    "css_class": "1",
-    "list_class": "1",
-    "is_default": "1",
+    "dictSort": 1,
+    "dictLabel": "1",
+    "dictValue": "1",
+    "dictType": "1",
+    "cssClass": "1",
+    "listClass": "1",
+    "isDefault": "1",
     "status": 1,
     "remark": ""
 
@@ -31,14 +31,14 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_code": 0,
-    "dict_sort": 0,
-    "dict_label": "",
-    "dict_value": "",
-    "dict_type": "",
-    "css_class": "",
-    "list_class": "",
-    "is_default": "",
+    "dictCode": 0,
+    "dictSort": 0,
+    "dictLabel": "",
+    "dictValue": "",
+    "dictType": "",
+    "cssClass": "",
+    "listClass": "",
+    "isDefault": "",
     "status": 0,
     "remark": "",
 }
@@ -68,7 +68,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10
 }
 

@@ -88,9 +88,7 @@ impl QueryDictTypeDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDictTypeListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub dict_name: Option<String>, //字典名称
     pub dict_type: Option<String>, //字典类型

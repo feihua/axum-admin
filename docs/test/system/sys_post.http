@@ -4,8 +4,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "post_code": "abc1",
-    "post_name": "测试1",
+    "postCode": "abc1",
+    "postName": "测试1",
     "sort": 0,
     "status": 1,
     "remark": "123"
@@ -28,8 +28,8 @@ Authorization: Bearer {{token}}
 
 {
   "id": 1,
-  "post_code": "abc1",
-  "post_name": "测试2",
+  "postCode": "abc1",
+  "postName": "测试2",
   "sort": 0,
   "status": 1,
   "remark": "123"
@@ -60,7 +60,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10
 }
 

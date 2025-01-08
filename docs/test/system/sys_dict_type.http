@@ -4,8 +4,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_name": "1",
-    "dict_type": "1",
+    "dictName": "1",
+    "dictType": "1",
     "status": 0,
     "remark": "1"
 
@@ -26,11 +26,11 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "dict_id": 0,
-    "dict_name": "",
-    "dict_type": "",
+    "dictId": 0,
+    "dictName": "",
+    "dictType": "",
     "status": 0,
-    "remark": "",
+    "remark": ""
 }
 
 ###更新字典类型表 updateDictTypeStatus状态
@@ -58,7 +58,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10
 }
 

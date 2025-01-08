@@ -92,9 +92,7 @@ impl QueryPostDetailResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryPostListReq {
-    #[serde(rename = "current")]
     pub page_no: u64,
-    #[serde(rename = "pageSize")]
     pub page_size: u64,
     pub post_code: Option<String>, //岗位编码
     pub post_name: Option<String>, //岗位名称

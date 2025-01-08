@@ -4,8 +4,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "role_name": "aa",
-  "status_id": 1,
+  "roleName": "aa",
+  "status": 1,
   "sort": 1,
   "remark": "aa"
 }
@@ -28,8 +28,8 @@ Authorization: Bearer {{token}}
 
 {
   "id": 5,
-  "role_name": "aa11",
-  "status_id": 1,
+  "roleName": "aa11",
+  "status": 1,
   "sort": 1,
   "remark": "aa11"
 }
@@ -62,10 +62,10 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10,
-  "role_name": "",
-  "status_id": 1
+  "roleName": "",
+  "status": 1
 }
 
 ###查询角色菜单 queryRoleMenu
@@ -74,7 +74,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "role_id": 3
+  "roleId": 3
 }
 
 ###更新角色菜单 updateRoleMenu
@@ -83,8 +83,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "role_id": 3,
-  "menu_ids": [
+  "roleId": 3,
+  "menuIds": [
     1,
     2,
     3
@@ -97,9 +97,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10,
-  "role_id": 3
+  "roleId": 3
 }
 
 ###查询未分配用户角色列表 queryUnallocatedList
@@ -108,7 +108,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10,
-  "role_id": 3
+  "roleId": 3
 }

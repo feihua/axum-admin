@@ -4,9 +4,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "parent_id": 1,
+    "parentId": 1,
     "ancestors": "1,2,3",
-    "dept_name": "测试",
+    "deptName": "测试",
     "sort": 1,
     "leader": "测试1",
     "phone": "123",
@@ -30,9 +30,9 @@ Authorization: Bearer {{token}}
 
 {
   "id": 1,
-  "parent_id": 1,
+  "parentId": 1,
   "ancestors": "1,2,3",
-  "dept_name": "测试123",
+  "deptName": "测试123",
   "sort": 1,
   "leader": "测试1231",
   "phone": "123",
@@ -67,11 +67,11 @@ Authorization: Bearer {{token}}
 
 
 //{
-//  "current": 1,
+//  "pageNo": 1,
 //  "pageSize": 10,
-//    "parent_id": 0,
+//    "parentId": 0,
 //    "ancestors": "",
-//    "dept_name": "",
+//    "deptName": "",
 //    "leader": "",
 //    "phone": "",
 //    "email": "",
@@ -80,7 +80,7 @@ Authorization: Bearer {{token}}
 //}
 
 {
-  "current": 1,
+  "pageNo": 1,
   "pageSize": 10
 
 }

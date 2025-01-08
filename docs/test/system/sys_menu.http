@@ -4,13 +4,13 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "menu_name": "查询菜单信息列表1",
-  "menu_type": 3,
+  "menuName": "查询菜单信息列表1",
+  "menuType": 3,
   "status": 1,
   "sort": 6,
-  "parent_id": 24,
-  "menu_url": "",
-  "api_url": "/api/system/menu/queryMenuList",
+  "parentId": 24,
+  "menuUrl": "",
+  "apiUrl": "/api/system/menu/queryMenuList",
   "menu_icon": "",
   "remark": "查询菜单信息列表"
 }
@@ -31,13 +31,13 @@ Authorization: Bearer {{token}}
 
 {
     "id": 31,
-  "menu_name": "查询菜单信息列表12",
-  "menu_type": 3,
+  "menuName": "查询菜单信息列表12",
+  "menuType": 3,
   "status": 1,
   "sort": 6,
-  "parent_id": 24,
-  "menu_url": "",
-  "api_url": "/api/system/menu/queryMenuList",
+  "parentId": 24,
+  "menuUrl": "",
+  "apiUrl": "/api/system/menu/queryMenuList",
   "menu_icon": "",
   "remark": "查询菜单信息列表"
 }
