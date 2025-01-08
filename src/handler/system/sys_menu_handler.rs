@@ -7,6 +7,7 @@ use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
+use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_menu_vo::*;
 /*
@@ -88,7 +89,7 @@ pub async fn delete_sys_menu(
     if count > 0 {
         return BaseResponse::<String>::err_result_msg("存在子菜单,不允许删除".to_string());
     }
-    let count1 = select_count_menu_by_parent_id(rb, &item.id)
+    let count1 = select_count_menu_by_menu_id(rb, &item.id)
         .await
         .unwrap_or_default();
 

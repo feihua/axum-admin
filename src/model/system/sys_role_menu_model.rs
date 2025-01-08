@@ -45,6 +45,6 @@ pub async fn query_menu_by_role(
  *date：2024/12/25 10:01:11
  */
 #[sql("select count(1) from sys_role_menu where menu_id= ?")]
-pub async fn select_count_menu_by_parent_id(rb: &RBatis, menu_id: &i64) -> rbatis::Result<i64> {
+pub async fn select_count_menu_by_menu_id(rb: &RBatis, menu_id: &i64) -> rbatis::Result<i64> {
     impled!()
 }
