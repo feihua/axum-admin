@@ -18,9 +18,6 @@ https://github.com/feihua/rocket-admin.git # rocket框架
 https://github.com/feihua/salvo-admin.git # salvo-web框架
 ```
 
-# 预览地址
-
-[http://110.41.179.89/salvo](http://110.41.179.89/salvo) 账号：18613030352 密码：123456
 
 # 本地启动
 
@@ -43,26 +40,50 @@ Content-Type: application/json
 
 # 系统截图
 
-## 首页
-
-![home](docs/images/home.png)
-
 ## 用户界面
 
-![user](docs/images/user.png)
+![user](docs/images/user.jpg)
 
 ## 角色分配界面
 
-![user-role](docs/images/user-role.png)
+![user-role](docs/images/user_role.jpg)
 
 ## 角色界面
 
-![role](docs/images/role.png)
+![role](docs/images/role.jpg)
+
+## 角色用户界面
+
+![role](docs/images/role_user.jpg)
 
 ## 菜单分配界面
 
-![role-menu](docs/images/role-menu.png)
+![role-menu](docs/images/role_menu.jpg)
 
 ## 菜单界面
 
-![menu](docs/images/menu.png)
+![menu](docs/images/menu.jpg)
+
+## 部门界面
+
+![menu](docs/images/dept.jpg)
+
+## 岗位界面
+
+![menu](docs/images/post.jpg)
+
+## 字典界面
+
+![menu](docs/images/dict.jpg)
+
+## 字典数字界面
+
+![menu](docs/images/dict_data.jpg)
+
+## 通知界面
+
+![menu](docs/images/notice.jpg)
+
+## 登录日志
+
+![menu](docs/images/login_log.jpg)
