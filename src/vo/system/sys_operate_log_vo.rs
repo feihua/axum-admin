@@ -23,6 +23,7 @@ pub struct QueryOperateLogDetailReq {
 查询操作日志记录详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryOperateLogDetailResp {
     pub id: Option<i64>,                  //日志主键
     pub title: Option<String>,            //模块标题
@@ -71,6 +72,7 @@ impl QueryOperateLogDetailResp {
 查询操作日志记录列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryOperateLogListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -93,6 +95,7 @@ pub struct QueryOperateLogListReq {
 查询操作日志记录列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct OperateLogListDataResp {
     pub id: Option<i64>,                  //日志主键
     pub title: Option<String>,            //模块标题

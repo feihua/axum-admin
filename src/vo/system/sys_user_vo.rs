@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加用户信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddUserReq {
     pub mobile: String,         //手机
     pub user_name: String,      //用户账号
@@ -32,6 +33,7 @@ pub struct DeleteUserReq {
 更新用户信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateUserReq {
     pub id: i64,                //主键
     pub mobile: String,         //手机
@@ -66,6 +68,7 @@ pub struct QueryUserDetailReq {
 查询用户信息详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryUserDetailResp {
     pub id: i64,                        //主键
     pub mobile: String,                 //手机
@@ -133,6 +136,7 @@ impl QueryUserDetailResp {
 查询用户信息列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryUserListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -148,6 +152,7 @@ pub struct QueryUserListReq {
 查询用户信息列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UserListDataResp {
     pub id: i64,                 //主键
     pub mobile: String,          //手机
@@ -186,6 +191,7 @@ pub struct UserLoginReq {
 查询用户菜单响应参数
 */
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryUserMenuResp {
     pub sys_menu: Vec<MenuList>,
     pub btn_menu: Vec<String>,
@@ -197,6 +203,7 @@ pub struct QueryUserMenuResp {
 用户菜单参数
 */
 #[derive(Debug, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuList {
     pub id: i64,
     pub parent_id: i64,
@@ -211,6 +218,7 @@ pub struct MenuList {
 查询用户关联角色请求参数
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryUserRoleReq {
     pub user_id: i64,
 }
@@ -219,6 +227,7 @@ pub struct QueryUserRoleReq {
 用户关联角色响应参数
 */
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryUserRoleResp {
     pub sys_role_list: Vec<RoleList>,
     pub user_role_ids: Vec<i64>,
@@ -228,6 +237,7 @@ pub struct QueryUserRoleResp {
 角色信息
 */
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RoleList {
     pub id: i64,             //主键
     pub role_name: String,   //名称
@@ -244,6 +254,7 @@ pub struct RoleList {
 更新用户关联角色请求参数
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateUserRoleReq {
     pub user_id: i64,       //用户主键
     pub role_ids: Vec<i64>, //角色主键
@@ -262,6 +273,7 @@ pub struct ResetUserPwdReq {
 重置密码
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateUserPwdReq {
     pub pwd: String,    //用户密码
     pub re_pwd: String, //用户密码

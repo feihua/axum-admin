@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加通知公告表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddNoticeReq {
     pub notice_title: String,   //公告标题
     pub notice_type: i8,        //公告类型（1:通知,2:公告）
@@ -27,6 +28,7 @@ pub struct DeleteNoticeReq {
 更新通知公告表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateNoticeReq {
     pub id: i64,                //公告ID
     pub notice_title: String,   //公告标题
@@ -57,6 +59,7 @@ pub struct QueryNoticeDetailReq {
 查询通知公告表详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryNoticeDetailResp {
     pub id: i64,                //公告ID
     pub notice_title: String,   //公告标题
@@ -87,6 +90,7 @@ impl QueryNoticeDetailResp {
 查询通知公告表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryNoticeListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -101,6 +105,7 @@ pub struct QueryNoticeListReq {
 查询通知公告表列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct NoticeListDataResp {
     pub id: i64,                //公告ID
     pub notice_title: String,   //公告标题

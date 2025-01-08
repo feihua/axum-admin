@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加菜单信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddMenuReq {
     pub menu_name: String,         //菜单名称
     pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
@@ -32,6 +33,7 @@ pub struct DeleteMenuReq {
 更新菜单信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateMenuReq {
     pub id: i64,                   //主键
     pub menu_name: String,         //菜单名称
@@ -67,6 +69,7 @@ pub struct QueryMenuDetailReq {
 查询菜单信息详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryMenuDetailResp {
     pub id: i64,             //主键
     pub menu_name: String,   //菜单名称
@@ -107,6 +110,7 @@ impl QueryMenuDetailResp {
 查询菜单信息列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryMenuListReq {
     pub menu_name: Option<String>, //菜单名称
 }
@@ -115,6 +119,7 @@ pub struct QueryMenuListReq {
 查询菜单信息列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuListDataResp {
     pub id: i64,             //主键
     pub menu_name: String,   //菜单名称
@@ -141,6 +146,7 @@ impl MenuListDataResp {
 查询菜单信息列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuListSimpleDataResp {
     pub id: i64,           //主键
     pub menu_name: String, //菜单名称

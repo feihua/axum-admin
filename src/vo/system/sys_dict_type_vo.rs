@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加字典类型表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddDictTypeReq {
     pub dict_name: String,      //字典名称
     pub dict_type: String,      //字典类型
@@ -26,6 +27,7 @@ pub struct DeleteDictTypeReq {
 更新字典类型表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateDictTypeReq {
     pub dict_id: i64,           //字典主键
     pub dict_name: String,      //字典名称
@@ -55,6 +57,7 @@ pub struct QueryDictTypeDetailReq {
 查询字典类型表详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDictTypeDetailResp {
     pub dict_id: i64,        //字典主键
     pub dict_name: String,   //字典名称
@@ -83,6 +86,7 @@ impl QueryDictTypeDetailResp {
 查询字典类型表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDictTypeListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -97,6 +101,7 @@ pub struct QueryDictTypeListReq {
 查询字典类型表列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DictTypeListDataResp {
     pub dict_id: i64,        //字典主键
     pub dict_name: String,   //字典名称

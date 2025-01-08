@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加角色信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddRoleReq {
     pub role_name: String,      //名称
     pub role_key: String,       //角色权限字符串
@@ -27,6 +28,7 @@ pub struct DeleteRoleReq {
 更新角色信息请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateRoleReq {
     pub id: i64,                //主键
     pub role_name: String,      //名称
@@ -57,6 +59,7 @@ pub struct QueryRoleDetailReq {
 查询角色信息详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryRoleDetailResp {
     pub id: i64,              //主键
     pub role_name: String,    //名称
@@ -89,6 +92,7 @@ impl QueryRoleDetailResp {
 查询角色信息列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryRoleListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -103,6 +107,7 @@ pub struct QueryRoleListReq {
 查询角色信息列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RoleListDataResp {
     pub id: i64,              //主键
     pub role_name: String,    //名称
@@ -123,6 +128,7 @@ impl RoleListDataResp {
 查询角色菜单信息参数
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryRoleMenuReq {
     pub role_id: i64, //角色id
 }
@@ -131,6 +137,7 @@ pub struct QueryRoleMenuReq {
 角色菜单信息参数
 */
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryRoleMenuData {
     pub menu_ids: Vec<i64>,           //菜单Ids
     pub menu_list: Vec<MenuDataList>, //菜单列表
@@ -140,13 +147,13 @@ pub struct QueryRoleMenuData {
 菜单信息参数
 */
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct MenuDataList {
     pub id: i64,        //主键
     pub parent_id: i64, //父ID
     pub title: String,
     pub key: String,
     pub label: String,
-    #[serde(rename = "isPenultimate")]
     pub is_penultimate: bool,
 }
 
@@ -154,6 +161,7 @@ pub struct MenuDataList {
 更新用户角色信息
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateRoleMenuReq {
     pub menu_ids: Vec<i64>,
     pub role_id: i64,
@@ -163,6 +171,7 @@ pub struct UpdateRoleMenuReq {
 查询已分配用户角色列表
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AllocatedListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -177,6 +186,7 @@ pub struct AllocatedListReq {
 查询未分配用户角色列表
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UnallocatedListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -191,6 +201,7 @@ pub struct UnallocatedListReq {
 取消授权用户
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CancelAuthUserReq {
     pub user_id: i64,
     pub role_id: i64,
@@ -200,6 +211,7 @@ pub struct CancelAuthUserReq {
 批量取消授权用户
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct CancelAuthUserAllReq {
     pub user_ids: Vec<i64>,
     pub role_id: i64,
@@ -209,6 +221,7 @@ pub struct CancelAuthUserAllReq {
 批量选择用户授权
 */
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SelectAuthUserAllReq {
     pub user_ids: Vec<i64>,
     pub role_id: i64,

@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加部门表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddDeptReq {
     pub parent_id: i64,    //父部门id
     pub dept_name: String, //部门名称
@@ -29,6 +30,7 @@ pub struct DeleteDeptReq {
 更新部门表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateDeptReq {
     pub id: i64,           //部门id
     pub parent_id: i64,    //父部门id
@@ -61,6 +63,7 @@ pub struct QueryDeptDetailReq {
 查询部门表详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDeptDetailResp {
     pub id: i64,             //部门id
     pub parent_id: i64,      //父部门id
@@ -99,6 +102,7 @@ impl QueryDeptDetailResp {
 查询部门表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDeptListReq {
     pub dept_name: Option<String>, //部门名称
     pub leader: Option<String>,    //负责人
@@ -111,6 +115,7 @@ pub struct QueryDeptListReq {
 查询部门表列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DeptListDataResp {
     pub id: i64,             //部门id
     pub parent_id: i64,      //父部门id

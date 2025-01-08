@@ -23,6 +23,7 @@ pub struct QueryLoginLogDetailReq {
 查询系统访问记录详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryLoginLogDetailResp {
     pub id: i64,                //访问ID
     pub login_name: String,     //登录账号
@@ -67,6 +68,7 @@ impl QueryLoginLogDetailResp {
 查询系统访问记录列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryLoginLogListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -84,6 +86,7 @@ pub struct QueryLoginLogListReq {
 查询系统访问记录列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct LoginLogListDataResp {
     pub id: i64,                //访问ID
     pub login_name: String,     //登录账号

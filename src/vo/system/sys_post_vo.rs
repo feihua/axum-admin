@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加岗位信息表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddPostReq {
     pub post_code: String,      //岗位编码
     pub post_name: String,      //岗位名称
@@ -27,6 +28,7 @@ pub struct DeletePostReq {
 更新岗位信息表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdatePostReq {
     pub id: i64,                //岗位id
     pub post_code: String,      //岗位编码
@@ -57,6 +59,7 @@ pub struct QueryPostDetailReq {
 查询岗位信息表详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryPostDetailResp {
     pub id: i64,             //岗位id
     pub post_code: String,   //岗位编码
@@ -87,6 +90,7 @@ impl QueryPostDetailResp {
 查询岗位信息表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryPostListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -101,6 +105,7 @@ pub struct QueryPostListReq {
 查询岗位信息表列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct PostListDataResp {
     pub id: i64,             //岗位id
     pub post_code: String,   //岗位编码

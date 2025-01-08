@@ -7,6 +7,7 @@ use serde::{Deserialize, Serialize};
 添加字典数据表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct AddDictDataReq {
     pub dict_sort: i32,         //字典排序
     pub dict_label: String,     //字典标签
@@ -31,6 +32,7 @@ pub struct DeleteDictDataReq {
 更新字典数据表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct UpdateDictDataReq {
     pub dict_code: i64,         //字典编码
     pub dict_sort: i32,         //字典排序
@@ -65,6 +67,7 @@ pub struct QueryDictDataDetailReq {
 查询字典数据表详情响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDictDataDetailResp {
     pub dict_code: i64,      //字典编码
     pub dict_sort: i32,      //字典排序
@@ -103,6 +106,7 @@ impl QueryDictDataDetailResp {
 查询字典数据表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct QueryDictDataListReq {
     #[serde(rename = "current")]
     pub page_no: u64,
@@ -118,6 +122,7 @@ pub struct QueryDictDataListReq {
 查询字典数据表列表响应参数
 */
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DictDataListDataResp {
     pub dict_code: i64,      //字典编码
     pub dict_sort: i32,      //字典排序

@@ -99,7 +99,7 @@ Authorization: Bearer {{token}}
 {
   "current": 1,
   "pageSize": 10,
-  "role_id": 1
+  "role_id": 3
 }
 
 ###查询未分配用户角色列表 queryUnallocatedList
@@ -110,5 +110,5 @@ Authorization: Bearer {{token}}
 {
   "current": 1,
   "pageSize": 10,
-  "role_id": 1
+  "role_id": 3
 }
