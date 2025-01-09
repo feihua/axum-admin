@@ -137,7 +137,7 @@ INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url,
 select * from sys_menu where menu_name='日志管理';
 
 -- 配置系统访问记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('登录日志', 2, 1, 9, 72, '/system/loginLog', '', '', '系统访问记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('登录日志', 2, 1, 9, 72, '/log/loginLog', '', '', '系统访问记录管理');
 
 select * from sys_menu where menu_name='登录日志';
 
@@ -150,7 +150,7 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 
 
 -- 配置操作日志记录权限
-INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志', 2, 1, 10, 72, '/system/operateLog', '', '', '操作日志记录管理');
+INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('操作日志', 2, 1, 10, 72, '/log/operateLog', '', '', '操作日志记录管理');
 
 select * from sys_menu where menu_name='操作日志';
 
