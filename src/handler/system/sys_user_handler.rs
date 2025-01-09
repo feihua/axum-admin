@@ -778,36 +778,11 @@ pub async fn query_user_menu(
         .parse::<i64>()
         .unwrap();
     log::info!("query user menu params user_id {:?}", user_id);
-    let token = headers.get("Authorization").unwrap().to_str().unwrap();
-    let split_vec = token.split_whitespace().collect::<Vec<_>>();
-    if split_vec.len() != 2 || split_vec[0] != "Bearer" {
-        let resp = BaseResponse {
-            msg: "the token format wrong".to_string(),
-            code: 1,
-            data: None,
-        };
-        return Json(resp);
-    }
-    let token = split_vec[1];
-    let jwt_token_e = JWTToken::verify("123", &token);
-    let jwt_token = match jwt_token_e {
-        Ok(data) => data,
-        Err(err) => {
-            let resp = BaseResponse {
-                msg: err.to_string(),
-                code: 1,
-                data: None,
-            };
-            return Json(resp);
-        }
-    };
-
-    log::info!("query user menu params {:?}", jwt_token);
 
     let rb = &state.batis;
 
     //根据id查询用户
-    let result = User::select_by_id(rb, jwt_token.id).await;
+    let result = User::select_by_id(rb, user_id).await;
 
     match result {
         Ok(sys_user) => {
