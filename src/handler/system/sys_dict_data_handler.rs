@@ -104,13 +104,25 @@ pub async fn update_sys_dict_data(
     log::info!("update sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
+    let result = DictData::select_by_id(rb, &item.dict_code).await;
+    match result {
+        Ok(r) => {
+            if r.is_none() {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新字典数据失败,字典数据不存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let res_by_dict_label =
         DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await;
     match res_by_dict_label {
         Ok(r) => {
             if r.is_some() && r.clone().unwrap().dict_code.unwrap_or_default() != item.dict_code {
                 return BaseResponse::<String>::err_result_msg(
-                    "新增字典数据失败,字典标签已存在".to_string(),
+                    "更新字典数据失败,字典标签已存在".to_string(),
                 );
             }
         }
@@ -123,7 +135,7 @@ pub async fn update_sys_dict_data(
         Ok(r) => {
             if r.is_some() && r.clone().unwrap().dict_code.unwrap_or_default() != item.dict_code {
                 return BaseResponse::<String>::err_result_msg(
-                    "新增字典数据失败,字典键值已存在".to_string(),
+                    "更新字典数据失败,字典键值已存在".to_string(),
                 );
             }
         }

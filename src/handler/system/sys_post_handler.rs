@@ -120,6 +120,19 @@ pub async fn update_sys_post(
     log::info!("update sys_post params: {:?}", &item);
     let rb = &state.batis;
 
+    let result = Post::select_by_id(rb, &item.id).await;
+
+    match result {
+        Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<String>::err_result_msg(
+                    "更新岗位失败,岗位不存在".to_string(),
+                );
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let res_by_name = Post::select_by_name(rb, &item.post_name).await;
     match res_by_name {
         Ok(r) => {

@@ -82,6 +82,17 @@ pub async fn update_sys_notice(
     log::info!("update sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
+    let result = Notice::select_by_id(rb, &item.id).await;
+
+    match result {
+        Ok(d) => {
+            if d.is_none() {
+                return BaseResponse::<String>::err_result_msg("通知公告表不存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    };
+
     let res = Notice::select_by_title(rb, &item.notice_title).await;
 
     match res {

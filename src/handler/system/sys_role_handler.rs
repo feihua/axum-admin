@@ -149,6 +149,17 @@ pub async fn update_sys_role(
         return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色".to_string());
     }
 
+    let result = Role::select_by_id(rb, &item.id).await;
+
+    match result {
+        Ok(opt_role) => {
+            if opt_role.is_none() {
+                return BaseResponse::<String>::err_result_msg("角色不存在".to_string());
+            }
+        }
+        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
+    }
+
     let role_name_result = Role::select_by_role_name(rb, &item.role_name).await;
     match role_name_result {
         Ok(role) => {
