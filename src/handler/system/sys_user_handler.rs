@@ -694,9 +694,9 @@ pub async fn query_user_role(
     let mut user_role_ids: Vec<i64> = Vec::new();
     let mut sys_role_list: Vec<RoleList> = Vec::new();
 
-    let sys_role = Role::select_all(rb).await;
+    let sys_role = Role::select_all(rb).await.unwrap_or_default();
 
-    for x in sys_role.unwrap_or_default() {
+    for x in sys_role {
         if x.status == 1 {
             let role = RoleList {
                 id: x.id.unwrap_or_default(),               //主键
@@ -716,9 +716,11 @@ pub async fn query_user_role(
     }
 
     if item.user_id != 1 {
-        let user_role = UserRole::select_by_column(rb, "user_id", item.user_id).await;
+        let user_role = UserRole::select_by_column(rb, "user_id", item.user_id)
+            .await
+            .unwrap_or_default();
 
-        for x in user_role.unwrap_or_default() {
+        for x in user_role {
             user_role_ids.push(x.role_id);
         }
     }
