@@ -691,20 +691,14 @@ pub async fn query_user_role(
     log::info!("query user_role params: {:?}", item);
     let rb = &state.batis;
 
-    let user_role = UserRole::select_by_column(rb, "user_id", item.user_id).await;
     let mut user_role_ids: Vec<i64> = Vec::new();
-
-    for x in user_role.unwrap_or_default() {
-        user_role_ids.push(x.role_id);
-    }
+    let mut sys_role_list: Vec<RoleList> = Vec::new();
 
     let sys_role = Role::select_all(rb).await;
 
-    let mut sys_role_list: Vec<RoleList> = Vec::new();
-
     for x in sys_role.unwrap_or_default() {
         if x.status == 1 {
-            sys_role_list.push(RoleList {
+            let role = RoleList {
                 id: x.id.unwrap_or_default(),               //主键
                 role_name: x.role_name,                     //名称
                 role_key: x.role_key,                       //角色权限字符串
@@ -714,10 +708,20 @@ pub async fn query_user_role(
                 del_flag: x.del_flag.unwrap_or_default(), //删除标志（0代表删除 1代表存在）
                 create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
-            });
+            };
+
+            sys_role_list.push(role);
+            user_role_ids.push(x.id.unwrap());
         }
     }
 
+    if item.user_id != 1 {
+        let user_role = UserRole::select_by_column(rb, "user_id", item.user_id).await;
+
+        for x in user_role.unwrap_or_default() {
+            user_role_ids.push(x.role_id);
+        }
+    }
     BaseResponse::<QueryUserRoleResp>::ok_result_data(QueryUserRoleResp {
         sys_role_list,
         user_role_ids,
