@@ -243,6 +243,31 @@ pub async fn update_sys_dept_status(
     log::info!("update sys_dept_status params: {:?}", &item);
     let rb = &state.batis;
 
+    if item.status == 1 {
+        for id in item.ids.clone() {
+            let result = Dept::select_by_id(rb, &id).await.unwrap_or_default();
+            if result.is_some() {
+                let ancestors = result.unwrap().ancestors;
+                let ids = ancestors.split(",").map(|s| s.i64()).collect::<Vec<i64>>();
+
+                let update_sql = format!(
+                    "update sys_dept set status = ? where id in ({})",
+                    ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
+                );
+
+                let mut param = vec![to_value!(item.status)];
+                param.extend(ids.iter().map(|&id| to_value!(id)));
+                let res_dept = rb.exec(&update_sql, param).await;
+
+                if res_dept.is_err() {
+                    return BaseResponse::<String>::err_result_msg(
+                        "更新上级部门状态异常".to_string(),
+                    );
+                }
+            }
+        }
+    }
+
     let update_sql = format!(
         "update sys_dept set status = ? where id in ({})",
         item.ids
