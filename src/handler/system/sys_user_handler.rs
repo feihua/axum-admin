@@ -5,7 +5,7 @@ use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
 use crate::model::system::sys_user_post_model::UserPost;
-use crate::model::system::sys_user_role_model::UserRole;
+use crate::model::system::sys_user_role_model::{is_admin, UserRole};
 use crate::utils::error::WhoUnfollowedError;
 use crate::utils::jwt_util::JWTToken;
 use crate::utils::time_util::time_to_string;
@@ -71,25 +71,25 @@ pub async fn add_sys_user(
             .to_string(),
     );
     let sys_user = User {
-        id: None,                                  //主键
-        mobile: item.mobile,                       //手机
-        user_name: item.user_name,                 //用户账号
-        nick_name: item.nick_name,                 //用户昵称
-        user_type: Some("01".to_string()),         //用户类型（00系统用户）
-        email: item.email,                         //用户邮箱
-        avatar,                                    //头像路径
-        password: item.password,                   //密码
-        status: item.status,                       //状态(1:正常，0:禁用)
-        dept_id: item.dept_id,                     //部门ID
-        login_ip: "".to_string(),                  //最后登录IP
-        login_date: None,                          //最后登录时间
-        login_browser: "".to_string(),             //浏览器类型
-        login_os: "".to_string(),                  //操作系统
-        pwd_update_date: Some(Default::default()), //密码最后更新时间
-        remark: item.remark,                       //备注
-        del_flag: 1,                               //删除标志（0代表删除 1代表存在）
-        create_time: None,                         //创建时间
-        update_time: None,                         //修改时间
+        id: None,                          //主键
+        mobile: item.mobile,               //手机
+        user_name: item.user_name,         //用户账号
+        nick_name: item.nick_name,         //用户昵称
+        user_type: Some("01".to_string()), //用户类型（00系统用户）
+        email: item.email,                 //用户邮箱
+        avatar,                            //头像路径
+        password: item.password,           //密码
+        status: item.status,               //状态(1:正常，0:禁用)
+        dept_id: item.dept_id,             //部门ID
+        login_ip: "".to_string(),          //最后登录IP
+        login_date: None,                  //最后登录时间
+        login_browser: "".to_string(),     //浏览器类型
+        login_os: "".to_string(),          //操作系统
+        pwd_update_date: None,             //密码最后更新时间
+        remark: item.remark,               //备注
+        del_flag: 1,                       //删除标志（0代表删除 1代表存在）
+        create_time: None,                 //创建时间
+        update_time: None,                 //修改时间
     };
 
     let result = User::insert(rb, &sys_user).await;
@@ -224,25 +224,25 @@ pub async fn update_sys_user(
             .to_string(),
     );
     let sys_user = User {
-        id: Some(item.id),                          //主键
-        mobile: item.mobile,                        //手机
-        user_name: item.user_name,                  //用户账号
-        nick_name: item.nick_name,                  //用户昵称
-        user_type: None,                            //用户类型（00系统用户）
-        email: item.email,                          //用户邮箱
-        avatar,                                     //头像路径
-        password: u.password,                       //密码
-        status: item.status,                        //状态(1:正常，0:禁用)
-        dept_id: item.dept_id,                      //部门ID
-        login_ip: "item.login_ip".to_string(),      //最后登录IP
-        login_date: Some(Default::default()),       //最后登录时间
-        login_browser: "item.login_ip".to_string(), //浏览器类型
-        login_os: "item.login_ip".to_string(),      //操作系统
-        pwd_update_date: Some(Default::default()),  //密码最后更新时间
-        remark: item.remark,                        //备注
-        del_flag: u.del_flag,                       //删除标志（0代表删除 1代表存在）
-        create_time: None,                          //创建时间
-        update_time: None,                          //修改时间
+        id: Some(item.id),                  //主键
+        mobile: item.mobile,                //手机
+        user_name: item.user_name,          //用户账号
+        nick_name: item.nick_name,          //用户昵称
+        user_type: None,                    //用户类型（00系统用户）
+        email: item.email,                  //用户邮箱
+        avatar,                             //头像路径
+        password: u.password,               //密码
+        status: item.status,                //状态(1:正常，0:禁用)
+        dept_id: item.dept_id,              //部门ID
+        login_ip: u.login_ip,               //最后登录IP
+        login_date: u.login_date,           //最后登录时间
+        login_browser: u.login_browser,     //浏览器类型
+        login_os: u.login_os,               //操作系统
+        pwd_update_date: u.pwd_update_date, //密码最后更新时间
+        remark: item.remark,                //备注
+        del_flag: u.del_flag,               //删除标志（0代表删除 1代表存在）
+        create_time: None,                  //创建时间
+        update_time: None,                  //修改时间
     };
 
     let result = User::update_by_column(rb, &sys_user, "id").await;
@@ -659,9 +659,9 @@ async fn add_login_log(rb: &RBatis, name: String, status: i8, msg: String, agent
  *date：2024/12/12 14:41:44
  */
 async fn query_btn_menu(id: &i64, rb: RBatis) -> Vec<String> {
-    let user_role = UserRole::is_admin(&rb, id).await;
+    let count = is_admin(&rb, id).await.unwrap_or_default();
     let mut btn_menu: Vec<String> = Vec::new();
-    if user_role.unwrap().len() == 1 {
+    if count == 1 {
         let data = Menu::select_all(&rb).await;
 
         for x in data.unwrap() {
@@ -810,8 +810,10 @@ pub async fn query_user_menu(
                     let sys_menu_list: Vec<Menu>;
 
                     if count > 0 {
+                        log::info!("The current user is a super administrator");
                         sys_menu_list = Menu::select_all(rb).await.unwrap_or_default();
                     } else {
+                        log::info!("The current user is not a super administrator");
                         let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
                         sys_menu_list = rb
                             .query_decode(sql_str, vec![to_value!(user.id)])

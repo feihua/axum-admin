@@ -30,7 +30,10 @@ rbatis::crud!(UserRole {}, "sys_user_role");
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select!(UserRole{is_admin(user_id:&i64) => "`where user_id = #{user_id} and role_id = 1`"},"sys_user_role");
+#[sql("select count(1) from sys_user_role where role_id = 1 and user_id = ?")]
+pub async fn is_admin(rb: &RBatis, user_id: &i64) -> rbatis::Result<i64> {
+    impled!()
+}
 
 /*
  *通过角色id查询角色使用数量
