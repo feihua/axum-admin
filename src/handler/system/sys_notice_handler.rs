@@ -21,15 +21,12 @@ pub async fn add_sys_notice(
     log::info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    let res = Notice::select_by_title(rb, &item.notice_title).await;
-    match res {
-        Ok(r) => {
-            if r.is_some() {
-                return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
-            }
-        }
-        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
+    if Notice::select_by_title(rb, &item.notice_title)
+        .await?
+        .is_some()
+    {
+        return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
+    };
 
     let sys_notice = Notice {
         id: None,                                //公告ID
@@ -42,12 +39,8 @@ pub async fn add_sys_notice(
         update_time: None,                       //修改时间
     };
 
-    let result = Notice::insert(rb, &sys_notice).await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
+    Notice::insert(rb, &sys_notice).await?;
+    BaseResponse::<String>::ok_result()
 }
 
 /*
@@ -62,12 +55,8 @@ pub async fn delete_sys_notice(
     log::info!("delete sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Notice::delete_in_column(rb, "id", &item.ids).await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
+    Notice::delete_in_column(rb, "id", &item.ids).await?;
+    BaseResponse::<String>::ok_result()
 }
 
 /*
@@ -82,26 +71,14 @@ pub async fn update_sys_notice(
     log::info!("update sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Notice::select_by_id(rb, &item.id).await;
+    if Notice::select_by_id(rb, &item.id).await?.is_none() {
+        return BaseResponse::<String>::err_result_msg("通知公告表不存在".to_string());
+    }
 
-    match result {
-        Ok(d) => {
-            if d.is_none() {
-                return BaseResponse::<String>::err_result_msg("通知公告表不存在".to_string());
-            }
+    if let Some(x) = Notice::select_by_title(rb, &item.notice_title).await? {
+        if x.id.unwrap_or_default() != item.id {
+            return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
         }
-        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
-    };
-
-    let res = Notice::select_by_title(rb, &item.notice_title).await;
-
-    match res {
-        Ok(r) => {
-            if r.is_some() && r.unwrap().id.unwrap_or_default() != item.id {
-                return BaseResponse::<String>::err_result_msg("公告标题已存在".to_string());
-            }
-        }
-        Err(err) => return BaseResponse::<String>::err_result_msg(err.to_string()),
     }
 
     let sys_notice = Notice {
@@ -115,12 +92,8 @@ pub async fn update_sys_notice(
         update_time: None,                       //修改时间
     };
 
-    let result = Notice::update_by_column(rb, &sys_notice, "id").await;
-
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
+    Notice::update_by_column(rb, &sys_notice, "id").await?;
+    BaseResponse::<String>::ok_result()
 }
 
 /*
@@ -146,12 +119,9 @@ pub async fn update_sys_notice_status(
 
     let mut param = vec![to_value!(item.status)];
     param.extend(item.ids.iter().map(|&id| to_value!(id)));
-    let result = rb.exec(&update_sql, param).await;
 
-    match result {
-        Ok(_u) => BaseResponse::<String>::ok_result(),
-        Err(err) => BaseResponse::<String>::err_result_msg(err.to_string()),
-    }
+    rb.exec(&update_sql, param).await?;
+    BaseResponse::<String>::ok_result()
 }
 
 /*
@@ -166,18 +136,12 @@ pub async fn query_sys_notice_detail(
     log::info!("query sys_notice_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Notice::select_by_id(rb, &item.id).await;
-
-    match result {
-        Ok(d) => {
-            if d.is_none() {
-                return BaseResponse::<QueryNoticeDetailResp>::err_result_data(
-                    QueryNoticeDetailResp::new(),
-                    "通知公告表不存在".to_string(),
-                );
-            }
-            let x = d.unwrap();
-
+    match Notice::select_by_id(rb, &item.id).await? {
+        None => BaseResponse::<QueryNoticeDetailResp>::err_result_data(
+            QueryNoticeDetailResp::new(),
+            "通知公告表不存在".to_string(),
+        ),
+        Some(x) => {
             let sys_notice = QueryNoticeDetailResp {
                 id: x.id.unwrap_or_default(),               //公告ID
                 notice_title: x.notice_title,               //公告标题
@@ -191,10 +155,6 @@ pub async fn query_sys_notice_detail(
 
             BaseResponse::<QueryNoticeDetailResp>::ok_result_data(sys_notice)
         }
-        Err(err) => BaseResponse::<QueryNoticeDetailResp>::err_result_data(
-            QueryNoticeDetailResp::new(),
-            err.to_string(),
-        ),
     }
 }
 
@@ -218,25 +178,21 @@ pub async fn query_sys_notice_list(
     let result = Notice::select_sys_notice_list(rb, page, notice_title, notice_type, status).await;
 
     let mut data: Vec<NoticeListDataResp> = Vec::new();
-    match result {
-        Ok(d) => {
-            let total = d.total;
+    let d = Notice::select_sys_notice_list(rb, page, notice_title, notice_type, status).await?;
+    let total = d.total;
 
-            for x in d.records {
-                data.push(NoticeListDataResp {
-                    id: x.id.unwrap_or_default(),               //公告ID
-                    notice_title: x.notice_title,               //公告标题
-                    notice_type: x.notice_type,                 //公告类型（1:通知,2:公告）
-                    notice_content: x.notice_content,           //公告内容
-                    status: x.status,                           //公告状态（0:关闭,1:正常 ）
-                    remark: x.remark,                           //备注
-                    create_time: time_to_string(x.create_time), //创建时间
-                    update_time: time_to_string(x.update_time), //修改时间
-                })
-            }
-
-            BaseResponse::ok_result_page(data, total)
-        }
-        Err(err) => BaseResponse::err_result_page(NoticeListDataResp::new(), err.to_string()),
+    for x in d.records {
+        data.push(NoticeListDataResp {
+            id: x.id.unwrap_or_default(),               //公告ID
+            notice_title: x.notice_title,               //公告标题
+            notice_type: x.notice_type,                 //公告类型（1:通知,2:公告）
+            notice_content: x.notice_content,           //公告内容
+            status: x.status,                           //公告状态（0:关闭,1:正常 ）
+            remark: x.remark,                           //备注
+            create_time: time_to_string(x.create_time), //创建时间
+            update_time: time_to_string(x.update_time), //修改时间
+        })
     }
+
+    BaseResponse::ok_result_page(data, total)
 }
