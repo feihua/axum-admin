@@ -155,9 +155,7 @@ pub async fn query_sys_dict_type_detail(
     log::info!("query sys_dict_type_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = DictType::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match DictType::select_by_id(rb, &item.id).await? {
         None => BaseResponse::<QueryDictTypeDetailResp>::err_result_data(
             QueryDictTypeDetailResp::new(),
             "字典类型不存在",

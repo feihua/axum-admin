@@ -179,9 +179,7 @@ pub async fn query_sys_menu_detail(
     log::info!("query sys_menu_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Menu::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match Menu::select_by_id(rb, &item.id).await? {
         None => {
             return BaseResponse::<QueryMenuDetailResp>::err_result_data(
                 QueryMenuDetailResp::new(),

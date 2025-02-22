@@ -158,9 +158,7 @@ pub async fn query_sys_dict_data_detail(
     log::info!("query sys_dict_data_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = DictData::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match DictData::select_by_id(rb, &item.id).await? {
         None => BaseResponse::<QueryDictDataDetailResp>::err_result_data(
             QueryDictDataDetailResp::new(),
             "字典数据不存在",

@@ -52,15 +52,11 @@ pub async fn query_sys_operate_log_detail(
     log::info!("query sys_operate_log_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = OperateLog::select_by_id(rb, &item.id).await?;
-
-    match result {
-        None => {
-            return BaseResponse::<QueryOperateLogDetailResp>::err_result_data(
-                QueryOperateLogDetailResp::new(),
-                "操作日志不存在",
-            );
-        }
+    match OperateLog::select_by_id(rb, &item.id).await? {
+        None => BaseResponse::<QueryOperateLogDetailResp>::err_result_data(
+            QueryOperateLogDetailResp::new(),
+            "操作日志不存在",
+        ),
         Some(x) => {
             let sys_operate_log = QueryOperateLogDetailResp {
                 id: x.id,                                     //日志主键

@@ -222,9 +222,7 @@ pub async fn query_sys_dept_detail(
     log::info!("query sys_dept_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Dept::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match Dept::select_by_id(rb, &item.id).await? {
         None => BaseResponse::<QueryDeptDetailResp>::err_result_data(
             QueryDeptDetailResp::new(),
             "部门不存在",

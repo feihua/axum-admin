@@ -14,7 +14,7 @@ pub enum AppError {
     //
     // #[error("Failed to update the cache file")]
     // DiskCacheWrite { source: std::io::Error },
-    #[error("")]
+    #[error("jwt：{0}")]
     JwtTokenError(String),
 
     #[error("数据库错误: {0}")]

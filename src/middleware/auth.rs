@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::utils::jwt_util::JWTToken;
+use crate::utils::jwt_util::JwtToken;
 use axum::extract::Request;
 use axum::http::StatusCode;
 use axum::middleware::Next;
@@ -23,7 +23,7 @@ pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, St
     };
 
     let token = authorization.to_string().replace("Bearer ", "");
-    let jwt_token_e = JWTToken::verify("123", &token);
+    let jwt_token_e = JwtToken::verify("123", &token);
     let jwt_token = match jwt_token_e {
         Ok(data) => data,
         Err(err) => {

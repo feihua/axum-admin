@@ -197,9 +197,7 @@ pub async fn query_sys_role_detail(
     log::info!("query sys_role_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Role::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match Role::select_by_id(rb, &item.id).await? {
         None => {
             return BaseResponse::<QueryRoleDetailResp>::err_result_data(
                 QueryRoleDetailResp::new(),

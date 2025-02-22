@@ -52,9 +52,7 @@ pub async fn query_sys_login_log_detail(
     log::info!("query sys_login_log_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = LoginLog::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match LoginLog::select_by_id(rb, &item.id).await? {
         None => BaseResponse::<QueryLoginLogDetailResp>::err_result_data(
             QueryLoginLogDetailResp::new(),
             "日志不存在",

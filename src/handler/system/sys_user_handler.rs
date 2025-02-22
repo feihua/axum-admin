@@ -1,4 +1,3 @@
-use crate::common::error::AppError;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_dept_model::Dept;
 use crate::model::system::sys_login_log_model::LoginLog;
@@ -7,7 +6,7 @@ use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
 use crate::model::system::sys_user_post_model::UserPost;
 use crate::model::system::sys_user_role_model::{is_admin, UserRole};
-use crate::utils::jwt_util::JWTToken;
+use crate::utils::jwt_util::JwtToken;
 use crate::utils::time_util::time_to_string;
 use crate::utils::user_agent_util::UserAgentUtil;
 use crate::vo::system::sys_dept_vo::QueryDeptDetailResp;
@@ -322,9 +321,7 @@ pub async fn query_sys_user_detail(
     log::info!("query sys_user_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = User::select_by_id(rb, item.id).await?;
-
-    match result {
+    match User::select_by_id(rb, item.id).await? {
         None => BaseResponse::<QueryUserDetailResp>::err_result_data(
             QueryUserDetailResp::new(),
             "用户不存在",
@@ -488,24 +485,14 @@ pub async fn login(
                 return BaseResponse::<String>::err_result_msg("用户没有分配角色或者菜单,不能登录");
             }
 
-            match JWTToken::new(id, &username, btn_menu).create_token("123") {
-                Ok(token) => {
-                    add_login_log(rb, item.mobile, 1, "登录成功", agent.clone()).await;
-                    s_user.login_os = agent.os;
-                    s_user.login_browser = agent.browser;
-                    s_user.login_date = Some(DateTime::now());
-                    User::update_by_column(rb, &s_user, "id").await?;
-                    BaseResponse::<String>::ok_result_data(token)
-                }
-                Err(err) => {
-                    let er = match err {
-                        AppError::JwtTokenError(s) => s,
-                        _ => "no math error".to_string(),
-                    };
-                    add_login_log(rb, item.mobile, 0, "生成token异常", agent).await;
-                    BaseResponse::<String>::err_result_msg(er.as_str())
-                }
-            }
+            let token = JwtToken::new(id, &username, btn_menu).create_token("123")?;
+
+            add_login_log(rb, item.mobile, 1, "登录成功", agent.clone()).await;
+            s_user.login_os = agent.os;
+            s_user.login_browser = agent.browser;
+            s_user.login_date = Some(DateTime::now());
+            User::update_by_column(rb, &s_user, "id").await?;
+            BaseResponse::<String>::ok_result_data(token)
         }
     }
 }

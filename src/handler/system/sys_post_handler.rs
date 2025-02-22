@@ -163,9 +163,7 @@ pub async fn query_sys_post_detail(
     log::info!("query sys_post_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let result = Post::select_by_id(rb, &item.id).await?;
-
-    match result {
+    match Post::select_by_id(rb, &item.id).await? {
         None => {
             return BaseResponse::<QueryPostDetailResp>::err_result_data(
                 QueryPostDetailResp::new(),
