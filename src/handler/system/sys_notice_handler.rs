@@ -175,7 +175,6 @@ pub async fn query_sys_notice_list(
     let status = item.status.unwrap_or(2); //公告状态（0:关闭,1:正常 ）
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let result = Notice::select_sys_notice_list(rb, page, notice_title, notice_type, status).await;
 
     let mut data: Vec<NoticeListDataResp> = Vec::new();
     let d = Notice::select_sys_notice_list(rb, page, notice_title, notice_type, status).await?;
