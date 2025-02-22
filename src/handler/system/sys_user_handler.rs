@@ -570,9 +570,7 @@ pub async fn query_user_role(
     let mut user_role_ids: Vec<i64> = Vec::new();
     let mut sys_role_list: Vec<RoleList> = Vec::new();
 
-    let sys_role = Role::select_all(rb).await.unwrap_or_default();
-
-    for x in sys_role {
+    for x in Role::select_all(rb).await? {
         if x.status == 1 {
             let role = RoleList {
                 id: x.id.unwrap_or_default(),               //主键
@@ -592,11 +590,7 @@ pub async fn query_user_role(
     }
 
     if item.user_id != 1 {
-        let user_role = UserRole::select_by_column(rb, "user_id", item.user_id)
-            .await
-            .unwrap_or_default();
-
-        for x in user_role {
+        for x in UserRole::select_by_column(rb, "user_id", item.user_id).await? {
             user_role_ids.push(x.role_id);
         }
     }
@@ -624,10 +618,10 @@ pub async fn update_user_role(
 
     UserRole::delete_by_column(rb, "user_id", user_id).await?;
 
-    let mut sys_role_user_list: Vec<UserRole> = Vec::new();
+    let mut list: Vec<UserRole> = Vec::new();
     for role_id in role_ids {
         let r_id = role_id.clone();
-        sys_role_user_list.push(UserRole {
+        list.push(UserRole {
             id: None,
             create_time: Some(DateTime::now()),
             role_id: r_id,
@@ -635,7 +629,7 @@ pub async fn update_user_role(
         })
     }
 
-    UserRole::insert_batch(rb, &sys_role_user_list, len as u64).await?;
+    UserRole::insert_batch(rb, &list, len as u64).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -704,14 +698,16 @@ pub async fn query_user_menu(
             for id in sys_menu_ids {
                 menu_ids.push(id)
             }
-            let menu_result = Menu::select_by_ids(rb, &menu_ids).await?;
-            for menu in menu_result {
+            for menu in Menu::select_by_ids(rb, &menu_ids).await? {
                 sys_menu.push(MenuList {
-                    id: menu.id.unwrap(),
+                    id: menu.id.unwrap_or_default(),
                     parent_id: menu.parent_id,
                     name: menu.menu_name,
                     icon: menu.menu_icon.unwrap_or_default(),
-                    api_url: menu.api_url.as_ref().unwrap().to_string(),
+                    api_url: menu
+                        .api_url
+                        .as_ref()
+                        .map_or_else(|| "".to_string(), |url| url.to_string()),
                     menu_type: menu.menu_type,
                     path: menu.menu_url.unwrap_or_default(),
                 });
