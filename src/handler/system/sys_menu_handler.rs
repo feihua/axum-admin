@@ -26,7 +26,7 @@ pub async fn add_sys_menu(
         .await?
         .is_some()
     {
-        return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
+        return BaseResponse::<String>::err_result_msg("菜单名称已存在");
     }
 
     let menu_url = item.menu_url.clone();
@@ -35,7 +35,7 @@ pub async fn add_sys_menu(
             .await?
             .is_some()
         {
-            return BaseResponse::<String>::err_result_msg("路由路径已存在".to_string());
+            return BaseResponse::<String>::err_result_msg("路由路径已存在");
         }
     }
 
@@ -75,11 +75,11 @@ pub async fn delete_sys_menu(
     //有下级的时候 不能直接删除
 
     if select_count_menu_by_parent_id(rb, &item.id).await? > 0 {
-        return BaseResponse::<String>::err_result_msg("存在子菜单,不允许删除".to_string());
+        return BaseResponse::<String>::err_result_msg("存在子菜单,不允许删除");
     }
 
     if select_count_menu_by_menu_id(rb, &item.id).await? > 0 {
-        return BaseResponse::<String>::err_result_msg("菜单已分配,不允许删除".to_string());
+        return BaseResponse::<String>::err_result_msg("菜单已分配,不允许删除");
     }
 
     Menu::delete_by_column(rb, "id", &item.id).await?;
@@ -100,12 +100,12 @@ pub async fn update_sys_menu(
     let rb = &state.batis;
 
     if Menu::select_by_id(rb, &item.id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("更新菜单失败,菜单信息不存在".to_string());
+        return BaseResponse::<String>::err_result_msg("更新菜单失败,菜单信息不存在");
     }
 
     if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("菜单名称已存在".to_string());
+            return BaseResponse::<String>::err_result_msg("菜单名称已存在");
         }
     }
 
@@ -113,7 +113,7 @@ pub async fn update_sys_menu(
     if menu_url.is_some() {
         if let Some(x) = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await? {
             if x.id.unwrap_or_default() != item.id {
-                return BaseResponse::<String>::err_result_msg("路由路径已存在".to_string());
+                return BaseResponse::<String>::err_result_msg("路由路径已存在");
             }
         }
     }
@@ -185,7 +185,7 @@ pub async fn query_sys_menu_detail(
         None => {
             return BaseResponse::<QueryMenuDetailResp>::err_result_data(
                 QueryMenuDetailResp::new(),
-                "菜单信息不存在".to_string(),
+                "菜单信息不存在",
             );
         }
         Some(x) => {

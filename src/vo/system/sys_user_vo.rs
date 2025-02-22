@@ -197,6 +197,16 @@ pub struct QueryUserMenuResp {
     pub name: String,
 }
 
+impl QueryUserMenuResp {
+    pub fn new() -> QueryUserMenuResp {
+        QueryUserMenuResp {
+            sys_menu: vec![],
+            btn_menu: vec![],
+            avatar: "".to_string(),
+            name: "".to_string(),
+        }
+    }
+}
 /*
 用户菜单参数
 */

@@ -58,7 +58,7 @@ pub async fn query_sys_operate_log_detail(
         None => {
             return BaseResponse::<QueryOperateLogDetailResp>::err_result_data(
                 QueryOperateLogDetailResp::new(),
-                "操作日志不存在".to_string(),
+                "操作日志不存在",
             );
         }
         Some(x) => {

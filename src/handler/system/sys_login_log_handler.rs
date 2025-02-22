@@ -57,7 +57,7 @@ pub async fn query_sys_login_log_detail(
     match result {
         None => BaseResponse::<QueryLoginLogDetailResp>::err_result_data(
             QueryLoginLogDetailResp::new(),
-            "日志不存在".to_string(),
+            "日志不存在",
         ),
         Some(x) => {
             let sys_login_log = QueryLoginLogDetailResp {

@@ -1,4 +1,4 @@
-use crate::utils::error::WhoUnfollowedError;
+use crate::common::error::AppError;
 use crate::utils::jwt_util::JWTToken;
 use axum::extract::Request;
 use axum::http::StatusCode;
@@ -29,7 +29,7 @@ pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, St
         Err(err) => {
             log::info!("{}", err);
             let er = match err {
-                WhoUnfollowedError::JwtTokenError(s) => s,
+                AppError::JwtTokenError(s) => s,
                 _ => "no math error".to_string(),
             };
             log::error!(

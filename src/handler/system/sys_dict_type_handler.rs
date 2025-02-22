@@ -27,7 +27,7 @@ pub async fn add_sys_dict_type(
         .await?
         .is_some()
     {
-        return BaseResponse::<String>::err_result_msg("新增字典失败,字典类型已存在".to_string());
+        return BaseResponse::<String>::err_result_msg("新增字典失败,字典类型已存在");
     }
 
     let sys_dict_type = DictType {
@@ -60,17 +60,13 @@ pub async fn delete_sys_dict_type(
     let ids = item.ids.clone();
     for id in ids {
         let p = match DictType::select_by_id(rb, &id).await? {
-            None => {
-                return BaseResponse::<String>::err_result_msg(
-                    "字典类型不存在,不能删除".to_string(),
-                )
-            }
+            None => return BaseResponse::<String>::err_result_msg("字典类型不存在,不能删除"),
             Some(p) => p,
         };
 
         if count_dict_data_by_type(rb, &p.dict_type).await? > 0 {
             let msg = format!("{}已分配,不能删除", p.dict_name);
-            return BaseResponse::<String>::err_result_msg(msg);
+            return BaseResponse::<String>::err_result_msg(msg.as_str());
         }
     }
 
@@ -92,14 +88,12 @@ pub async fn update_sys_dict_type(
     let rb = &state.batis;
 
     if DictType::select_by_id(rb, &item.dict_id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("更新字典失败,字典类型不存在".to_string());
+        return BaseResponse::<String>::err_result_msg("更新字典失败,字典类型不存在");
     }
 
     if let Some(x) = DictType::select_by_dict_type(rb, &item.dict_type).await? {
         if x.dict_id.unwrap_or_default() != item.dict_id {
-            return BaseResponse::<String>::err_result_msg(
-                "更新字典失败,字典类型已存在".to_string(),
-            );
+            return BaseResponse::<String>::err_result_msg("更新字典失败,字典类型已存在");
         }
 
         let dict_type = x.dict_type;
@@ -166,7 +160,7 @@ pub async fn query_sys_dict_type_detail(
     match result {
         None => BaseResponse::<QueryDictTypeDetailResp>::err_result_data(
             QueryDictTypeDetailResp::new(),
-            "字典类型不存在".to_string(),
+            "字典类型不存在",
         ),
         Some(x) => {
             let sys_dict_type = QueryDictTypeDetailResp {

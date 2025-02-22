@@ -38,7 +38,7 @@ where
         }))
     }
 
-    pub fn ok_result_msg(msg: String) -> AppResult<Json<BaseResponse<String>>> {
+    pub fn ok_result_msg(msg: &str) -> AppResult<Json<BaseResponse<String>>> {
         Ok(Json(BaseResponse {
             msg: msg.to_string(),
             code: 0,
@@ -46,7 +46,7 @@ where
         }))
     }
 
-    pub fn ok_result_code(code: i32, msg: String) -> AppResult<Json<BaseResponse<String>>> {
+    pub fn ok_result_code(code: i32, msg: &str) -> AppResult<Json<BaseResponse<String>>> {
         Ok(Json(BaseResponse {
             msg: msg.to_string(),
             code,
@@ -61,7 +61,7 @@ where
             data: Some(data),
         }))
     }
-    pub fn err_result_data(data: T, msg: String) -> AppResult<Json<BaseResponse<T>>> {
+    pub fn err_result_data(data: T, msg: &str) -> AppResult<Json<BaseResponse<T>>> {
         Ok(Json(BaseResponse {
             msg: msg.to_string(),
             code: 1,
@@ -69,7 +69,7 @@ where
         }))
     }
 
-    pub fn err_result_msg(msg: String) -> AppResult<Json<BaseResponse<String>>> {
+    pub fn err_result_msg(msg: &str) -> AppResult<Json<BaseResponse<String>>> {
         Ok(Json(BaseResponse {
             msg: msg.to_string(),
             code: 1,
@@ -77,7 +77,7 @@ where
         }))
     }
 
-    pub fn err_result_code(code: i32, msg: String) -> AppResult<Json<BaseResponse<String>>> {
+    pub fn err_result_code(code: i32, msg: &str) -> AppResult<Json<BaseResponse<String>>> {
         Ok(Json(BaseResponse {
             msg: msg.to_string(),
             code,
@@ -95,7 +95,7 @@ where
         }))
     }
 
-    pub fn err_result_page(data: T, msg: String) -> AppResult<Json<ResponsePage<T>>> {
+    pub fn err_result_page(data: T, msg: &str) -> AppResult<Json<ResponsePage<T>>> {
         Ok(Json(ResponsePage {
             msg: msg.to_string(),
             code: 1,
