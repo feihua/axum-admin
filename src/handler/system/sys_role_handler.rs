@@ -32,24 +32,20 @@ pub async fn add_sys_role(
     log::info!("add sys_role params: {:?}", &item);
     let rb = &state.batis;
 
-    if Role::select_by_role_name(rb, &item.role_name)
-        .await?
-        .is_some()
-    {
+    let name = item.role_name;
+    if Role::select_by_role_name(rb, &name).await?.is_some() {
         return BaseResponse::<String>::err_result_msg("角色名称已存在");
     }
 
-    if Role::select_by_role_key(rb, &item.role_key)
-        .await?
-        .is_some()
-    {
+    let key = item.role_key;
+    if Role::select_by_role_key(rb, &key).await?.is_some() {
         return BaseResponse::<String>::err_result_msg("角色权限已存在");
     }
 
     let sys_role = Role {
         id: None,                                //主键
-        role_name: item.role_name,               //名称
-        role_key: item.role_key,                 //角色权限字符串
+        role_name: name,                         //名称
+        role_key: key,                           //角色权限字符串
         data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
         status: item.status,         //状态(1:正常，0:禁用)
         remark: item.remark.unwrap_or_default(), //备注

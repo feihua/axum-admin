@@ -21,16 +21,14 @@ pub async fn add_sys_notice(
     log::info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    if Notice::select_by_title(rb, &item.notice_title)
-        .await?
-        .is_some()
-    {
+    let title = item.notice_title;
+    if Notice::select_by_title(rb, &title).await?.is_some() {
         return BaseResponse::<String>::err_result_msg("公告标题已存在");
     };
 
     let sys_notice = Notice {
         id: None,                                //公告ID
-        notice_title: item.notice_title,         //公告标题
+        notice_title: title,                     //公告标题
         notice_type: item.notice_type,           //公告类型（1:通知,2:公告）
         notice_content: item.notice_content,     //公告内容
         status: item.status,                     //公告状态（0:关闭,1:正常 ）

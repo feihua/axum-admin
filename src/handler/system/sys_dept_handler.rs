@@ -25,36 +25,35 @@ pub async fn add_sys_dept(
     log::info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    if Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id)
-        .await?
-        .is_some()
-    {
+    let name = item.dept_name;
+    let p_id = item.parent_id;
+    if Dept::select_by_dept_name(rb, &name, p_id).await?.is_some() {
         return BaseResponse::<String>::err_result_msg("部门名称已存在");
     }
 
-    let ancestors = match Dept::select_by_id(rb, &item.parent_id).await? {
+    let ancestors = match Dept::select_by_id(rb, &p_id).await? {
         None => return BaseResponse::<String>::err_result_msg("添加失败,上级部门不存在"),
         Some(dept) => {
             if dept.status == 0 {
                 return BaseResponse::<String>::err_result_msg("部门停用，不允许添加");
             }
-            format!("{},{}", dept.ancestors, &item.parent_id)
+            format!("{},{}", dept.ancestors, &p_id)
         }
     };
 
     let sys_dept = Dept {
-        id: None,                  //部门id
-        parent_id: item.parent_id, //父部门id
-        ancestors,                 //祖级列表
-        dept_name: item.dept_name, //部门名称
-        sort: item.sort,           //显示顺序
-        leader: item.leader,       //负责人
-        phone: item.phone,         //联系电话
-        email: item.email,         //邮箱
-        status: item.status,       //部状态（0：停用，1:正常）
-        del_flag: None,            //删除标志（0代表删除 1代表存在）
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
+        id: None,            //部门id
+        parent_id: p_id,     //父部门id
+        ancestors,           //祖级列表
+        dept_name: name,     //部门名称
+        sort: item.sort,     //显示顺序
+        leader: item.leader, //负责人
+        phone: item.phone,   //联系电话
+        email: item.email,   //邮箱
+        status: item.status, //部状态（0：停用，1:正常）
+        del_flag: None,      //删除标志（0代表删除 1代表存在）
+        create_time: None,   //创建时间
+        update_time: None,   //修改时间
     };
 
     Dept::insert(rb, &sys_dept).await?;

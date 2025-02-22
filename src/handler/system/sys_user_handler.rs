@@ -35,10 +35,8 @@ pub async fn add_sys_user(
     log::info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
-    if User::select_by_user_name(rb, &item.user_name)
-        .await?
-        .is_some()
-    {
+    let name = item.user_name;
+    if User::select_by_user_name(rb, &name).await?.is_some() {
         return BaseResponse::<String>::err_result_msg("登录账号已存在");
     }
 
@@ -57,7 +55,7 @@ pub async fn add_sys_user(
     let sys_user = User {
         id: None,                          //主键
         mobile: item.mobile,               //手机
-        user_name: item.user_name,         //用户账号
+        user_name: name,                   //用户账号
         nick_name: item.nick_name,         //用户昵称
         user_type: Some("01".to_string()), //用户类型（00系统用户）
         email: item.email,                 //用户邮箱
