@@ -264,7 +264,8 @@ pub async fn query_sys_dept_list(
 
     let mut list: Vec<DeptListDataResp> = Vec::new();
 
-    for x in Dept::select_page_dept_list(rb, dept_name, status).await? {
+    let vec = Dept::select_page_dept_list(rb, dept_name, status).await?;
+    for x in vec {
         list.push(DeptListDataResp {
             id: x.id.unwrap_or_default(),               //部门id
             parent_id: x.parent_id,                     //父部门id

@@ -291,9 +291,7 @@ pub async fn update_sys_user_password(
         .parse::<i64>()
         .unwrap();
 
-    let sys_user_result = User::select_by_id(rb, user_id).await?;
-
-    match sys_user_result {
+    match User::select_by_id(rb, user_id).await? {
         None => BaseResponse::<String>::err_result_msg("用户不存在"),
         Some(x) => {
             let mut user = x;
@@ -570,7 +568,8 @@ pub async fn query_user_role(
     let mut user_role_ids: Vec<i64> = Vec::new();
     let mut sys_role_list: Vec<RoleList> = Vec::new();
 
-    for x in Role::select_all(rb).await? {
+    let vec = Role::select_all(rb).await?;
+    for x in vec {
         if x.status == 1 {
             let role = RoleList {
                 id: x.id.unwrap_or_default(),               //主键
@@ -590,7 +589,8 @@ pub async fn query_user_role(
     }
 
     if item.user_id != 1 {
-        for x in UserRole::select_by_column(rb, "user_id", item.user_id).await? {
+        let vec1 = UserRole::select_by_column(rb, "user_id", item.user_id).await?;
+        for x in vec1 {
             user_role_ids.push(x.role_id);
         }
     }
@@ -651,9 +651,7 @@ pub async fn query_user_menu(
     let rb = &state.batis;
 
     //根据id查询用户
-    let result = User::select_by_id(rb, user_id).await?;
-
-    match result {
+    match User::select_by_id(rb, user_id).await? {
         None => BaseResponse::<QueryUserMenuResp>::err_result_data(
             QueryUserMenuResp::new(),
             "用户不存在",
@@ -698,7 +696,8 @@ pub async fn query_user_menu(
             for id in sys_menu_ids {
                 menu_ids.push(id)
             }
-            for menu in Menu::select_by_ids(rb, &menu_ids).await? {
+            let vec1 = Menu::select_by_ids(rb, &menu_ids).await?;
+            for menu in vec1 {
                 sys_menu.push(MenuList {
                     id: menu.id.unwrap_or_default(),
                     parent_id: menu.parent_id,
