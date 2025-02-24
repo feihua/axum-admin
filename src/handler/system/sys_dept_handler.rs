@@ -193,20 +193,20 @@ pub async fn update_sys_dept_status(
                 rb.exec(&update_sql, param).await?;
             }
         }
-
-        let update_sql = format!(
-            "update sys_dept set status = ? where id in ({})",
-            item.ids
-                .iter()
-                .map(|_| "?")
-                .collect::<Vec<&str>>()
-                .join(", ")
-        );
-
-        let mut param = vec![to_value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| to_value!(id)));
-        rb.exec(&update_sql, param).await?;
     }
+    let update_sql = format!(
+        "update sys_dept set status = ? where id in ({})",
+        item.ids
+            .iter()
+            .map(|_| "?")
+            .collect::<Vec<&str>>()
+            .join(", ")
+    );
+
+    let mut param = vec![to_value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    rb.exec(&update_sql, param).await?;
+
     BaseResponse::<String>::ok_result()
 }
 /*
