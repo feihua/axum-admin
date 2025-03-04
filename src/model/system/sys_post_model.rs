@@ -2,9 +2,9 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
+use crate::vo::system::sys_post_vo::QueryPostListReq;
 use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
-
 /*
  *岗位信息
  *author：刘飞华
@@ -65,14 +65,14 @@ impl_select_page!(Post{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Post{select_post_list(post_code:&str, post_name:&str, status:i8) =>"
+impl_select_page!(Post{select_post_list(req:&QueryPostListReq) =>"
     where 1=1
-     if post_code != null && post_code != '':
-      ` and post_code = #{post_code} `
-     if post_name != null && post_name != '':
-      ` and post_name = #{post_name} `
-     if status != 2:
-      ` and status = #{status} `
+     if req.post_code != null && req.post_code != '':
+      ` and post_code = #{req.post_code} `
+     if req.post_name != null &&req. post_name != '':
+      ` and post_name = #{req.post_name} `
+     if req.status != 2:
+      ` and status = #{req.status} `
      if !sql.contains('count'):
       ` order by create_time desc"
 },"sys_post");

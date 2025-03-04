@@ -1,9 +1,9 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use crate::vo::system::sys_role_vo::QueryRoleListReq;
 use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
-
 /*
  *角色信息
  *author：刘飞华
@@ -65,13 +65,13 @@ impl_select_page!(Role{select_page() =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select_page!(Role{select_sys_role_list(role_name:&str,role_key:&str,status:i8) =>"
+impl_select_page!(Role{select_sys_role_list(req:&QueryRoleListReq) =>"
       where 1=1
-     if role_name != null && role_name != '':
-       ` and role_name = #{role_name} `
-     if role_key != null && role_key != '':
-       ` and role_key = #{role_key} `
-     if status != 2:
-       ` and status = #{status} `
+     if req.role_name != null && req.role_name != '':
+       ` and role_name = #{req.role_name} `
+     if req.role_key != null && req.role_key != '':
+       ` and role_key = #{req.role_key} `
+     if req.status != 2:
+       ` and status = #{req.status} `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_role");

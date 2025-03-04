@@ -77,9 +77,12 @@ pub struct QueryLoginLogListReq {
     pub login_location: Option<String>, //登录地点
     pub browser: Option<String>,        //浏览器类型
     pub os: Option<String>,             //操作系统
-    pub status: Option<i8>,             //登录状态(0:失败,1:成功)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //登录状态(0:失败,1:成功)
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询系统访问记录列表响应参数
 */

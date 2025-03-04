@@ -108,9 +108,12 @@ pub struct QueryDeptListReq {
     pub leader: Option<String>,    //负责人
     pub phone: Option<String>,     //联系电话
     pub email: Option<String>,     //邮箱
-    pub status: Option<i8>,        //部状态（0：停用，1:正常）
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //部状态（0：停用，1:正常）
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询部门表列表响应参数
 */

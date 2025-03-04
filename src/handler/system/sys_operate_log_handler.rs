@@ -93,33 +93,9 @@ pub async fn query_sys_operate_log_list(
 ) -> impl IntoResponse {
     log::info!("query sys_operate_log_list params: {:?}", &item);
     let rb = &state.batis;
-    let title = item.title.as_deref().unwrap_or_default(); //模块标题
-    let business_type = item.business_type.unwrap_or(4); //业务类型（0其它 1新增 2修改 3删除）
-    let method = item.method.as_deref().unwrap_or_default(); //方法名称
-    let request_method = item.request_method.as_deref().unwrap_or_default(); //请求方式
-    let operator_type = item.operator_type.unwrap_or(3); //操作类别（0其它 1后台用户 2手机端用户）
-    let operate_name = item.operate_name.as_deref().unwrap_or_default(); //操作人员
-    let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
-    let operate_url = item.operate_url.as_deref().unwrap_or_default(); //请求URL
-    let operate_ip = item.operate_ip.as_deref().unwrap_or_default(); //主机地址
-    let status = item.status.unwrap_or(2); //操作状态(0:异常,正常)
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = OperateLog::select_page_by_name(
-        rb,
-        page,
-        title,
-        &business_type,
-        method,
-        request_method,
-        &operator_type,
-        operate_name,
-        dept_name,
-        operate_url,
-        operate_ip,
-        &status,
-    )
-    .await?;
+    let d = OperateLog::select_page_by_name(rb, page, &item).await?;
 
     let mut list: Vec<OperateLogListDataResp> = Vec::new();
 

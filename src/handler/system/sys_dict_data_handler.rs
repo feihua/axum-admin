@@ -196,12 +196,8 @@ pub async fn query_sys_dict_data_list(
     log::info!("query sys_dict_data_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let dict_label = item.dict_label.as_deref().unwrap_or_default(); //字典标签
-    let dict_type = item.dict_type.as_deref().unwrap_or_default(); //字典类型
-    let status = item.status.unwrap_or(2); //状态（0：停用，1:正常）
-
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = DictData::select_dict_data_list(rb, page, dict_label, dict_type, status).await?;
+    let d = DictData::select_dict_data_list(rb, page, &item).await?;
 
     let mut list: Vec<DictDataListDataResp> = Vec::new();
 

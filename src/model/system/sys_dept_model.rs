@@ -2,10 +2,10 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
+use crate::vo::system::sys_dept_vo::QueryDeptListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
-
 /*
  *部门
  *author：刘飞华
@@ -63,12 +63,12 @@ impl_select_page!(Dept{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(Dept{select_page_dept_list(dept_name:&str, status:i8) =>"
+impl_select!(Dept{select_page_dept_list(req:&QueryDeptListReq) =>"
     where 1=1
-     if dept_name != null && dept_name != '':
-      ` and dept_name = #{dept_name} `
-     if status != 2:
-      ` and status = #{status} `
+     if req.dept_name != null && req.dept_name != '':
+      ` and dept_name = #{req.dept_name} `
+     if req.status != 2:
+      ` and status = #req.{status} `
      if !sql.contains('count'):
       ` order by sort"
 },"sys_dept");

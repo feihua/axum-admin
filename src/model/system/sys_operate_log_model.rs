@@ -2,10 +2,10 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
+use crate::vo::system::sys_operate_log_vo::QueryOperateLogListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
-
 /*
  *操作日志记录
  *author：刘飞华
@@ -62,37 +62,28 @@ impl_select_page!(OperateLog{select_page() =>"
  *date：2024/12/25 10:01:11
  */
 impl_select_page!(OperateLog{select_page_by_name(
-    title:&str,
-    business_type:&i8,
-    method:&str,
-    request_method:&str,
-    operator_type:&i8,
-    operate_name:&str,
-    dept_name:&str,
-    operate_url:&str,
-    operate_ip:&str,
-    status:&i8,) =>"
+    req:&QueryOperateLogListReq) =>"
     where 1=1
-     if title != '':
-       ` and title = #{title} `
-     if business_type != 4:
-       ` and business_type = #{business_type} `
-     if method != '':
-       ` and method = #{method} `
-     if request_method != '':
-       ` and request_method = #{request_method} `
-     if operator_type != 3:
-       ` and operator_type = #{operator_type} `
-     if operate_name != '':
-       ` and operate_name = #{operate_name} `
-     if dept_name != '':
-       ` and dept_name = #{dept_name} `
-     if operate_url != '':
-       ` and operate_url = #{operate_url} `
-     if operate_ip != '':
-       ` and operate_ip = #{operate_ip} `
-     if status != 2:
-       ` and status = #{status} `
+     if req.title != '' && req.title != null:
+       ` and title = #{req.title} `
+     if req.business_type != 4:
+       ` and business_type = #{req.business_type} `
+     if req.method != '' && req.method != null:
+       ` and method = #{req.method} `
+     if req.request_method != '' && req.request_method != null:
+       ` and request_method = #{req.request_method} `
+     if req.operator_type != 3:
+       ` and operator_type = #{req.operator_type} `
+     if req.operate_name != '' && req.operate_name != null:
+       ` and operate_name = #{req.operate_name} `
+     if req.dept_name != '' && req.dept_name != null:
+       ` and dept_name = #{req.dept_name} `
+     if req.operate_url != '' && req.operate_url != null:
+       ` and operate_url = #{req.operate_url} `
+     if req.operate_ip != '' && req.operate_ip != null:
+       ` and operate_ip = #{req.operate_ip} `
+     if req.status != 2:
+       ` and status = #{req.status} `
      if !sql.contains('count'):
        ` order by operate_time desc `"
 },"sys_operate_log");

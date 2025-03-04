@@ -1,11 +1,11 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use crate::vo::system::sys_user_vo::QueryUserListReq;
 use rbatis::executor::Executor;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::rbdc::Error;
 use serde::{Deserialize, Serialize};
-
 /*
  *用户信息
  *author：刘飞华
@@ -84,16 +84,16 @@ impl_select_page!(User{select_page() =>"
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select_page!(User{select_sys_user_list(mobile:&str,user_name:&str,status:i8,dept_id:i64) =>"
+impl_select_page!(User{select_sys_user_list(req:&QueryUserListReq) =>"
       where 1=1
-      if mobile != null && mobile != '':
-       ` and mobile = #{mobile} `
-     if user_name != null && user_name != '':
-       ` and user_name = #{user_name} `
-     if status != 2:
-       ` and status = #{status} `
-     if dept_id != 0:
-       ` and (dept_id = #{dept_id} OR dept_id IN (SELECT id FROM sys_dept WHERE find_in_set(#{dept_id}, ancestors))) `
+      if req.mobile != null && req.mobile != '':
+       ` and mobile = #{req.mobile} `
+     if req.user_name != null && req.user_name != '':
+       ` and user_name = #{req.user_name} `
+     if req.status != 2:
+       ` and status = #{req.status} `
+     if req.dept_id != 0:
+       ` and (dept_id = #{req.dept_id} OR dept_id IN (SELECT id FROM sys_dept WHERE find_in_set(#{req.dept_id}, ancestors))) `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");
 

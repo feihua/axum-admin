@@ -113,9 +113,12 @@ pub struct QueryDictDataListReq {
     pub dict_label: Option<String>, //字典标签
     pub dict_value: Option<String>, //字典键值
     pub dict_type: Option<String>,  //字典类型
-    pub status: Option<i8>,         //状态（0：停用，1:正常）
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //状态（0：停用，1:正常）
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询字典数据表列表响应参数
 */

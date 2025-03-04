@@ -96,9 +96,12 @@ pub struct QueryNoticeListReq {
     pub page_size: u64,
     pub notice_title: Option<String>, //公告标题
     pub notice_type: Option<i8>,      //公告类型（1:通知,2:公告）
-    pub status: Option<i8>,           //公告状态（0:关闭,1:正常 ）
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //公告状态（0:关闭,1:正常 ）
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询通知公告表列表响应参数
 */

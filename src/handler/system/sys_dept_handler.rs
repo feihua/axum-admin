@@ -259,12 +259,9 @@ pub async fn query_sys_dept_list(
     log::info!("query sys_dept_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let dept_name = item.dept_name.as_deref().unwrap_or_default(); //部门名称
-    let status = item.status.unwrap_or(2); //部状态（0：停用，1:正常）
-
     let mut list: Vec<DeptListDataResp> = Vec::new();
 
-    let vec = Dept::select_page_dept_list(rb, dept_name, status).await?;
+    let vec = Dept::select_page_dept_list(rb, &item).await?;
     for x in vec {
         list.push(DeptListDataResp {
             id: x.id.unwrap_or_default(),               //部门id

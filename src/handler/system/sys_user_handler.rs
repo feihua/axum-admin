@@ -395,13 +395,8 @@ pub async fn query_sys_user_list(
     log::info!("query sys_user_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let mobile = item.mobile.as_deref().unwrap_or_default();
-    let user_name = item.user_name.as_deref().unwrap_or_default();
-    let status = item.status.unwrap_or(2);
-    let dept_id = item.dept_id.unwrap_or_default();
-
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = User::select_sys_user_list(rb, page, mobile, user_name, status, dept_id).await?;
+    let d = User::select_sys_user_list(rb, page, &item).await?;
 
     let total = d.total;
     let mut sys_user_list_data: Vec<UserListDataResp> = Vec::new();

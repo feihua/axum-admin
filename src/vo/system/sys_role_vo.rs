@@ -97,10 +97,13 @@ pub struct QueryRoleListReq {
     pub page_no: u64,
     pub page_size: u64,
     pub role_name: Option<String>, //名称
-    pub status_id: Option<i8>,     //状态(1:正常，0:禁用)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //部状态（0：停用，1:正常）)
     pub role_key: Option<String>,  //角色权限字符串
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询角色信息列表响应参数
 */

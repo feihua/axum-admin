@@ -230,12 +230,8 @@ pub async fn query_sys_role_list(
     log::info!("query sys_role_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let role_name = item.role_name.as_deref().unwrap_or_default();
-    let role_key = item.role_key.as_deref().unwrap_or_default();
-    let status = item.status_id.unwrap_or(2);
-
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = Role::select_sys_role_list(rb, page, role_name, role_key, status).await?;
+    let d = Role::select_sys_role_list(rb, page, &item).await?;
 
     let total = d.total;
 

@@ -38,7 +38,8 @@ pub struct QueryOperateLogDetailResp {
     pub operate_location: Option<String>, //操作地点
     pub operate_param: Option<String>,    //请求参数
     pub json_result: Option<String>,      //返回参数
-    pub status: Option<i8>,               //操作状态(0:异常,正常)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //操作状态(0:异常,正常)
     pub error_msg: Option<String>,        //错误消息
     pub operate_time: String,             //操作时间
     pub cost_time: Option<i64>,           //消耗时间
@@ -86,9 +87,12 @@ pub struct QueryOperateLogListReq {
     pub operate_url: Option<String>,      //请求URL
     pub operate_ip: Option<String>,       //主机地址
     pub operate_location: Option<String>, //操作地点
-    pub status: Option<i8>,               //操作状态(0:异常,正常)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //操作状态(0:异常,正常)
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询操作日志记录列表响应参数
 */
@@ -108,7 +112,8 @@ pub struct OperateLogListDataResp {
     pub operate_location: Option<String>, //操作地点
     pub operate_param: Option<String>,    //请求参数
     pub json_result: Option<String>,      //返回参数
-    pub status: Option<i8>,               //操作状态(0:异常,正常)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //操作状态(0:异常,正常)
     pub error_msg: Option<String>,        //错误消息
     pub operate_time: String,             //操作时间
     pub cost_time: Option<i64>,           //消耗时间

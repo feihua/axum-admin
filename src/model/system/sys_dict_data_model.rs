@@ -2,10 +2,10 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
+use crate::vo::system::sys_dict_data_vo::QueryDictDataListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
-
 /*
  *字典数据表
  *author：刘飞华
@@ -70,14 +70,14 @@ impl_select_page!(DictData{select_page() =>"
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(DictData{select_dict_data_list(dict_label:&str, dict_type:&str, status:i8) =>"
+impl_select_page!(DictData{select_dict_data_list(req:&QueryDictDataListReq) =>"
     where 1=1
-     if dict_label != null && dict_label != '':
-      ` and dict_label = #{dict_label} `
-     if dict_type != null && dict_type != '':
-      ` and dict_type = #{dict_type} `
-     if status != 2:
-      ` and status = #{status} `
+     if req.dict_label != null && req.dict_label != '':
+      ` and dict_label = #{req.dict_label} `
+     if req.dict_type != null && req.dict_type != '':
+      ` and dict_type = #{req.dict_type} `
+     if req.status != 2:
+      ` and status = #{req.status} `
      if !sql.contains('count'):
       ` order by create_time desc"
 },"sys_dict_data");

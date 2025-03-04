@@ -92,14 +92,9 @@ pub async fn query_sys_login_log_list(
 ) -> impl IntoResponse {
     log::info!("query sys_login_log_list params: {:?}", &item);
     let rb = &state.batis;
-    let name = item.login_name.as_deref().unwrap_or_default(); //登录账号
-    let ipaddr = item.ipaddr.as_deref().unwrap_or_default(); //登录IP地址
-    let browser = item.browser.as_deref().unwrap_or_default(); //浏览器类型
-    let os = item.os.as_deref().unwrap_or_default(); //操作系统
-    let status = item.status.unwrap_or(2); //登录状态(0:失败,1:成功)
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = LoginLog::select_login_log_list(rb, page, name, ipaddr, browser, os, &status).await?;
+    let d = LoginLog::select_login_log_list(rb, page, &item).await?;
 
     let mut list: Vec<LoginLogListDataResp> = Vec::new();
 

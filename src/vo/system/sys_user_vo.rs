@@ -142,10 +142,13 @@ pub struct QueryUserListReq {
     pub page_size: u64,
     pub mobile: Option<String>,    //手机
     pub user_name: Option<String>, //姓名
-    pub status: Option<i8>,        //状态(1:正常，0:禁用)
+    #[serde(default = "default_status")]
+    pub status: Option<i8>, //状态(1:正常，0:禁用)
     pub dept_id: Option<i64>,      //部门ID
 }
-
+fn default_status() -> Option<i8> {
+    Some(2)
+}
 /*
 查询用户信息列表响应参数
 */
