@@ -25,3 +25,4 @@ redis = "0.29.1"
 
 thiserror = "2.0.3"
 regex = "1.11.1"
+config = "0.15.9"
