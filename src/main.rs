@@ -11,7 +11,6 @@ pub mod vo;
 
 use axum::{middleware as md, Router};
 
-use crate::model::db::init_db;
 use crate::route::system::sys_dept_route::build_sys_dept_route;
 use crate::route::system::sys_dict_data_route::build_sys_dict_data_route;
 use crate::route::system::sys_dict_type_route::build_sys_dict_type_route;
@@ -27,6 +26,7 @@ use route::system::sys_role_route::build_sys_role_route;
 use route::system::sys_user_route::build_sys_user_route;
 use serde::Deserialize;
 use std::sync::Arc;
+use utils::db::init_db;
 
 // 定义应用状态结构体，包含数据库连接池
 pub struct AppState {
