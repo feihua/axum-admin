@@ -148,12 +148,12 @@ async fn count_allocated_list(
  * date：2025/1/6 16:17
  */
 #[py_sql(
-    "`select * from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+    "`select u.* from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and (ur.role_id != #{role_id} or ur.role_id is null) `
             if mobile != '':
                 ` and u.mobile = #{mobile} `
             if user_name != '':
                 ` and u.user_name = #{user_name} `
-            ) limit #{page_no},#{page_size}` "
+            limit #{page_no},#{page_size}` "
 )]
 pub async fn select_unallocated_list(
     rb: &dyn Executor,
@@ -172,12 +172,11 @@ pub async fn select_unallocated_list(
  * date：2025/1/6 16:17
  */
 #[py_sql(
-    "`select count(1) from sys_user where id not in (select u.id as id from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and ur.role_id = #{role_id} `
+    "`select count(1) from sys_user u left join sys_user_role ur on u.id = ur.user_id where u.del_flag = 1 and (ur.role_id != #{role_id} or ur.role_id is null) `
             if mobile != '':
                 ` and u.mobile = #{mobile} `
             if user_name != '':
-                ` and u.user_name = #{user_name} `
-            )` "
+                ` and u.user_name = #{user_name} `"
 )]
 pub async fn count_unallocated_list(
     rb: &dyn Executor,
