@@ -1,14 +1,14 @@
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
+use crate::utils::time_util::time_to_string;
+use crate::vo::system::sys_login_log_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbs::value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
-use crate::utils::time_util::time_to_string;
-use crate::vo::system::sys_login_log_vo::*;
 
 /*
  *删除系统访问记录
@@ -22,7 +22,7 @@ pub async fn delete_sys_login_log(
     log::info!("delete sys_login_log params: {:?}", &item);
     let rb = &state.batis;
 
-    LoginLog::delete_in_column(rb, "id", &item.ids).await?;
+    LoginLog::delete_by_map(rb, value! {"id": &item.ids}).await?;
     BaseResponse::<String>::ok_result()
 }
 

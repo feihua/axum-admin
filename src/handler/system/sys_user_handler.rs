@@ -20,7 +20,7 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
-use rbs::to_value;
+use rbs::value;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 /*
@@ -116,11 +116,11 @@ pub async fn delete_sys_user(
         return BaseResponse::<String>::err_result_msg("不允许操作超级管理员用户");
     }
 
-    UserRole::delete_in_column(rb, "user_id", &ids).await?;
+    UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
 
-    UserPost::delete_in_column(rb, "user_id", &ids).await?;
+    UserPost::delete_by_map(rb, value! {"user_id": &ids}).await?;
 
-    User::delete_in_column(rb, "id", &item.ids).await?;
+    User::delete_by_map(rb, value! {"id": &item.ids}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -191,9 +191,9 @@ pub async fn update_sys_user(
         update_time: None,                  //修改时间
     };
 
-    User::update_by_column(rb, &sys_user, "id").await?;
+    User::update_by_map(rb, &sys_user, value! {"id": &item.id}).await?;
 
-    UserPost::delete_by_column(rb, "user_id", &item.id).await?;
+    UserPost::delete_by_map(rb, value! {"user_id": &item.id}).await?;
     let mut user_post_list: Vec<UserPost> = Vec::new();
     for post_id in item.post_ids {
         user_post_list.push(UserPost {
@@ -231,8 +231,8 @@ pub async fn update_sys_user_status(
             .join(", ")
     );
 
-    let mut param = vec![to_value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let mut param = vec![value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
     BaseResponse::<String>::ok_result()
@@ -263,7 +263,7 @@ pub async fn reset_sys_user_password(
         Some(x) => {
             let mut user = x;
             user.password = item.password;
-            User::update_by_column(rb, &user, "id").await?;
+            User::update_by_map(rb, &user, value! {"id": &user.id}).await?;
             BaseResponse::<String>::ok_result()
         }
     }
@@ -299,7 +299,7 @@ pub async fn update_sys_user_password(
                 return BaseResponse::<String>::err_result_msg("旧密码不正确");
             }
             user.password = item.re_pwd;
-            User::update_by_column(rb, &user, "id").await?;
+            User::update_by_map(rb, &user, value! {"id": &user.id}).await?;
             BaseResponse::<String>::ok_result()
         }
     }
@@ -349,7 +349,7 @@ pub async fn query_sys_user_detail(
                 }
             };
 
-            let post_ids = UserPost::select_by_column(rb, "user_id", item.id)
+            let post_ids = UserPost::select_by_map(rb, value! {"user_id": item.id})
                 .await?
                 .iter()
                 .map(|x| x.post_id)
@@ -482,7 +482,7 @@ pub async fn login(
             s_user.login_os = agent.os;
             s_user.login_browser = agent.browser;
             s_user.login_date = Some(DateTime::now());
-            User::update_by_column(rb, &s_user, "id").await?;
+            User::update_by_map(rb, &s_user, value! {"id": &s_user.id}).await?;
             BaseResponse::<String>::ok_result_data(token)
         }
     }
@@ -539,7 +539,7 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> Vec<String> {
         log::info!("admin login: {:?}", id);
         btn_menu
     } else {
-        let btn_menu_map: Vec<HashMap<String, String>> = rb.query_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![to_value!(id)]).await.unwrap();
+        let btn_menu_map: Vec<HashMap<String, String>> = rb.query_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await.unwrap();
         for x in btn_menu_map {
             btn_menu.push(x.get("api_url").unwrap().to_string());
         }
@@ -584,7 +584,7 @@ pub async fn query_user_role(
     }
 
     if item.user_id != 1 {
-        let vec1 = UserRole::select_by_column(rb, "user_id", item.user_id).await?;
+        let vec1 = UserRole::select_by_map(rb, value! {"user_id": item.user_id}).await?;
         for x in vec1 {
             user_role_ids.push(x.role_id);
         }
@@ -611,7 +611,7 @@ pub async fn update_user_role(
         return BaseResponse::<String>::err_result_msg("不能修改超级管理员的角色");
     }
 
-    UserRole::delete_by_column(rb, "user_id", user_id).await?;
+    UserRole::delete_by_map(rb, value! {"user_id": user_id}).await?;
 
     let mut list: Vec<UserRole> = Vec::new();
     for role_id in role_ids {
@@ -655,7 +655,7 @@ pub async fn query_user_menu(
             //role_id为1是超级管理员--判断是不是超级管理员
             let sql_str = "select count(id) from sys_user_role where role_id = 1 and user_id = ?";
             let count = rb
-                .query_decode::<i32>(sql_str, vec![to_value!(user.id)])
+                .query_decode::<i32>(sql_str, vec![value!(user.id)])
                 .await?;
 
             let sys_menu_list: Vec<Menu>;
@@ -666,7 +666,7 @@ pub async fn query_user_menu(
             } else {
                 log::info!("The current user is not a super administrator");
                 let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
-                sys_menu_list = rb.query_decode(sql_str, vec![to_value!(user.id)]).await?;
+                sys_menu_list = rb.query_decode(sql_str, vec![value!(user.id)]).await?;
             }
 
             let mut sys_menu: Vec<MenuList> = Vec::new();

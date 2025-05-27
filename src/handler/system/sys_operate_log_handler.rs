@@ -1,14 +1,14 @@
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_operate_log_model::{clean_operate_log, OperateLog};
+use crate::utils::time_util::time_to_string;
+use crate::vo::system::sys_operate_log_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbs::value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_operate_log_model::{clean_operate_log, OperateLog};
-use crate::utils::time_util::time_to_string;
-use crate::vo::system::sys_operate_log_vo::*;
 
 /*
  *删除操作日志记录
@@ -22,7 +22,7 @@ pub async fn delete_sys_operate_log(
     log::info!("delete sys_operate_log params: {:?}", &item);
     let rb = &state.batis;
 
-    OperateLog::delete_in_column(rb, "id", &item.ids).await?;
+    OperateLog::delete_by_map(rb, value! {"id": &item.ids}).await?;
     BaseResponse::<String>::ok_result()
 }
 

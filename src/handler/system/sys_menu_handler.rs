@@ -2,7 +2,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
-use rbs::to_value;
+use rbs::value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
@@ -80,7 +80,7 @@ pub async fn delete_sys_menu(
         return BaseResponse::<String>::err_result_msg("菜单已分配,不允许删除");
     }
 
-    Menu::delete_by_column(rb, "id", &item.id).await?;
+    Menu::delete_by_map(rb, value! {"id": &item.id}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -132,7 +132,7 @@ pub async fn update_sys_menu(
         update_time: None,         //修改时间
     };
 
-    Menu::update_by_column(rb, &sys_menu, "id").await?;
+    Menu::update_by_map(rb, &sys_menu, value! {"id": &item.id}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -158,8 +158,8 @@ pub async fn update_sys_menu_status(
             .join(", ")
     );
 
-    let mut param = vec![to_value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let mut param = vec![value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
     BaseResponse::<String>::ok_result()

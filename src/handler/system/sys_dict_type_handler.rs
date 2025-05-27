@@ -3,7 +3,7 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
-use rbs::to_value;
+use rbs::value;
 use std::sync::Arc;
 
 use crate::common::result::BaseResponse;
@@ -70,7 +70,7 @@ pub async fn delete_sys_dict_type(
         }
     }
 
-    DictType::delete_in_column(rb, "id", &item.ids).await?;
+    DictType::delete_by_map(rb, value! {"id": &item.ids}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -110,7 +110,7 @@ pub async fn update_sys_dict_type(
         update_time: None,                       //修改时间
     };
 
-    DictType::update_by_column(rb, &sys_dict_type, "dict_id").await?;
+    DictType::update_by_map(rb, &sys_dict_type, value! {"dict_id": &item.dict_id}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -136,8 +136,8 @@ pub async fn update_sys_dict_type_status(
             .join(", ")
     );
 
-    let mut param = vec![to_value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let mut param = vec![value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
     BaseResponse::<String>::ok_result()

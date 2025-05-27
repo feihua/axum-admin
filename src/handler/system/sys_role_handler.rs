@@ -18,7 +18,7 @@ use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::datetime::DateTime;
-use rbs::to_value;
+use rbs::value;
 use std::sync::Arc;
 /*
  *添加角色信息
@@ -92,11 +92,11 @@ pub async fn delete_sys_role(
         }
     }
 
-    RoleMenu::delete_in_column(rb, "role_id", &item.ids).await?;
+    RoleMenu::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
 
-    RoleDept::delete_in_column(rb, "role_id", &item.ids).await?;
+    RoleDept::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
 
-    Role::delete_in_column(rb, "id", &item.ids).await?;
+    Role::delete_by_map(rb, value! {"id": &item.ids}).await?;
     BaseResponse::<String>::ok_result()
 }
 
@@ -144,7 +144,7 @@ pub async fn update_sys_role(
         update_time: None,           //修改时间
     };
 
-    Role::update_by_column(rb, &sys_role, "id").await?;
+    Role::update_by_map(rb, &sys_role, value! {"id": &item.id}).await?;
 
     BaseResponse::<String>::ok_result()
 }
@@ -174,8 +174,8 @@ pub async fn update_sys_role_status(
             .join(", ")
     );
 
-    let mut param = vec![to_value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| to_value!(id)));
+    let mut param = vec![value!(item.status)];
+    param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
     BaseResponse::<String>::ok_result()
@@ -319,7 +319,7 @@ pub async fn update_role_menu(
 
     let rb = &state.batis;
 
-    RoleMenu::delete_by_column(rb, "role_id", &role_id).await?;
+    RoleMenu::delete_by_map(rb, value! {"role_id": &role_id}).await?;
 
     let mut role_menu: Vec<RoleMenu> = Vec::new();
 
@@ -478,8 +478,8 @@ pub async fn batch_cancel_auth_user(
             .join(", ")
     );
 
-    let mut param = vec![to_value!(item.role_id)];
-    param.extend(item.user_ids.iter().map(|&id| to_value!(id)));
+    let mut param = vec![value!(item.role_id)];
+    param.extend(item.user_ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
     BaseResponse::<String>::ok_result()
