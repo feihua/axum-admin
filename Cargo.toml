@@ -21,7 +21,7 @@ log4rs = "1.0"
 
 jsonwebtoken = "9.3.0"
 
-redis = "0.31.0"
+redis = "0.32.3"
 
 thiserror = "2.0.3"
 regex = "1.11.1"
