@@ -54,9 +54,9 @@ pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, St
         }
     }
 
-    req.headers_mut()
-        .insert("user_id", jwt_token.id.to_string().parse().unwrap());
     if flag {
+        req.headers_mut()
+            .insert("user_id", jwt_token.id.to_string().parse().unwrap());
         return Ok(next.run(req).await);
     }
 
