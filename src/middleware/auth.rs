@@ -1,9 +1,11 @@
 use crate::common::error::AppError;
+use crate::common::result::BaseResponse;
 use crate::utils::jwt_util::JwtToken;
 use axum::extract::Request;
 use axum::http::StatusCode;
 use axum::middleware::Next;
-use axum::{http, response};
+use axum::response::IntoResponse;
+use axum::{http, response, Json};
 
 pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, StatusCode> {
     log::info!("req {:?}", req.uri());
@@ -16,29 +18,31 @@ pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, St
         .get(http::header::AUTHORIZATION)
         .and_then(|header| header.to_str().ok());
 
-    let authorization = if let Some(auth_header) = auth_header {
-        auth_header
-    } else {
-        return Err(StatusCode::UNAUTHORIZED);
-    };
+    if auth_header.is_none() {
+        let json = Json(BaseResponse {
+            msg: "请求头缺少 Authorization 字段".to_string(),
+            code: 401,
+            data: Some("None".to_string()),
+        });
+        return Ok((StatusCode::OK, json).into_response());
+    }
+    let authorization = auth_header.unwrap();
 
     let token = authorization.to_string().replace("Bearer ", "");
     let jwt_token_e = JwtToken::verify("123", &token);
     let jwt_token = match jwt_token_e {
         Ok(data) => data,
         Err(err) => {
-            log::info!("{}", err);
             let er = match err {
                 AppError::JwtTokenError(s) => s,
                 _ => "no math error".to_string(),
             };
-            log::error!(
-                "Hi from start. You requested path: {}, token: {}",
-                path,
-                token
-            );
-            log::info!("{}", er);
-            return Err(StatusCode::UNAUTHORIZED);
+            let json = Json(BaseResponse {
+                msg: er,
+                code: 401,
+                data: Some("None".to_string()),
+            });
+            return Ok((StatusCode::OK, json).into_response());
         }
     };
 
@@ -53,8 +57,13 @@ pub async fn auth(mut req: Request, next: Next) -> Result<response::Response, St
     req.headers_mut()
         .insert("user_id", jwt_token.id.to_string().parse().unwrap());
     if flag {
-        Ok(next.run(req).await)
-    } else {
-        Err(StatusCode::UNAUTHORIZED)
+        return Ok(next.run(req).await);
     }
+
+    let json = Json(BaseResponse {
+        msg: format!("用户还没有授权url:{}", path),
+        code: 401,
+        data: Some("None".to_string()),
+    });
+    Ok((StatusCode::OK, json).into_response())
 }
