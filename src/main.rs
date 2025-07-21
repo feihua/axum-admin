@@ -59,12 +59,7 @@ async fn main() {
     log4rs::init_file("src/config/log4rs.yaml", Default::default()).unwrap();
 
     // 加载和解析配置文件
-    let config = Config::builder()
-        .add_source(File::with_name("config.toml"))
-        .build()
-        .unwrap()
-        .try_deserialize::<Config1>()
-        .unwrap();
+    let config = Config::builder().add_source(File::with_name("config.toml")).build().unwrap().try_deserialize::<Config1>().unwrap();
     println!("Config: {:?}", config);
 
     // 初始化数据库连接
@@ -103,9 +98,7 @@ async fn main() {
 
     // 以下代码适用于axum 0.7.x版本
     // 创建TCP监听器
-    let listener = tokio::net::TcpListener::bind(config.server.addr)
-        .await
-        .unwrap();
+    let listener = tokio::net::TcpListener::bind(config.server.addr).await.unwrap();
     // 使用监听器启动服务器
     axum::serve(listener, app).await.unwrap();
 }

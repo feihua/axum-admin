@@ -12,46 +12,16 @@ use std::sync::Arc;
 pub fn build_sys_user_route() -> Router<Arc<AppState>> {
     Router::new()
         .route("/system/user/addUser", post(sys_user_handler::add_sys_user))
-        .route(
-            "/system/user/deleteUser",
-            post(sys_user_handler::delete_sys_user),
-        )
-        .route(
-            "/system/user/updateUser",
-            post(sys_user_handler::update_sys_user),
-        )
-        .route(
-            "/system/user/updateUserStatus",
-            post(sys_user_handler::update_sys_user_status),
-        )
-        .route(
-            "/system/user/reset_sys_user_password",
-            post(sys_user_handler::reset_sys_user_password),
-        )
-        .route(
-            "/system/user/queryUserDetail",
-            post(sys_user_handler::query_sys_user_detail),
-        )
-        .route(
-            "/system/user/queryUserList",
-            post(sys_user_handler::query_sys_user_list),
-        )
+        .route("/system/user/deleteUser", post(sys_user_handler::delete_sys_user))
+        .route("/system/user/updateUser", post(sys_user_handler::update_sys_user))
+        .route("/system/user/updateUserStatus", post(sys_user_handler::update_sys_user_status))
+        .route("/system/user/reset_sys_user_password", post(sys_user_handler::reset_sys_user_password))
+        .route("/system/user/queryUserDetail", post(sys_user_handler::query_sys_user_detail))
+        .route("/system/user/queryUserList", post(sys_user_handler::query_sys_user_list))
         .route("/system/user/login", post(sys_user_handler::login))
-        .route(
-            "/system/user/queryUserMenu",
-            get(sys_user_handler::query_user_menu),
-        )
-        .route(
-            "/system/user/queryUserRole",
-            post(sys_user_handler::query_user_role),
-        )
-        .route(
-            "/system/user/updateUserRole",
-            post(sys_user_handler::update_user_role),
-        )
-        .route(
-            "/system/user/updateUserPassword",
-            post(sys_user_handler::update_sys_user_password),
-        )
+        .route("/system/user/queryUserMenu", get(sys_user_handler::query_user_menu))
+        .route("/system/user/queryUserRole", post(sys_user_handler::query_user_role))
+        .route("/system/user/updateUserRole", post(sys_user_handler::update_user_role))
+        .route("/system/user/updateUserPassword", post(sys_user_handler::update_sys_user_password))
     //记得在main.rs中添加路由build_sys_user_route()
 }

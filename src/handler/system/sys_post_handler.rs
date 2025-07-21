@@ -1,3 +1,4 @@
+use crate::common::error::AppError;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_post_model::Post;
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
@@ -15,19 +16,16 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_post(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AddPostReq>,
-) -> impl IntoResponse {
+pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<AddPostReq>) -> impl IntoResponse {
     log::info!("add sys_post params: {:?}", &item);
     let rb = &state.batis;
 
     if Post::select_by_name(rb, &item.post_name).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("新增岗位失败,岗位名称已存在");
+        return Err(AppError::BusinessError("岗位名称已存在".to_string()));
     }
 
     if Post::select_by_code(rb, &item.post_code).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("新增岗位失败,岗位编码已存在");
+        return Err(AppError::BusinessError("岗位编码已存在".to_string()));
     }
 
     let sys_post = Post {
@@ -51,10 +49,7 @@ pub async fn add_sys_post(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_post(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeletePostReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<DeletePostReq>) -> impl IntoResponse {
     log::info!("delete sys_post params: {:?}", &item);
     let rb = &state.batis;
 
@@ -63,14 +58,14 @@ pub async fn delete_sys_post(
         let post_by_id = Post::select_by_id(rb, &id).await?;
         let p = match post_by_id {
             None => {
-                return BaseResponse::<String>::err_result_msg("岗位不存在,不能删除");
+                return Err(AppError::BusinessError("岗位不存在,不能删除".to_string()));
             }
             Some(p) => p,
         };
 
         if count_user_post_by_id(rb, id).await? > 0 {
             let msg = format!("{}已分配,不能删除", p.post_name);
-            return BaseResponse::<String>::err_result_msg(msg.as_str());
+            return Err(AppError::BusinessError(msg));
         }
     }
 
@@ -84,26 +79,23 @@ pub async fn delete_sys_post(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_post(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdatePostReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<UpdatePostReq>) -> impl IntoResponse {
     log::info!("update sys_post params: {:?}", &item);
     let rb = &state.batis;
 
     if Post::select_by_id(rb, &item.id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("更新岗位失败,岗位不存在");
+        return Err(AppError::BusinessError("岗位不存在".to_string()));
     }
 
     if let Some(x) = Post::select_by_name(rb, &item.post_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("更新岗位失败,岗位名称已存在");
+            return Err(AppError::BusinessError("岗位名称已存在".to_string()));
         }
     }
 
     if let Some(x) = Post::select_by_code(rb, &item.post_code).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("更新岗位失败,岗位编码已存在");
+            return Err(AppError::BusinessError("岗位编码已存在".to_string()));
         }
     }
 
@@ -128,21 +120,11 @@ pub async fn update_sys_post(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_post_status(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdatePostStatusReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_post_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdatePostStatusReq>) -> impl IntoResponse {
     log::info!("update sys_post_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let update_sql = format!(
-        "update sys_post set status = ? where id in ({})",
-        item.ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
-    );
+    let update_sql = format!("update sys_post set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
@@ -156,20 +138,12 @@ pub async fn update_sys_post_status(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_post_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryPostDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryPostDetailReq>) -> impl IntoResponse {
     log::info!("query sys_post_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match Post::select_by_id(rb, &item.id).await? {
-        None => {
-            return BaseResponse::<QueryPostDetailResp>::err_result_data(
-                QueryPostDetailResp::new(),
-                "岗位不存在",
-            );
-        }
+        None => Err(AppError::BusinessError("岗位不存在".to_string())),
         Some(x) => {
             let sys_post = QueryPostDetailResp {
                 id: x.id.unwrap_or_default(),               //岗位id
@@ -192,10 +166,7 @@ pub async fn query_sys_post_detail(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_post_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryPostListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_post_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryPostListReq>) -> impl IntoResponse {
     log::info!("query sys_post_list params: {:?}", &item);
     let rb = &state.batis;
 

@@ -1,3 +1,8 @@
+use crate::common::error::AppError;
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_dict_data_model::DictData;
+use crate::utils::time_util::time_to_string;
+use crate::vo::system::sys_dict_data_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
@@ -6,35 +11,21 @@ use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
 
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_dict_data_model::DictData;
-use crate::utils::time_util::time_to_string;
-use crate::vo::system::sys_dict_data_vo::*;
-
 /*
  *添加字典数据
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_data(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AddDictDataReq>,
-) -> impl IntoResponse {
+pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<AddDictDataReq>) -> impl IntoResponse {
     log::info!("add sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    if DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label)
-        .await?
-        .is_some()
-    {
-        return BaseResponse::<String>::err_result_msg("新增字典数据失败,字典标签已存在");
+    if DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await?.is_some() {
+        return Err(AppError::BusinessError("字典标签已存在".to_string()));
     }
 
-    if DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value)
-        .await?
-        .is_some()
-    {
-        return BaseResponse::<String>::err_result_msg("新增字典数据失败,字典键值已存在");
+    if DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await?.is_some() {
+        return Err(AppError::BusinessError("字典键值已存在".to_string()));
     }
 
     let sys_dict_data = DictData {
@@ -61,10 +52,7 @@ pub async fn add_sys_dict_data(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_dict_data(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeleteDictDataReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDictDataReq>) -> impl IntoResponse {
     log::info!("delete sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
@@ -77,26 +65,23 @@ pub async fn delete_sys_dict_data(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dict_data(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateDictDataReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictDataReq>) -> impl IntoResponse {
     log::info!("update sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
     if DictData::select_by_id(rb, &item.dict_code).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("更新字典数据失败,字典数据不存在");
+        return Err(AppError::BusinessError("字典数据不存在".to_string()));
     }
 
     if let Some(x) = DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await? {
         if x.dict_code.unwrap_or_default() != item.dict_code {
-            return BaseResponse::<String>::err_result_msg("更新字典数据失败,字典标签已存在");
+            return Err(AppError::BusinessError("字典标签已存在".to_string()));
         }
     }
 
     if let Some(x) = DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await? {
         if x.dict_code.unwrap_or_default() != item.dict_code {
-            return BaseResponse::<String>::err_result_msg("更新字典数据失败,字典键值已存在");
+            return Err(AppError::BusinessError("字典键值已存在".to_string()));
         }
     }
 
@@ -124,20 +109,13 @@ pub async fn update_sys_dict_data(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dict_data_status(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateDictDataStatusReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_dict_data_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictDataStatusReq>) -> impl IntoResponse {
     log::info!("update sys_dict_data_status params: {:?}", &item);
     let rb = &state.batis;
 
     let update_sql = format!(
         "update sys_dict_data set status = ? where dict_code in ({})",
-        item.ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
+        item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
     );
 
     let mut param = vec![value!(item.status)];
@@ -151,18 +129,12 @@ pub async fn update_sys_dict_data_status(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dict_data_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryDictDataDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictDataDetailReq>) -> impl IntoResponse {
     log::info!("query sys_dict_data_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match DictData::select_by_id(rb, &item.id).await? {
-        None => BaseResponse::<QueryDictDataDetailResp>::err_result_data(
-            QueryDictDataDetailResp::new(),
-            "字典数据不存在",
-        ),
+        None => Err(AppError::BusinessError("字典数据不存在".to_string())),
         Some(x) => {
             let sys_dict_data = QueryDictDataDetailResp {
                 dict_code: x.dict_code.unwrap_or_default(), //字典编码
@@ -189,10 +161,7 @@ pub async fn query_sys_dict_data_detail(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dict_data_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryDictDataListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_dict_data_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictDataListReq>) -> impl IntoResponse {
     log::info!("query sys_dict_data_list params: {:?}", &item);
     let rb = &state.batis;
 

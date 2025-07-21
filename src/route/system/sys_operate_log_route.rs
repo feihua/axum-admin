@@ -10,21 +10,9 @@ use std::sync::Arc;
  */
 pub fn build_sys_operate_log_route() -> Router<Arc<AppState>> {
     Router::new()
-        .route(
-            "/system/operateLog/deleteOperateLog",
-            post(sys_operate_log_handler::delete_sys_operate_log),
-        )
-        .route(
-            "/system/operateLog/cleanOperateLog",
-            get(sys_operate_log_handler::clean_sys_operate_log),
-        )
-        .route(
-            "/system/operateLog/queryOperateLogDetail",
-            post(sys_operate_log_handler::query_sys_operate_log_detail),
-        )
-        .route(
-            "/system/operateLog/queryOperateLogList",
-            post(sys_operate_log_handler::query_sys_operate_log_list),
-        )
+        .route("/system/operateLog/deleteOperateLog", post(sys_operate_log_handler::delete_sys_operate_log))
+        .route("/system/operateLog/cleanOperateLog", get(sys_operate_log_handler::clean_sys_operate_log))
+        .route("/system/operateLog/queryOperateLogDetail", post(sys_operate_log_handler::query_sys_operate_log_detail))
+        .route("/system/operateLog/queryOperateLogList", post(sys_operate_log_handler::query_sys_operate_log_list))
     //记得在main.rs中添加路由build_sys_operate_log_route()
 }

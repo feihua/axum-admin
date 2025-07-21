@@ -1,3 +1,4 @@
+use crate::common::error::AppError;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_notice_model::Notice;
 use crate::utils::time_util::time_to_string;
@@ -14,16 +15,13 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_notice(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AddNoticeReq>,
-) -> impl IntoResponse {
+pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<AddNoticeReq>) -> impl IntoResponse {
     log::info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
     let title = item.notice_title;
     if Notice::select_by_title(rb, &title).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("公告标题已存在");
+        return Err(AppError::BusinessError("公告标题已存在".to_string()));
     };
 
     let sys_notice = Notice {
@@ -46,10 +44,7 @@ pub async fn add_sys_notice(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_notice(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeleteNoticeReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<DeleteNoticeReq>) -> impl IntoResponse {
     log::info!("delete sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
@@ -62,20 +57,17 @@ pub async fn delete_sys_notice(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_notice(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateNoticeReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<UpdateNoticeReq>) -> impl IntoResponse {
     log::info!("update sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
     if Notice::select_by_id(rb, &item.id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("通知公告表不存在");
+        return Err(AppError::BusinessError("通知公告表不存在".to_string()));
     }
 
     if let Some(x) = Notice::select_by_title(rb, &item.notice_title).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("公告标题已存在");
+            return Err(AppError::BusinessError("公告标题已存在".to_string()));
         }
     }
 
@@ -99,21 +91,11 @@ pub async fn update_sys_notice(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_notice_status(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateNoticeStatusReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateNoticeStatusReq>) -> impl IntoResponse {
     log::info!("update sys_notice_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let update_sql = format!(
-        "update sys_notice set status = ? where id in ({})",
-        item.ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
-    );
+    let update_sql = format!("update sys_notice set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
@@ -127,18 +109,12 @@ pub async fn update_sys_notice_status(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_notice_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryNoticeDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeDetailReq>) -> impl IntoResponse {
     log::info!("query sys_notice_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match Notice::select_by_id(rb, &item.id).await? {
-        None => BaseResponse::<QueryNoticeDetailResp>::err_result_data(
-            QueryNoticeDetailResp::new(),
-            "通知公告表不存在",
-        ),
+        None => Err(AppError::BusinessError("通知公告表不存在".to_string())),
         Some(x) => {
             let sys_notice = QueryNoticeDetailResp {
                 id: x.id.unwrap_or_default(),               //公告ID
@@ -161,10 +137,7 @@ pub async fn query_sys_notice_detail(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_notice_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryNoticeListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeListReq>) -> impl IntoResponse {
     log::info!("query sys_notice_list params: {:?}", &item);
     let rb = &state.batis;
 

@@ -1,3 +1,4 @@
+use crate::common::error::AppError;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
 use crate::utils::time_util::time_to_string;
@@ -9,16 +10,12 @@ use axum::Json;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
-
 /*
  *删除系统访问记录
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_login_log(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeleteLoginLogReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item): Json<DeleteLoginLogReq>) -> impl IntoResponse {
     log::info!("delete sys_login_log params: {:?}", &item);
     let rb = &state.batis;
 
@@ -45,18 +42,12 @@ pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl Int
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_login_log_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryLoginLogDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogDetailReq>) -> impl IntoResponse {
     log::info!("query sys_login_log_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match LoginLog::select_by_id(rb, &item.id).await? {
-        None => BaseResponse::<QueryLoginLogDetailResp>::err_result_data(
-            QueryLoginLogDetailResp::new(),
-            "日志不存在",
-        ),
+        None => Err(AppError::BusinessError("日志不存在".to_string())),
         Some(x) => {
             let sys_login_log = QueryLoginLogDetailResp {
                 id: x.id.unwrap_or_default(),             //访问ID
@@ -86,10 +77,7 @@ pub async fn query_sys_login_log_detail(
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_login_log_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryLoginLogListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogListReq>) -> impl IntoResponse {
     log::info!("query sys_login_log_list params: {:?}", &item);
     let rb = &state.batis;
 

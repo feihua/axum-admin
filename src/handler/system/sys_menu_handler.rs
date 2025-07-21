@@ -1,39 +1,33 @@
+use crate::common::error::AppError;
+use crate::common::result::BaseResponse;
+use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
+use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
+use crate::utils::time_util::time_to_string;
+use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbs::value;
 use std::sync::Arc;
-
-use crate::common::result::BaseResponse;
-use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
-use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
-use crate::utils::time_util::time_to_string;
-use crate::vo::system::sys_menu_vo::*;
 /*
  *添加菜单信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_menu(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AddMenuReq>,
-) -> impl IntoResponse {
+pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<AddMenuReq>) -> impl IntoResponse {
     log::info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     let name = item.menu_name;
     if Menu::select_by_menu_name(rb, &name).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("菜单名称已存在");
+        return Err(AppError::BusinessError("菜单名称已存在".to_string()));
     }
 
     let menu_url = item.menu_url.clone();
     if menu_url.is_some() {
-        if Menu::select_by_menu_url(rb, &menu_url.unwrap())
-            .await?
-            .is_some()
-        {
-            return BaseResponse::<String>::err_result_msg("路由路径已存在");
+        if Menu::select_by_menu_url(rb, &menu_url.unwrap()).await?.is_some() {
+            return Err(AppError::BusinessError("路由路径已存在".to_string()));
         }
     }
 
@@ -63,21 +57,18 @@ pub async fn add_sys_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn delete_sys_menu(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeleteMenuReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<DeleteMenuReq>) -> impl IntoResponse {
     log::info!("delete sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     //有下级的时候 不能直接删除
 
     if select_count_menu_by_parent_id(rb, &item.id).await? > 0 {
-        return BaseResponse::<String>::err_result_msg("存在子菜单,不允许删除");
+        return Err(AppError::BusinessError("存在子菜单,不允许删除".to_string()));
     }
 
     if select_count_menu_by_menu_id(rb, &item.id).await? > 0 {
-        return BaseResponse::<String>::err_result_msg("菜单已分配,不允许删除");
+        return Err(AppError::BusinessError("菜单已分配,不允许删除".to_string()));
     }
 
     Menu::delete_by_map(rb, value! {"id": &item.id}).await?;
@@ -90,20 +81,17 @@ pub async fn delete_sys_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_menu(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateMenuReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuReq>) -> impl IntoResponse {
     log::info!("update sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     if Menu::select_by_id(rb, &item.id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("更新菜单失败,菜单信息不存在");
+        return Err(AppError::BusinessError("菜单信息不存在".to_string()));
     }
 
     if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("菜单名称已存在");
+            return Err(AppError::BusinessError("菜单名称已存在".to_string()));
         }
     }
 
@@ -111,7 +99,7 @@ pub async fn update_sys_menu(
     if menu_url.is_some() {
         if let Some(x) = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await? {
             if x.id.unwrap_or_default() != item.id {
-                return BaseResponse::<String>::err_result_msg("路由路径已存在");
+                return Err(AppError::BusinessError("路由路径已存在".to_string()));
             }
         }
     }
@@ -142,21 +130,12 @@ pub async fn update_sys_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_menu_status(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateMenuStatusReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuStatusReq>) -> impl IntoResponse {
     log::info!("update sys_menu_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let update_sql = format!(
-        "update sys_menu set status = ? where id in ({})",
-        item.ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
-    );
+    let ids = item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ");
+    let update_sql = format!("update sys_menu set status = ? where id in ({})", ids);
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
@@ -170,20 +149,12 @@ pub async fn update_sys_menu_status(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryMenuDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuDetailReq>) -> impl IntoResponse {
     log::info!("query sys_menu_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match Menu::select_by_id(rb, &item.id).await? {
-        None => {
-            return BaseResponse::<QueryMenuDetailResp>::err_result_data(
-                QueryMenuDetailResp::new(),
-                "菜单信息不存在",
-            );
-        }
+        None => Err(AppError::BusinessError("菜单信息不存在".to_string())),
         Some(x) => {
             let sys_menu = QueryMenuDetailResp {
                 id: x.id.unwrap_or_default(),               //主键
@@ -211,10 +182,7 @@ pub async fn query_sys_menu_detail(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryMenuListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
     log::info!("query sys_menu_list params: {:?}", &item);
     let rb = &state.batis;
 

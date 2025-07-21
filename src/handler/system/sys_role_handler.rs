@@ -1,14 +1,11 @@
+use crate::common::error::AppError;
 use crate::common::result::BaseResponse;
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::{query_menu_by_role, RoleMenu};
 use crate::model::system::sys_role_model::Role;
-use crate::model::system::sys_user_model::{
-    count_allocated_list, count_unallocated_list, select_allocated_list, select_unallocated_list,
-};
-use crate::model::system::sys_user_role_model::{
-    count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole,
-};
+use crate::model::system::sys_user_model::{count_allocated_list, count_unallocated_list, select_allocated_list, select_unallocated_list};
+use crate::model::system::sys_user_role_model::{count_user_role_by_role_id, delete_user_role_by_role_id_user_id, UserRole};
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserListDataResp;
@@ -25,33 +22,30 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_role(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AddRoleReq>,
-) -> impl IntoResponse {
+pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<AddRoleReq>) -> impl IntoResponse {
     log::info!("add sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     let name = item.role_name;
     if Role::select_by_role_name(rb, &name).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("角色名称已存在");
+        return Err(AppError::BusinessError("角色名称已存在".to_string()));
     }
 
     let key = item.role_key;
     if Role::select_by_role_key(rb, &key).await?.is_some() {
-        return BaseResponse::<String>::err_result_msg("角色权限已存在");
+        return Err(AppError::BusinessError("角色权限已存在".to_string()));
     }
 
     let sys_role = Role {
         id: None,                                //主键
         role_name: name,                         //名称
         role_key: key,                           //角色权限字符串
-        data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
-        status: item.status,         //状态(1:正常，0:禁用)
+        data_scope: item.data_scope,             //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+        status: item.status,                     //状态(1:正常，0:禁用)
         remark: item.remark.unwrap_or_default(), //备注
-        del_flag: None,              //删除标志（0代表删除 1代表存在）
-        create_time: None,           //创建时间
-        update_time: None,           //修改时间
+        del_flag: None,                          //删除标志（0代表删除 1代表存在）
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     Role::insert(rb, &sys_role).await?;
@@ -64,31 +58,28 @@ pub async fn add_sys_role(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn delete_sys_role(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<DeleteRoleReq>,
-) -> impl IntoResponse {
+pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<DeleteRoleReq>) -> impl IntoResponse {
     log::info!("delete sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
 
     if ids.contains(&1) {
-        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色");
+        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
     }
 
     for id in ids {
         let role_result = Role::select_by_id(rb, &id).await?;
         let role = match role_result {
             None => {
-                return BaseResponse::<String>::err_result_msg("角色不存在,不能删除");
+                return Err(AppError::BusinessError("角色不存在,不能删除".to_string()));
             }
             Some(x) => x,
         };
 
         if count_user_role_by_role_id(rb, id).await? > 0 {
             let msg = format!("{}已分配,不能删除", role.role_name);
-            return BaseResponse::<String>::err_result_msg(msg.as_str());
+            return Err(AppError::BusinessError(msg));
         }
     }
 
@@ -105,30 +96,27 @@ pub async fn delete_sys_role(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_role(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateRoleReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleReq>) -> impl IntoResponse {
     log::info!("update sys_role params: {:?}", &item);
     let rb = &state.batis;
 
     if item.id == 1 {
-        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色");
+        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
     }
 
     if Role::select_by_id(rb, &item.id).await?.is_none() {
-        return BaseResponse::<String>::err_result_msg("角色不存在");
+        return Err(AppError::BusinessError("角色不存在".to_string()));
     }
 
     if let Some(x) = Role::select_by_role_name(rb, &item.role_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("角色名称已存在");
+            return Err(AppError::BusinessError("角色名称已存在".to_string()));
         }
     }
 
     if let Some(x) = Role::select_by_role_key(rb, &item.role_key).await? {
         if x.id.unwrap_or_default() != item.id {
-            return BaseResponse::<String>::err_result_msg("角色权限已存在");
+            return Err(AppError::BusinessError("角色权限已存在".to_string()));
         }
     }
 
@@ -136,12 +124,12 @@ pub async fn update_sys_role(
         id: Some(item.id),                       //主键
         role_name: item.role_name,               //名称
         role_key: item.role_key,                 //角色权限字符串
-        data_scope: item.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
-        status: item.status,         //状态(1:正常，0:禁用)
+        data_scope: item.data_scope,             //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+        status: item.status,                     //状态(1:正常，0:禁用)
         remark: item.remark.unwrap_or_default(), //备注
-        del_flag: None,              //删除标志（0代表删除 1代表存在）
-        create_time: None,           //创建时间
-        update_time: None,           //修改时间
+        del_flag: None,                          //删除标志（0代表删除 1代表存在）
+        create_time: None,                       //创建时间
+        update_time: None,                       //修改时间
     };
 
     Role::update_by_map(rb, &sys_role, value! {"id": &item.id}).await?;
@@ -154,25 +142,15 @@ pub async fn update_sys_role(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_role_status(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateRoleStatusReq>,
-) -> impl IntoResponse {
+pub async fn update_sys_role_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleStatusReq>) -> impl IntoResponse {
     log::info!("update sys_role_status params: {:?}", &item);
     let rb = &state.batis;
 
     if item.ids.contains(&1) {
-        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色");
+        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
     }
 
-    let update_sql = format!(
-        "update sys_role set status = ? where id in ({})",
-        item.ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
-    );
+    let update_sql = format!("update sys_role set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
@@ -186,29 +164,21 @@ pub async fn update_sys_role_status(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_role_detail(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryRoleDetailReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_role_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleDetailReq>) -> impl IntoResponse {
     log::info!("query sys_role_detail params: {:?}", &item);
     let rb = &state.batis;
 
     match Role::select_by_id(rb, &item.id).await? {
-        None => {
-            return BaseResponse::<QueryRoleDetailResp>::err_result_data(
-                QueryRoleDetailResp::new(),
-                "角色不存在",
-            );
-        }
+        None => Err(AppError::BusinessError("角色不存在".to_string())),
         Some(x) => {
             let sys_role = QueryRoleDetailResp {
                 id: x.id.unwrap_or_default(),               //主键
                 role_name: x.role_name,                     //名称
                 role_key: x.role_key,                       //角色权限字符串
-                data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
-                status: x.status,         //状态(1:正常，0:禁用)
-                remark: x.remark,         //备注
-                del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
+                data_scope: x.data_scope,                   //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+                status: x.status,                           //状态(1:正常，0:禁用)
+                remark: x.remark,                           //备注
+                del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
                 create_time: time_to_string(x.create_time), //创建时间
                 update_time: time_to_string(x.update_time), //修改时间
             };
@@ -223,10 +193,7 @@ pub async fn query_sys_role_detail(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_role_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryRoleListReq>,
-) -> impl IntoResponse {
+pub async fn query_sys_role_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleListReq>) -> impl IntoResponse {
     log::info!("query sys_role_list params: {:?}", &item);
     let rb = &state.batis;
 
@@ -241,10 +208,10 @@ pub async fn query_sys_role_list(
             id: x.id.unwrap_or_default(),               //主键
             role_name: x.role_name,                     //名称
             role_key: x.role_key,                       //角色权限字符串
-            data_scope: x.data_scope, //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
-            status: x.status,         //状态(1:正常，0:禁用)
-            remark: x.remark,         //备注
-            del_flag: x.del_flag,     //删除标志（0代表删除 1代表存在）
+            data_scope: x.data_scope,                   //数据范围（1：全部数据权限 2：自定数据权限 3：本部门数据权限 4：本部门及以下数据权限）
+            status: x.status,                           //状态(1:正常，0:禁用)
+            remark: x.remark,                           //备注
+            del_flag: x.del_flag,                       //删除标志（0代表删除 1代表存在）
             create_time: time_to_string(x.create_time), //创建时间
             update_time: time_to_string(x.update_time), //修改时间
         })
@@ -258,10 +225,7 @@ pub async fn query_sys_role_list(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_role_menu(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<QueryRoleMenuReq>,
-) -> impl IntoResponse {
+pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleMenuReq>) -> impl IntoResponse {
     log::info!("query role_menu params: {:?}", &item);
     let rb = &state.batis;
 
@@ -295,10 +259,7 @@ pub async fn query_role_menu(
         }
     }
 
-    BaseResponse::<QueryRoleMenuData>::ok_result_data(QueryRoleMenuData {
-        menu_ids,
-        menu_list,
-    })
+    BaseResponse::<QueryRoleMenuData>::ok_result_data(QueryRoleMenuData { menu_ids, menu_list })
 }
 
 /*
@@ -306,15 +267,12 @@ pub async fn query_role_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_role_menu(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UpdateRoleMenuReq>,
-) -> impl IntoResponse {
+pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleMenuReq>) -> impl IntoResponse {
     log::info!("update role_menu params: {:?}", &item);
     let role_id = item.role_id;
 
     if role_id == 1 {
-        return BaseResponse::<String>::err_result_msg("不允许操作超级管理员角色");
+        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
     }
 
     let rb = &state.batis;
@@ -343,10 +301,7 @@ pub async fn update_role_menu(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_allocated_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<AllocatedListReq>,
-) -> impl IntoResponse {
+pub async fn query_allocated_list(State(state): State<Arc<AppState>>, Json(item): Json<AllocatedListReq>) -> impl IntoResponse {
     log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
@@ -393,10 +348,7 @@ pub async fn query_allocated_list(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_unallocated_list(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<UnallocatedListReq>,
-) -> impl IntoResponse {
+pub async fn query_unallocated_list(State(state): State<Arc<AppState>>, Json(item): Json<UnallocatedListReq>) -> impl IntoResponse {
     log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
@@ -443,10 +395,7 @@ pub async fn query_unallocated_list(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn cancel_auth_user(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<CancelAuthUserReq>,
-) -> impl IntoResponse {
+pub async fn cancel_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<CancelAuthUserReq>) -> impl IntoResponse {
     log::info!("update role_menu params: {:?}", &item);
 
     let rb = &state.batis;
@@ -461,21 +410,14 @@ pub async fn cancel_auth_user(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn batch_cancel_auth_user(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<CancelAuthUserAllReq>,
-) -> impl IntoResponse {
+pub async fn batch_cancel_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<CancelAuthUserAllReq>) -> impl IntoResponse {
     log::info!("cancel auth_user_all params: {:?}", &item);
 
     let rb = &state.batis;
 
     let update_sql = format!(
         "delete from sys_user_role where role_id = ? and user_id in ({})",
-        item.user_ids
-            .iter()
-            .map(|_| "?")
-            .collect::<Vec<&str>>()
-            .join(", ")
+        item.user_ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
     );
 
     let mut param = vec![value!(item.role_id)];
@@ -490,10 +432,7 @@ pub async fn batch_cancel_auth_user(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn batch_auth_user(
-    State(state): State<Arc<AppState>>,
-    Json(item): Json<SelectAuthUserAllReq>,
-) -> impl IntoResponse {
+pub async fn batch_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<SelectAuthUserAllReq>) -> impl IntoResponse {
     log::info!("select all_auth_user params: {:?}", &item);
     let role_id = item.role_id;
 
