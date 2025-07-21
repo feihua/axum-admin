@@ -47,7 +47,7 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json
     let rb = &state.batis;
 
     match LoginLog::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("日志不存在".to_string())),
+        None => Err(AppError::BusinessError("日志不存在")),
         Some(x) => {
             let sys_login_log = QueryLoginLogDetailResp {
                 id: x.id.unwrap_or_default(),             //访问ID

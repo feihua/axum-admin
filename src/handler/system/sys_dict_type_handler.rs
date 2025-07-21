@@ -21,7 +21,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
     let rb = &state.batis;
 
     if DictType::select_by_dict_type(rb, &item.dict_type).await?.is_some() {
-        return Err(AppError::BusinessError("字典类型已存在".to_string()));
+        return Err(AppError::BusinessError("字典类型已存在"));
     }
 
     let sys_dict_type = DictType {
@@ -51,13 +51,12 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
     let ids = item.ids.clone();
     for id in ids {
         let p = match DictType::select_by_id(rb, &id).await? {
-            None => return Err(AppError::BusinessError("字典类型不存在,不能删除".to_string())),
+            None => return Err(AppError::BusinessError("字典类型不存在,不能删除")),
             Some(p) => p,
         };
 
         if count_dict_data_by_type(rb, &p.dict_type).await? > 0 {
-            let msg = format!("{}已分配,不能删除", p.dict_name);
-            return Err(AppError::BusinessError(msg));
+            return Err(AppError::BusinessError("已分配,不能删除"));
         }
     }
 
@@ -76,12 +75,12 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
     let rb = &state.batis;
 
     if DictType::select_by_id(rb, &item.dict_id).await?.is_none() {
-        return Err(AppError::BusinessError("字典类型不存在".to_string()));
+        return Err(AppError::BusinessError("字典类型不存在"));
     }
 
     if let Some(x) = DictType::select_by_dict_type(rb, &item.dict_type).await? {
         if x.dict_id.unwrap_or_default() != item.dict_id {
-            return Err(AppError::BusinessError("字典类型已存在".to_string()));
+            return Err(AppError::BusinessError("字典类型已存在"));
         }
 
         let dict_type = x.dict_type;
@@ -134,7 +133,7 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
     let rb = &state.batis;
 
     match DictType::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("字典类型不存在".to_string())),
+        None => Err(AppError::BusinessError("字典类型不存在")),
         Some(x) => {
             let sys_dict_type = QueryDictTypeDetailResp {
                 dict_id: x.dict_id.unwrap_or_default(),     //字典主键

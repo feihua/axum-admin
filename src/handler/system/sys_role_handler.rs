@@ -28,12 +28,12 @@ pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<A
 
     let name = item.role_name;
     if Role::select_by_role_name(rb, &name).await?.is_some() {
-        return Err(AppError::BusinessError("角色名称已存在".to_string()));
+        return Err(AppError::BusinessError("角色名称已存在"));
     }
 
     let key = item.role_key;
     if Role::select_by_role_key(rb, &key).await?.is_some() {
-        return Err(AppError::BusinessError("角色权限已存在".to_string()));
+        return Err(AppError::BusinessError("角色权限已存在"));
     }
 
     let sys_role = Role {
@@ -65,21 +65,20 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     let ids = item.ids.clone();
 
     if ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }
 
     for id in ids {
         let role_result = Role::select_by_id(rb, &id).await?;
-        let role = match role_result {
+        let _ = match role_result {
             None => {
-                return Err(AppError::BusinessError("角色不存在,不能删除".to_string()));
+                return Err(AppError::BusinessError("角色不存在,不能删除"));
             }
             Some(x) => x,
         };
 
         if count_user_role_by_role_id(rb, id).await? > 0 {
-            let msg = format!("{}已分配,不能删除", role.role_name);
-            return Err(AppError::BusinessError(msg));
+            return Err(AppError::BusinessError("分配,不能删除"));
         }
     }
 
@@ -101,22 +100,22 @@ pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     if item.id == 1 {
-        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }
 
     if Role::select_by_id(rb, &item.id).await?.is_none() {
-        return Err(AppError::BusinessError("角色不存在".to_string()));
+        return Err(AppError::BusinessError("角色不存在"));
     }
 
     if let Some(x) = Role::select_by_role_name(rb, &item.role_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("角色名称已存在".to_string()));
+            return Err(AppError::BusinessError("角色名称已存在"));
         }
     }
 
     if let Some(x) = Role::select_by_role_key(rb, &item.role_key).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("角色权限已存在".to_string()));
+            return Err(AppError::BusinessError("角色权限已存在"));
         }
     }
 
@@ -147,7 +146,7 @@ pub async fn update_sys_role_status(State(state): State<Arc<AppState>>, Json(ite
     let rb = &state.batis;
 
     if item.ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }
 
     let update_sql = format!("update sys_role set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -169,7 +168,7 @@ pub async fn query_sys_role_detail(State(state): State<Arc<AppState>>, Json(item
     let rb = &state.batis;
 
     match Role::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("角色不存在".to_string())),
+        None => Err(AppError::BusinessError("角色不存在")),
         Some(x) => {
             let sys_role = QueryRoleDetailResp {
                 id: x.id.unwrap_or_default(),               //主键
@@ -272,7 +271,7 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
     let role_id = item.role_id;
 
     if role_id == 1 {
-        return Err(AppError::BusinessError("不允许操作超级管理员角色".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }
 
     let rb = &state.batis;

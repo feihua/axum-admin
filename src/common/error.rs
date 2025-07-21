@@ -21,7 +21,7 @@ pub enum AppError {
     DbError(#[from] rbatis::Error),
 
     #[error("业务异常: {0}")]
-    BusinessError(String),
+    BusinessError(&'static str),
 }
 pub type AppResult<T> = Result<T, AppError>;
 

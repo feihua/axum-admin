@@ -21,11 +21,11 @@ pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<A
     let rb = &state.batis;
 
     if Post::select_by_name(rb, &item.post_name).await?.is_some() {
-        return Err(AppError::BusinessError("岗位名称已存在".to_string()));
+        return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
     if Post::select_by_code(rb, &item.post_code).await?.is_some() {
-        return Err(AppError::BusinessError("岗位编码已存在".to_string()));
+        return Err(AppError::BusinessError("岗位编码已存在"));
     }
 
     let sys_post = Post {
@@ -56,16 +56,15 @@ pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
     let ids = item.ids.clone();
     for id in ids {
         let post_by_id = Post::select_by_id(rb, &id).await?;
-        let p = match post_by_id {
+        let _ = match post_by_id {
             None => {
-                return Err(AppError::BusinessError("岗位不存在,不能删除".to_string()));
+                return Err(AppError::BusinessError("岗位不存在,不能删除"));
             }
             Some(p) => p,
         };
 
         if count_user_post_by_id(rb, id).await? > 0 {
-            let msg = format!("{}已分配,不能删除", p.post_name);
-            return Err(AppError::BusinessError(msg));
+            return Err(AppError::BusinessError("已分配,不能删除"));
         }
     }
 
@@ -84,18 +83,18 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     if Post::select_by_id(rb, &item.id).await?.is_none() {
-        return Err(AppError::BusinessError("岗位不存在".to_string()));
+        return Err(AppError::BusinessError("岗位不存在"));
     }
 
     if let Some(x) = Post::select_by_name(rb, &item.post_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("岗位名称已存在".to_string()));
+            return Err(AppError::BusinessError("岗位名称已存在"));
         }
     }
 
     if let Some(x) = Post::select_by_code(rb, &item.post_code).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("岗位编码已存在".to_string()));
+            return Err(AppError::BusinessError("岗位编码已存在"));
         }
     }
 
@@ -143,7 +142,7 @@ pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item
     let rb = &state.batis;
 
     match Post::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("岗位不存在".to_string())),
+        None => Err(AppError::BusinessError("岗位不存在")),
         Some(x) => {
             let sys_post = QueryPostDetailResp {
                 id: x.id.unwrap_or_default(),               //岗位id

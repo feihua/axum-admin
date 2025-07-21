@@ -35,15 +35,15 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<A
 
     let name = item.user_name;
     if User::select_by_user_name(rb, &name).await?.is_some() {
-        return Err(AppError::BusinessError("登录账号已存在".to_string()));
+        return Err(AppError::BusinessError("登录账号已存在"));
     }
 
     if User::select_by_mobile(rb, &item.mobile).await?.is_some() {
-        return Err(AppError::BusinessError("手机号码已存在".to_string()));
+        return Err(AppError::BusinessError("手机号码已存在"));
     }
 
     if User::select_by_email(rb, &item.email).await?.is_some() {
-        return Err(AppError::BusinessError("邮箱账号已存在".to_string()));
+        return Err(AppError::BusinessError("邮箱账号已存在"));
     }
 
     let avatar = item.avatar.unwrap_or("https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png".to_string());
@@ -92,10 +92,10 @@ pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppStat
 
     let ids = item.ids.clone();
     if ids.contains(&user_id) {
-        return Err(AppError::BusinessError("当前用户不能删除".to_string()));
+        return Err(AppError::BusinessError("当前用户不能删除"));
     }
     if ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
@@ -118,29 +118,29 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
 
     let id = item.id.clone();
     if id == 1 {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     let u = match User::select_by_id(rb, item.id).await? {
-        None => return Err(AppError::BusinessError("用户不存在".to_string())),
+        None => return Err(AppError::BusinessError("用户不存在")),
         Some(x) => x,
     };
 
     if let Some(x) = User::select_by_user_name(rb, &item.user_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("登录账号已存在".to_string()));
+            return Err(AppError::BusinessError("登录账号已存在"));
         }
     }
 
     if let Some(x) = User::select_by_mobile(rb, &item.mobile).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("手机号码已存在".to_string()));
+            return Err(AppError::BusinessError("手机号码已存在"));
         }
     }
 
     if let Some(x) = User::select_by_email(rb, &item.email).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("邮箱账号已存在".to_string()));
+            return Err(AppError::BusinessError("邮箱账号已存在"));
         }
     }
 
@@ -192,7 +192,7 @@ pub async fn update_sys_user_status(State(state): State<Arc<AppState>>, Json(ite
 
     let ids = item.ids.clone();
     if ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     let update_sql = format!("update sys_user set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -216,13 +216,13 @@ pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(it
 
     let id = item.id.clone();
     if id == 1 {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户".to_string()));
+        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     let sys_user_result = User::select_by_id(rb, item.id).await?;
 
     match sys_user_result {
-        None => Err(AppError::BusinessError("用户不存在".to_string())),
+        None => Err(AppError::BusinessError("用户不存在")),
         Some(x) => {
             let mut user = x;
             user.password = item.password;
@@ -245,11 +245,11 @@ pub async fn update_sys_user_password(headers: HeaderMap, State(state): State<Ar
     let user_id = headers.get("user_id").unwrap().to_str().unwrap().parse::<i64>().unwrap();
 
     match User::select_by_id(rb, user_id).await? {
-        None => Err(AppError::BusinessError("用户不存在".to_string())),
+        None => Err(AppError::BusinessError("用户不存在")),
         Some(x) => {
             let mut user = x;
             if user.password != item.pwd {
-                return Err(AppError::BusinessError("旧密码不正确".to_string()));
+                return Err(AppError::BusinessError("旧密码不正确"));
             }
             user.password = item.re_pwd;
             User::update_by_map(rb, &user, value! {"id": &user.id}).await?;
@@ -268,12 +268,12 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
     let rb = &state.batis;
 
     match User::select_by_id(rb, item.id).await? {
-        None => Err(AppError::BusinessError("用户不存在".to_string())),
+        None => Err(AppError::BusinessError("用户不存在")),
         Some(x) => {
             let dept_result = Dept::select_by_id(rb, &x.dept_id).await?;
             let dept = match dept_result {
                 None => {
-                    return Err(AppError::BusinessError("查询用户详细信息失败,部门不存在".to_string()));
+                    return Err(AppError::BusinessError("查询用户详细信息失败,部门不存在"));
                 }
                 Some(x) => {
                     QueryDeptDetailResp {
@@ -382,7 +382,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
     match user_result {
         None => {
             add_login_log(rb, item.mobile, 0, "用户不存在", agent).await;
-            Err(AppError::BusinessError("用户不存在".to_string()))
+            Err(AppError::BusinessError("用户不存在"))
         }
         Some(user) => {
             let mut s_user = user.clone();
@@ -399,7 +399,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
 
             if btn_menu.len() == 0 {
                 add_login_log(rb, item.mobile, 0, "用户没有分配角色或者菜单,不能登录", agent).await;
-                return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录".to_string()));
+                return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录"));
             }
 
             let token = JwtToken::new(id, &username, btn_menu).create_token("123")?;
@@ -521,7 +521,7 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
     let len = item.role_ids.len();
 
     if user_id == 1 {
-        return Err(AppError::BusinessError("不能修改超级管理员的角色".to_string()));
+        return Err(AppError::BusinessError("不能修改超级管理员的角色"));
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": user_id}).await?;
@@ -551,7 +551,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
 
     //根据id查询用户
     match User::select_by_id(rb, user_id).await? {
-        None => Err(AppError::BusinessError("用户不存在".to_string())),
+        None => Err(AppError::BusinessError("用户不存在")),
         Some(user) => {
             //role_id为1是超级管理员--判断是不是超级管理员
             let sql_str = "select count(id) from sys_user_role where role_id = 1 and user_id = ?";

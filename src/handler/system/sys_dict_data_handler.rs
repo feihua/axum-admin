@@ -21,11 +21,11 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): J
     let rb = &state.batis;
 
     if DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await?.is_some() {
-        return Err(AppError::BusinessError("字典标签已存在".to_string()));
+        return Err(AppError::BusinessError("字典标签已存在"));
     }
 
     if DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await?.is_some() {
-        return Err(AppError::BusinessError("字典键值已存在".to_string()));
+        return Err(AppError::BusinessError("字典键值已存在"));
     }
 
     let sys_dict_data = DictData {
@@ -70,18 +70,18 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
     let rb = &state.batis;
 
     if DictData::select_by_id(rb, &item.dict_code).await?.is_none() {
-        return Err(AppError::BusinessError("字典数据不存在".to_string()));
+        return Err(AppError::BusinessError("字典数据不存在"));
     }
 
     if let Some(x) = DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await? {
         if x.dict_code.unwrap_or_default() != item.dict_code {
-            return Err(AppError::BusinessError("字典标签已存在".to_string()));
+            return Err(AppError::BusinessError("字典标签已存在"));
         }
     }
 
     if let Some(x) = DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await? {
         if x.dict_code.unwrap_or_default() != item.dict_code {
-            return Err(AppError::BusinessError("字典键值已存在".to_string()));
+            return Err(AppError::BusinessError("字典键值已存在"));
         }
     }
 
@@ -134,7 +134,7 @@ pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json
     let rb = &state.batis;
 
     match DictData::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("字典数据不存在".to_string())),
+        None => Err(AppError::BusinessError("字典数据不存在")),
         Some(x) => {
             let sys_dict_data = QueryDictDataDetailResp {
                 dict_code: x.dict_code.unwrap_or_default(), //字典编码

@@ -47,7 +47,7 @@ pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Js
     let rb = &state.batis;
 
     match OperateLog::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("操作日志不存在".to_string())),
+        None => Err(AppError::BusinessError("操作日志不存在")),
         Some(x) => {
             let sys_operate_log = QueryOperateLogDetailResp {
                 id: x.id,                                     //日志主键

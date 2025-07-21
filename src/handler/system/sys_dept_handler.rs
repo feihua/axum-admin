@@ -20,14 +20,14 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<A
     let rb = &state.batis;
 
     if Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await?.is_some() {
-        return Err(AppError::BusinessError("部门名称已存在".to_string()));
+        return Err(AppError::BusinessError("部门名称已存在"));
     }
 
     let ancestors = match Dept::select_by_id(rb, &item.parent_id).await? {
-        None => return Err(AppError::BusinessError("上级部门不存在".to_string())),
+        None => return Err(AppError::BusinessError("上级部门不存在")),
         Some(dept) => {
             if dept.status == 0 {
-                return Err(AppError::BusinessError("部门停用，不允许添加".to_string()));
+                return Err(AppError::BusinessError("部门停用，不允许添加"));
             }
             format!("{},{}", dept.ancestors, item.parent_id)
         }
@@ -62,11 +62,11 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     if select_dept_count(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("存在下级部门,不允许删除".to_string()));
+        return Err(AppError::BusinessError("存在下级部门,不允许删除"));
     }
 
     if check_dept_exist_user(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("部门存在用户,不允许删除".to_string()));
+        return Err(AppError::BusinessError("部门存在用户,不允许删除"));
     }
 
     Dept::delete_by_map(rb, value! {"id": &item.id}).await?;
@@ -83,16 +83,16 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     if item.parent_id == item.id {
-        return Err(AppError::BusinessError("上级部门不能是自己".to_string()));
+        return Err(AppError::BusinessError("上级部门不能是自己"));
     }
 
     let old_ancestors = match Dept::select_by_id(rb, &item.id).await? {
-        None => return Err(AppError::BusinessError("部门不存在".to_string())),
+        None => return Err(AppError::BusinessError("部门不存在")),
         Some(dept) => dept.ancestors,
     };
 
     let ancestors = match Dept::select_by_id(rb, &item.parent_id).await? {
-        None => return Err(AppError::BusinessError("上级部门不存在".to_string())),
+        None => return Err(AppError::BusinessError("上级部门不存在")),
         Some(dept) => {
             format!("{},{}", dept.ancestors, &item.parent_id)
         }
@@ -100,12 +100,12 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
 
     if let Some(x) = Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("部门名称已存在".to_string()));
+            return Err(AppError::BusinessError("部门名称已存在"));
         }
     }
 
     if select_normal_children_dept_by_id(rb, &item.id).await? > 0 && item.status == 0 {
-        return Err(AppError::BusinessError("该部门包含未停用的子部门".to_string()));
+        return Err(AppError::BusinessError("该部门包含未停用的子部门"));
     }
 
     let list = select_children_dept_by_id(rb, &item.id).await?;
@@ -185,7 +185,7 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
     let rb = &state.batis;
 
     match Dept::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("部门不存在".to_string())),
+        None => Err(AppError::BusinessError("部门不存在")),
         Some(x) => {
             let sys_dept = QueryDeptDetailResp {
                 id: x.id.unwrap_or_default(),               //部门id

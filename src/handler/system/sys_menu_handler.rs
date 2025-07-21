@@ -21,13 +21,13 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<A
 
     let name = item.menu_name;
     if Menu::select_by_menu_name(rb, &name).await?.is_some() {
-        return Err(AppError::BusinessError("菜单名称已存在".to_string()));
+        return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     let menu_url = item.menu_url.clone();
     if menu_url.is_some() {
         if Menu::select_by_menu_url(rb, &menu_url.unwrap()).await?.is_some() {
-            return Err(AppError::BusinessError("路由路径已存在".to_string()));
+            return Err(AppError::BusinessError("路由路径已存在"));
         }
     }
 
@@ -64,11 +64,11 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     //有下级的时候 不能直接删除
 
     if select_count_menu_by_parent_id(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("存在子菜单,不允许删除".to_string()));
+        return Err(AppError::BusinessError("存在子菜单,不允许删除"));
     }
 
     if select_count_menu_by_menu_id(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("菜单已分配,不允许删除".to_string()));
+        return Err(AppError::BusinessError("菜单已分配,不允许删除"));
     }
 
     Menu::delete_by_map(rb, value! {"id": &item.id}).await?;
@@ -86,12 +86,12 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     if Menu::select_by_id(rb, &item.id).await?.is_none() {
-        return Err(AppError::BusinessError("菜单信息不存在".to_string()));
+        return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
     if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("菜单名称已存在".to_string()));
+            return Err(AppError::BusinessError("菜单名称已存在"));
         }
     }
 
@@ -99,7 +99,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     if menu_url.is_some() {
         if let Some(x) = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await? {
             if x.id.unwrap_or_default() != item.id {
-                return Err(AppError::BusinessError("路由路径已存在".to_string()));
+                return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
     }
@@ -154,7 +154,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
     let rb = &state.batis;
 
     match Menu::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("菜单信息不存在".to_string())),
+        None => Err(AppError::BusinessError("菜单信息不存在")),
         Some(x) => {
             let sys_menu = QueryMenuDetailResp {
                 id: x.id.unwrap_or_default(),               //主键

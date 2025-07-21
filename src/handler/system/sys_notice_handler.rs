@@ -21,7 +21,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json
 
     let title = item.notice_title;
     if Notice::select_by_title(rb, &title).await?.is_some() {
-        return Err(AppError::BusinessError("公告标题已存在".to_string()));
+        return Err(AppError::BusinessError("公告标题已存在"));
     };
 
     let sys_notice = Notice {
@@ -62,12 +62,12 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
     let rb = &state.batis;
 
     if Notice::select_by_id(rb, &item.id).await?.is_none() {
-        return Err(AppError::BusinessError("通知公告表不存在".to_string()));
+        return Err(AppError::BusinessError("通知公告表不存在"));
     }
 
     if let Some(x) = Notice::select_by_title(rb, &item.notice_title).await? {
         if x.id.unwrap_or_default() != item.id {
-            return Err(AppError::BusinessError("公告标题已存在".to_string()));
+            return Err(AppError::BusinessError("公告标题已存在"));
         }
     }
 
@@ -114,7 +114,7 @@ pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(it
     let rb = &state.batis;
 
     match Notice::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("通知公告表不存在".to_string())),
+        None => Err(AppError::BusinessError("通知公告表不存在")),
         Some(x) => {
             let sys_notice = QueryNoticeDetailResp {
                 id: x.id.unwrap_or_default(),               //公告ID
