@@ -172,7 +172,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::<QueryMenuDetailResp>::ok_result_data(sys_menu)
+            BaseResponse::ok_result_data(sys_menu)
         }
     }
 }

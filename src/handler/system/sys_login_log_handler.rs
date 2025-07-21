@@ -67,7 +67,7 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json
                 login_time: time_to_string(x.login_time), //访问时间
             };
 
-            BaseResponse::<QueryLoginLogDetailResp>::ok_result_data(sys_login_log)
+            BaseResponse::ok_result_data(sys_login_log)
         }
     }
 }

@@ -318,7 +318,7 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
                 post_ids,
             };
 
-            BaseResponse::<QueryUserDetailResp>::ok_result_data(sys_user)
+            BaseResponse::ok_result_data(sys_user)
         }
     }
 }
@@ -610,7 +610,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                 name: user.user_name,
             };
 
-            BaseResponse::<QueryUserMenuResp>::ok_result_data(resp)
+            BaseResponse::ok_result_data(resp)
         }
     }
 }

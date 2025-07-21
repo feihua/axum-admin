@@ -182,7 +182,7 @@ pub async fn query_sys_role_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::<QueryRoleDetailResp>::ok_result_data(sys_role)
+            BaseResponse::ok_result_data(sys_role)
         }
     }
 }
@@ -258,7 +258,7 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    BaseResponse::<QueryRoleMenuData>::ok_result_data(QueryRoleMenuData { menu_ids, menu_list })
+    BaseResponse::ok_result_data(QueryRoleMenuData { menu_ids, menu_list })
 }
 
 /*

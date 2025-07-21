@@ -69,7 +69,7 @@ pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Js
                 cost_time: x.cost_time,                       //消耗时间
             };
 
-            BaseResponse::<QueryOperateLogDetailResp>::ok_result_data(sys_operate_log)
+            BaseResponse::ok_result_data(sys_operate_log)
         }
     }
 }

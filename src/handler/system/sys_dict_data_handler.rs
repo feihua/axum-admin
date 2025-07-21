@@ -151,7 +151,7 @@ pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::<QueryDictDataDetailResp>::ok_result_data(sys_dict_data)
+            BaseResponse::ok_result_data(sys_dict_data)
         }
     }
 }

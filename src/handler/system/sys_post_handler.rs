@@ -155,7 +155,7 @@ pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //更新时间
             };
 
-            BaseResponse::<QueryPostDetailResp>::ok_result_data(sys_post)
+            BaseResponse::ok_result_data(sys_post)
         }
     }
 }
