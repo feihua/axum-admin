@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_post_model::Post;
 use crate::model::system::sys_user_post_model::count_user_post_by_id;
 use crate::utils::time_util::time_to_string;
@@ -41,7 +41,7 @@ pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<A
 
     Post::insert(rb, &sys_post).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -70,7 +70,7 @@ pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 
     Post::delete_by_map(rb, value! {"id": &item.ids}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -111,7 +111,7 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 
     Post::update_by_map(rb, &sys_post, value! {"id": &item.id}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -129,7 +129,7 @@ pub async fn update_sys_post_status(State(state): State<Arc<AppState>>, Json(ite
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -155,7 +155,7 @@ pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //更新时间
             };
 
-            BaseResponse::ok_result_data(sys_post)
+            ok_result_data(sys_post)
         }
     }
 }
@@ -189,5 +189,5 @@ pub async fn query_sys_post_list(State(state): State<Arc<AppState>>, Json(item):
         })
     }
 
-    BaseResponse::ok_result_page(list, total)
+    ok_result_page(list, total)
 }

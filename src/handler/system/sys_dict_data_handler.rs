@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dict_data_model::DictData;
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dict_data_vo::*;
@@ -44,7 +44,7 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): J
     };
 
     DictData::insert(rb, &sys_dict_data).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -57,7 +57,7 @@ pub async fn delete_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
     let rb = &state.batis;
 
     DictData::delete_by_map(rb, value! {"dict_code": &item.ids}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -101,7 +101,7 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
     };
 
     DictData::update_by_map(rb, &sys_dict_data, value! {"dict_code": &item.dict_code}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -121,7 +121,7 @@ pub async fn update_sys_dict_data_status(State(state): State<Arc<AppState>>, Jso
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -151,7 +151,7 @@ pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::ok_result_data(sys_dict_data)
+            ok_result_data(sys_dict_data)
         }
     }
 }
@@ -189,5 +189,5 @@ pub async fn query_sys_dict_data_list(State(state): State<Arc<AppState>>, Json(i
         })
     }
 
-    BaseResponse::ok_result_page(list, total)
+    ok_result_page(list, total)
 }

@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_notice_model::Notice;
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_notice_vo::*;
@@ -36,7 +36,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json
     };
 
     Notice::insert(rb, &sys_notice).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -49,7 +49,7 @@ pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
     let rb = &state.batis;
 
     Notice::delete_by_map(rb, value! {"id": &item.ids}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -83,7 +83,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
     };
 
     Notice::update_by_map(rb, &sys_notice, value! {"id": &item.id}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -101,7 +101,7 @@ pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(i
     param.extend(item.ids.iter().map(|&id| value!(id)));
 
     rb.exec(&update_sql, param).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -127,7 +127,7 @@ pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(it
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::ok_result_data(sys_notice)
+            ok_result_data(sys_notice)
         }
     }
 }
@@ -160,5 +160,5 @@ pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item
         })
     }
 
-    BaseResponse::ok_result_page(data, total)
+    ok_result_page(data, total)
 }

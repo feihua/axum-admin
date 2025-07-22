@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data};
 use crate::model::system::sys_dept_model::{check_dept_exist_user, select_children_dept_by_id, select_dept_count, select_normal_children_dept_by_id, Dept};
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dept_vo::*;
@@ -49,7 +49,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<A
     };
 
     Dept::insert(rb, &sys_dept).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -70,7 +70,7 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
     }
 
     Dept::delete_by_map(rb, value! {"id": &item.id}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -141,7 +141,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
         param.extend(ids.iter().map(|&id| value!(id)));
         rb.exec(&update_sql, param).await?;
     }
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -173,7 +173,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 /*
  *查询部门表详情
@@ -202,7 +202,7 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::ok_result_data(sys_dept)
+            ok_result_data(sys_dept)
         }
     }
 }
@@ -236,5 +236,5 @@ pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Json(item):
         })
     }
 
-    BaseResponse::ok_result_data(list)
+    ok_result_data(list)
 }

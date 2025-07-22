@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_login_log_vo::*;
@@ -20,7 +20,7 @@ pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item)
     let rb = &state.batis;
 
     LoginLog::delete_by_map(rb, value! {"id": &item.ids}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -34,7 +34,7 @@ pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl Int
 
     clean_login_log(rb).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -67,7 +67,7 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json
                 login_time: time_to_string(x.login_time), //访问时间
             };
 
-            BaseResponse::ok_result_data(sys_login_log)
+            ok_result_data(sys_login_log)
         }
     }
 }
@@ -108,5 +108,5 @@ pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Json(i
         })
     }
 
-    BaseResponse::ok_result_page(list, total)
+    ok_result_page(list, total)
 }

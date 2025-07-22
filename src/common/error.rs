@@ -28,14 +28,11 @@ pub type AppResult<T> = Result<T, AppError>;
 #[async_trait]
 impl IntoResponse for AppError {
     fn into_response(self) -> Response {
-        (
-            StatusCode::OK,
-            Json(BaseResponse {
-                msg: self.to_string(),
-                code: 1,
-                data: Some("None".to_string()),
-            }),
-        )
-            .into_response()
+        let response = BaseResponse {
+            msg: self.to_string(),
+            code: 1,
+            data: Some("None".to_string()),
+        };
+        (StatusCode::OK, Json(response)).into_response()
     }
 }

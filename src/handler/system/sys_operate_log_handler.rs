@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_operate_log_model::{clean_operate_log, OperateLog};
 use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_operate_log_vo::*;
@@ -20,7 +20,7 @@ pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Json(ite
     let rb = &state.batis;
 
     OperateLog::delete_by_map(rb, value! {"id": &item.ids}).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -34,7 +34,7 @@ pub async fn clean_sys_operate_log(State(state): State<Arc<AppState>>) -> impl I
 
     clean_operate_log(rb).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -69,7 +69,7 @@ pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Js
                 cost_time: x.cost_time,                       //消耗时间
             };
 
-            BaseResponse::ok_result_data(sys_operate_log)
+            ok_result_data(sys_operate_log)
         }
     }
 }
@@ -111,5 +111,5 @@ pub async fn query_sys_operate_log_list(State(state): State<Arc<AppState>>, Json
         })
     }
 
-    BaseResponse::ok_result_page(list, total)
+    ok_result_page(list, total)
 }

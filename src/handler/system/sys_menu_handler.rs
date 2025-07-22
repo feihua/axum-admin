@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data};
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
 use crate::utils::time_util::time_to_string;
@@ -49,7 +49,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<A
 
     Menu::insert(rb, &sys_menu).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -73,7 +73,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 
     Menu::delete_by_map(rb, value! {"id": &item.id}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -122,7 +122,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 
     Menu::update_by_map(rb, &sys_menu, value! {"id": &item.id}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -141,7 +141,7 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(ite
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -172,7 +172,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::ok_result_data(sys_menu)
+            ok_result_data(sys_menu)
         }
     }
 }
@@ -207,7 +207,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
         })
     }
 
-    BaseResponse::ok_result_data(menu_list)
+    ok_result_data(menu_list)
 }
 
 /*
@@ -229,5 +229,5 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
         })
     }
 
-    BaseResponse::ok_result_data(menu_list)
+    ok_result_data(menu_list)
 }

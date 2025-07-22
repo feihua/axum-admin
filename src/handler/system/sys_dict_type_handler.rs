@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dict_data_model::{count_dict_data_by_type, update_dict_data_type};
 use crate::model::system::sys_dict_type_model::DictType;
 use crate::utils::time_util::time_to_string;
@@ -36,7 +36,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
 
     DictType::insert(rb, &sys_dict_type).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -62,7 +62,7 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
 
     DictType::delete_by_map(rb, value! {"id": &item.ids}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -99,7 +99,7 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
 
     DictType::update_by_map(rb, &sys_dict_type, value! {"dict_id": &item.dict_id}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -120,7 +120,7 @@ pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Jso
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -145,7 +145,7 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
                 update_time: time_to_string(x.update_time), //修改时间
             };
 
-            BaseResponse::ok_result_data(sys_dict_type)
+            ok_result_data(sys_dict_type)
         }
     }
 }
@@ -178,5 +178,5 @@ pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(i
         })
     }
 
-    BaseResponse::ok_result_page(sys_dict_type_list_data, total)
+    ok_result_page(sys_dict_type_list_data, total)
 }

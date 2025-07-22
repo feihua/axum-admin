@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::BaseResponse;
+use crate::common::result::{err_result_msg, ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dept_model::Dept;
 use crate::model::system::sys_login_log_model::LoginLog;
 use crate::model::system::sys_menu_model::Menu;
@@ -76,7 +76,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<A
         user_post_list.push(UserPost { user_id: result.i64(), post_id })
     }
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -104,7 +104,7 @@ pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppStat
 
     User::delete_by_map(rb, value! {"id": &item.ids}).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -178,7 +178,7 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
         })
     }
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -201,7 +201,7 @@ pub async fn update_sys_user_status(State(state): State<Arc<AppState>>, Json(ite
     param.extend(item.ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 /*
@@ -227,7 +227,7 @@ pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(it
             let mut user = x;
             user.password = item.password;
             User::update_by_map(rb, &user, value! {"id": &user.id}).await?;
-            BaseResponse::<String>::ok_result()
+            ok_result()
         }
     }
 }
@@ -253,7 +253,7 @@ pub async fn update_sys_user_password(headers: HeaderMap, State(state): State<Ar
             }
             user.password = item.re_pwd;
             User::update_by_map(rb, &user, value! {"id": &user.id}).await?;
-            BaseResponse::<String>::ok_result()
+            ok_result()
         }
     }
 }
@@ -318,7 +318,7 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
                 post_ids,
             };
 
-            BaseResponse::ok_result_data(sys_user)
+            ok_result_data(sys_user)
         }
     }
 }
@@ -360,7 +360,7 @@ pub async fn query_sys_user_list(State(state): State<Arc<AppState>>, Json(item):
         })
     }
 
-    BaseResponse::ok_result_page(sys_user_list_data, total)
+    ok_result_page(sys_user_list_data, total)
 }
 
 /*
@@ -392,7 +392,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
 
             if password.ne(&item.password) {
                 add_login_log(rb, item.mobile, 0, "密码不正确", agent).await;
-                return BaseResponse::<String>::err_result_msg("密码不正确");
+                return err_result_msg("密码不正确");
             }
 
             let btn_menu = query_btn_menu(&id, rb.clone()).await;
@@ -409,7 +409,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
             s_user.login_browser = agent.browser;
             s_user.login_date = Some(DateTime::now());
             User::update_by_map(rb, &s_user, value! {"id": &s_user.id}).await?;
-            BaseResponse::<String>::ok_result_data(token)
+            ok_result_data(token)
         }
     }
 }
@@ -508,7 +508,7 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
             user_role_ids.push(x.role_id);
         }
     }
-    BaseResponse::<QueryUserRoleResp>::ok_result_data(QueryUserRoleResp { sys_role_list, user_role_ids })
+    ok_result_data(QueryUserRoleResp { sys_role_list, user_role_ids })
 }
 
 // 更新用户角色
@@ -539,7 +539,7 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
 
     UserRole::insert_batch(rb, &list, len as u64).await?;
 
-    BaseResponse::<String>::ok_result()
+    ok_result()
 }
 
 // 查询用户菜单
@@ -610,7 +610,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
                 name: user.user_name,
             };
 
-            BaseResponse::ok_result_data(resp)
+            ok_result_data(resp)
         }
     }
 }
