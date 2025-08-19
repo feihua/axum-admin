@@ -22,6 +22,7 @@ use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
+use redis::Commands;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 /*
@@ -371,6 +372,7 @@ pub async fn query_sys_user_list(State(state): State<Arc<AppState>>, Json(item):
 pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(item): Json<UserLoginReq>) -> impl IntoResponse {
     log::info!("user login params: {:?}, {:?}", &item, state.batis);
     let rb = &state.batis;
+    let mut conn = state.redis.get_connection()?;
 
     let user_agent = headers.get("User-Agent").unwrap().to_str().unwrap();
     log::info!("user agent: {:?}", user_agent);
@@ -395,14 +397,24 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
                 return err_result_msg("密码不正确");
             }
 
-            let btn_menu = query_btn_menu(&id, rb.clone()).await;
+            let (btn_menu, is_super) = query_btn_menu(&id, rb.clone()).await;
 
             if btn_menu.len() == 0 {
                 add_login_log(rb, item.mobile, 0, "用户没有分配角色或者菜单,不能登录", agent).await;
                 return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录"));
             }
 
-            let token = JwtToken::new(id, &username, btn_menu).create_token("123")?;
+            let token = JwtToken::new(id, &username, btn_menu.clone()).create_token("123")?;
+
+            let key = format!("axum:admin:user:info:{:?}", s_user.id.unwrap_or_default());
+            // 存储用户权限信息
+            conn.hset::<_, _, _, ()>(&key, "permissions", &btn_menu.join(","))?;
+            // 存储用户名
+            conn.hset::<_, _, _, ()>(&key, "user_name", &s_user.user_name)?;
+            // 存储是否是超级管理员
+            conn.hset::<_, _, _, ()>(&key, "isAdmin", is_super)?;
+            // 存储登录时间
+            conn.hset::<_, _, _, ()>(&key, "last_login", DateTime::now().unix_timestamp())?;
 
             add_login_log(rb, item.mobile, 1, "登录成功", agent.clone()).await;
             s_user.login_os = agent.os;
@@ -449,24 +461,32 @@ async fn add_login_log(rb: &RBatis, name: String, status: i8, msg: &str, agent: 
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-async fn query_btn_menu(id: &i64, rb: RBatis) -> Vec<String> {
+async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
     let count = is_admin(&rb, id).await.unwrap_or_default();
     let mut btn_menu: Vec<String> = Vec::new();
     if count == 1 {
         let data = Menu::select_all(&rb).await;
 
         for x in data.unwrap_or_default() {
-            btn_menu.push(x.api_url.unwrap_or_default());
+            if let Some(a) = x.api_url {
+                if a != "" {
+                    btn_menu.push(a);
+                }
+            }
         }
         log::info!("admin login: {:?}", id);
-        btn_menu
+        (btn_menu, true)
     } else {
         let btn_menu_map: Vec<HashMap<String, String>> = rb.query_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await.unwrap();
         for x in btn_menu_map {
-            btn_menu.push(x.get("api_url").unwrap().to_string());
+            if let Some(a) = x.get("api_url") {
+                if a.to_string() != "" {
+                    btn_menu.push(a.to_string());
+                }
+            }
         }
         log::info!("ordinary login: {:?}", id);
-        btn_menu
+        (btn_menu, false)
     }
 }
 

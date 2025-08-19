@@ -18,9 +18,11 @@ use crate::route::system::sys_login_log_route::build_sys_login_log_route;
 use crate::route::system::sys_notice_route::build_sys_notice_route;
 use crate::route::system::sys_operate_log_route::build_sys_operate_log_route;
 use crate::route::system::sys_post_route::build_sys_post_route;
+use crate::utils::redis_util::init_redis;
 use config::{Config, File};
 use middleware::auth::auth;
 use rbatis::RBatis;
+use redis::Client;
 use route::system::sys_menu_route::build_sys_menu_route;
 use route::system::sys_role_route::build_sys_role_route;
 use route::system::sys_user_route::build_sys_user_route;
@@ -31,6 +33,7 @@ use utils::db::init_db;
 // 定义应用状态结构体，包含数据库连接池
 pub struct AppState {
     pub batis: RBatis,
+    pub redis: Client,
 }
 
 // 配置结构体，包含服务器和数据库配置
@@ -38,6 +41,7 @@ pub struct AppState {
 struct Config1 {
     server: ServerConfig,
     db: DbConfig,
+    redis: RedisConfig,
 }
 
 // 服务器配置结构体，包含服务器地址
@@ -52,6 +56,10 @@ struct DbConfig {
     url: String,
 }
 
+#[derive(Debug, Deserialize)]
+struct RedisConfig {
+    url: String,
+}
 // 主函数，使用tokio异步运行时
 #[tokio::main]
 async fn main() {
@@ -64,9 +72,10 @@ async fn main() {
 
     // 初始化数据库连接
     let rb = init_db(config.db.url.as_str()).await;
+    let rd = init_redis(config.redis.url.as_str()).await;
 
     // 创建共享应用状态，包含数据库连接池
-    let shared_state = Arc::new(AppState { batis: rb.clone() });
+    let shared_state = Arc::new(AppState { batis: rb.clone(), redis: rd });
 
     // 构建应用路由，并合并多个子路由
     let app = Router::new().nest(

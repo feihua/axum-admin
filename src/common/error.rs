@@ -2,6 +2,7 @@ use crate::common::result::BaseResponse;
 use axum::http::StatusCode;
 use axum::response::{IntoResponse, Response};
 use axum::Json;
+use redis::RedisError;
 use thiserror::Error;
 
 #[derive(Error, Debug)]
@@ -19,6 +20,9 @@ pub enum AppError {
 
     #[error("数据库错误: {0}")]
     DbError(#[from] rbatis::Error),
+
+    #[error("redis错误: {0}")]
+    RedisError(#[from] RedisError),
 
     #[error("业务异常: {0}")]
     BusinessError(&'static str),
