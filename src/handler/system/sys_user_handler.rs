@@ -89,6 +89,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<A
 pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(item): Json<DeleteUserReq>) -> impl IntoResponse {
     log::info!("delete sys_user params: {:?}", &item);
     let rb = &state.batis;
+    let mut conn = state.redis.get_connection()?;
 
     let user_id = headers.get("user_id").unwrap().to_str().unwrap().parse::<i64>().unwrap();
 
@@ -96,8 +97,14 @@ pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppStat
     if ids.contains(&user_id) {
         return Err(AppError::BusinessError("当前用户不能删除"));
     }
-    if ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+
+    for id in ids.clone() {
+        let key = format!("axum:admin:user:info:{}", id);
+        let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
+
+        if is_admin {
+            return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+        }
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
@@ -118,8 +125,11 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
     log::info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
 
-    let id = item.id.clone();
-    if id == 1 {
+    let mut conn = state.redis.get_connection()?;
+    let key = format!("axum:admin:user:info:{}", item.id.clone());
+    let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
+
+    if is_admin {
         return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
@@ -193,8 +203,15 @@ pub async fn update_sys_user_status(State(state): State<Arc<AppState>>, Json(ite
     let rb = &state.batis;
 
     let ids = item.ids.clone();
-    if ids.contains(&1) {
-        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+    let mut conn = state.redis.get_connection()?;
+
+    for id in ids {
+        let key = format!("axum:admin:user:info:{}", id);
+        let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
+
+        if is_admin {
+            return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+        }
     }
 
     let update_sql = format!("update sys_user set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -215,9 +232,12 @@ pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(it
     log::info!("update sys_user_password params: {:?}", &item);
 
     let rb = &state.batis;
+    let mut conn = state.redis.get_connection()?;
 
-    let id = item.id.clone();
-    if id == 1 {
+    let key = format!("axum:admin:user:info:{}", item.id.clone());
+    let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
+
+    if is_admin {
         return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
@@ -538,13 +558,17 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserRoleReq>) -> impl IntoResponse {
     log::info!("update_user_role params: {:?}", item);
     let rb = &state.batis;
+    let mut conn = state.redis.get_connection()?;
 
     let user_id = item.user_id;
     let role_ids = &item.role_ids;
     let len = item.role_ids.len();
 
-    if user_id == 1 {
-        return Err(AppError::BusinessError("不能修改超级管理员的角色"));
+    let key = format!("axum:admin:user:info:{}", user_id);
+    let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
+
+    if is_admin {
+        return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": user_id}).await?;
@@ -571,18 +595,18 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
     log::info!("query user menu params user_id {:?}", user_id);
 
     let rb = &state.batis;
+    let mut conn = state.redis.get_connection()?;
 
     //根据id查询用户
     match User::select_by_id(rb, user_id).await? {
         None => Err(AppError::BusinessError("用户不存在")),
         Some(user) => {
-            //role_id为1是超级管理员--判断是不是超级管理员
-            let sql_str = "select count(id) from sys_user_role where role_id = 1 and user_id = ?";
-            let count = rb.query_decode::<i32>(sql_str, vec![value!(user.id)]).await?;
+            let key = format!("axum:admin:user:info:{}", user_id);
+            let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
             let sys_menu_list: Vec<Menu>;
 
-            if count > 0 {
+            if is_admin {
                 log::info!("The current user is a super administrator");
                 sys_menu_list = Menu::select_all(rb).await?;
             } else {
