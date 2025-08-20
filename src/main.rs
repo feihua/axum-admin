@@ -91,7 +91,7 @@ async fn main() {
             .merge(build_sys_login_log_route())
             .merge(build_sys_operate_log_route())
             .merge(build_sys_notice_route())
-            .route_layer(md::from_fn(auth)) // 添加认证中间件
+            .route_layer(md::from_fn_with_state(shared_state.clone(), auth)) // 添加认证中间件
             .with_state(shared_state), // 设置共享状态
     );
 

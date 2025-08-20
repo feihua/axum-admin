@@ -17,6 +17,7 @@ use axum::extract::State;
 use axum::http::HeaderMap;
 use axum::response::IntoResponse;
 use axum::Json;
+use chrono::Local;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::datetime::DateTime;
@@ -404,7 +405,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
                 return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录"));
             }
 
-            let token = JwtToken::new(id, &username, btn_menu.clone()).create_token("123")?;
+            let token = JwtToken::new(id, &username).create_token("123")?;
 
             let key = format!("axum:admin:user:info:{:?}", s_user.id.unwrap_or_default());
             // 存储用户权限信息
@@ -413,8 +414,10 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
             conn.hset::<_, _, _, ()>(&key, "user_name", &s_user.user_name)?;
             // 存储是否是超级管理员
             conn.hset::<_, _, _, ()>(&key, "isAdmin", is_super)?;
+            // 存储token
+            conn.hset::<_, _, _, ()>(&key, "token", &token)?;
             // 存储登录时间
-            conn.hset::<_, _, _, ()>(&key, "last_login", DateTime::now().unix_timestamp())?;
+            conn.hset::<_, _, _, ()>(&key, "last_login", Local::now().format("%Y-%m-%d %H:%M:%S").to_string())?;
 
             add_login_log(rb, item.mobile, 1, "登录成功", agent.clone()).await;
             s_user.login_os = agent.os;

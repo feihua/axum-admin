@@ -1,8 +1,6 @@
 use crate::common::error::AppError;
 use crate::common::error::AppError::JwtTokenError;
-use jsonwebtoken::{
-    decode, encode, errors::ErrorKind, Algorithm, DecodingKey, EncodingKey, Header, Validation,
-};
+use jsonwebtoken::{decode, encode, errors::ErrorKind, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -10,7 +8,6 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 pub struct JwtToken {
     pub id: i64,
     pub username: String,
-    pub permissions: Vec<String>,
     aud: String,
     // (audience)：受众
     exp: usize,
@@ -26,7 +23,7 @@ pub struct JwtToken {
 }
 
 impl JwtToken {
-    pub fn new(id: i64, username: &str, permissions: Vec<String>) -> JwtToken {
+    pub fn new(id: i64, username: &str) -> JwtToken {
         let now = SystemTime::now();
         //过期时间
         let m30 = Duration::from_secs(1800000);
@@ -35,7 +32,6 @@ impl JwtToken {
         JwtToken {
             id,
             username: String::from(username),
-            permissions,
             aud: String::from("rust_admin"), // (audience)：受众
             exp: (now + m30).as_secs() as usize,
             iat: now.as_secs() as usize,     // (Issued At)：签发时间
@@ -49,11 +45,7 @@ impl JwtToken {
     /// create token
     /// secret: your secret string
     pub fn create_token(&self, secret: &str) -> Result<String, AppError> {
-        match encode(
-            &Header::default(),
-            self,
-            &EncodingKey::from_secret(secret.as_ref()),
-        ) {
+        match encode(&Header::default(), self, &EncodingKey::from_secret(secret.as_ref())) {
             Ok(t) => Ok(t),
             Err(_) => Err(JwtTokenError("create token error".to_string())),
         }
@@ -65,21 +57,15 @@ impl JwtToken {
         validation.sub = Some("rust_admin".to_string());
         validation.set_audience(&["rust_admin"]);
         validation.set_required_spec_claims(&["exp", "sub", "aud"]);
-        match decode::<JwtToken>(
-            &token,
-            &DecodingKey::from_secret(secret.as_ref()),
-            &validation,
-        ) {
+        match decode::<JwtToken>(&token, &DecodingKey::from_secret(secret.as_ref()), &validation) {
             Ok(c) => Ok(c.claims),
 
             Err(err) => match *err.kind() {
                 ErrorKind::InvalidToken => return Err(JwtTokenError("InvalidToken".to_string())), // Example on how to handle a specific error
                 ErrorKind::InvalidIssuer => return Err(JwtTokenError("InvalidIssuer".to_string())), // Example on how to handle a specific error
-                ErrorKind::ExpiredSignature => {
-                    return Err(JwtTokenError("token 已经超时了".to_string()))
-                } // Example on how to handle a specific error
+                ErrorKind::ExpiredSignature => return Err(JwtTokenError("token 已经超时了".to_string())), // Example on how to handle a specific error
                 // _ => return Err(Error::from("InvalidToken other errors")),
-                _ => Err(JwtTokenError("create token error".to_string())),
+                _ => Err(JwtTokenError("InvalidToken other errors".to_string())),
             },
         }
     }
@@ -91,7 +77,7 @@ mod tests {
 
     #[test]
     fn test_jwt() {
-        let jwt = JwtToken::new(1, "koobe", vec![]);
+        let jwt = JwtToken::new(1, "koobe");
         let res = jwt.create_token("123").unwrap_or_default();
         println!("{:?}", res);
         let token = JwtToken::verify("123", &res);
