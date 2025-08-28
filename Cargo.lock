@@ -128,6 +128,7 @@ dependencies = [
  "log4rs",
  "rbatis",
  "rbdc-mysql",
+ "rbdc-pool-fast",
  "rbs",
  "redis",
  "regex",
