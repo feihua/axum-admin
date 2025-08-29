@@ -1,6 +1,6 @@
 create table sys_dict_data
 (
-    dict_code   bigint                                 not null auto_increment    comment '字典编码',
+    id   bigint                                 not null auto_increment    comment '字典编码',
     dict_sort   int          default 0                 not null comment '字典排序',
     dict_label  varchar(100) default ''                not null comment '字典标签',
     dict_value  varchar(100) default ''                not null comment '字典键值',
@@ -12,7 +12,7 @@ create table sys_dict_data
     remark      varchar(500) default ''                not null comment '备注',
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间',
-    primary key (dict_code)
+    primary key (id)
 )comment = '字典数据表';
 
 

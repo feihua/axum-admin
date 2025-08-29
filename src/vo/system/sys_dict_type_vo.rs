@@ -29,7 +29,7 @@ pub struct DeleteDictTypeReq {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateDictTypeReq {
-    pub dict_id: i64,           //字典主键
+    pub id: i64,                //字典主键
     pub dict_name: String,      //字典名称
     pub dict_type: String,      //字典类型
     pub status: i8,             //状态（0：停用，1:正常）
@@ -59,7 +59,7 @@ pub struct QueryDictTypeDetailReq {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDictTypeDetailResp {
-    pub dict_id: i64,        //字典主键
+    pub id: i64,             //字典主键
     pub dict_name: String,   //字典名称
     pub dict_type: String,   //字典类型
     pub status: i8,          //状态（0：停用，1:正常）
@@ -71,7 +71,7 @@ pub struct QueryDictTypeDetailResp {
 impl QueryDictTypeDetailResp {
     pub fn new() -> QueryDictTypeDetailResp {
         QueryDictTypeDetailResp {
-            dict_id: 0,                  //字典主键
+            id: 0,                       //字典主键
             dict_name: "".to_string(),   //字典名称
             dict_type: "".to_string(),   //字典类型
             status: 0,                   //状态（0：停用，1:正常）
@@ -104,7 +104,7 @@ fn default_status() -> Option<i8> {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DictTypeListDataResp {
-    pub dict_id: i64,        //字典主键
+    pub id: i64,             //字典主键
     pub dict_name: String,   //字典名称
     pub dict_type: String,   //字典类型
     pub status: i8,          //状态（0：停用，1:正常）

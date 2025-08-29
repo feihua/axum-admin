@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
  */
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DictType {
-    pub dict_id: Option<i64>,          //字典主键
+    pub id: Option<i64>,               //字典主键
     pub dict_name: String,             //字典名称
     pub dict_type: String,             //字典类型
     pub status: i8,                    //状态（0：停用，1:正常）
@@ -33,7 +33,7 @@ rbatis::crud!(DictType {}, "sys_dict_type");
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where dict_id = #{id} limit 1`"}, "sys_dict_type");
+impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
 
 /*
  *根据dict_type查询字典类型

@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
  */
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DictData {
-    pub dict_code: Option<i64>,        //字典编码
+    pub id: Option<i64>,        //字典编码
     pub dict_sort: i32,                //字典排序
     pub dict_label: String,            //字典标签
     pub dict_value: String,            //字典键值
@@ -39,7 +39,7 @@ rbatis::crud!(DictData {}, "sys_dict_data");
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(DictData{select_by_id(dict_code:&i64) -> Option => "`where dict_code = #{dict_code} limit 1`"}, "sys_dict_data");
+impl_select!(DictData{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_data");
 
 /*
  *根据dict_type和dict_label查询字典数据表

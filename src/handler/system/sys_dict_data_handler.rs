@@ -29,7 +29,7 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): J
     }
 
     let sys_dict_data = DictData {
-        dict_code: None,                         //字典编码
+        id: None,                         //字典编码
         dict_sort: item.dict_sort,               //字典排序
         dict_label: item.dict_label,             //字典标签
         dict_value: item.dict_value,             //字典键值
@@ -56,7 +56,7 @@ pub async fn delete_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
     log::info!("delete sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    DictData::delete_by_map(rb, value! {"dict_code": &item.ids}).await?;
+    DictData::delete_by_map(rb, value! {"id": &item.ids}).await?;
     ok_result()
 }
 
@@ -69,24 +69,24 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
     log::info!("update sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    if DictData::select_by_id(rb, &item.dict_code).await?.is_none() {
+    if DictData::select_by_id(rb, &item.id).await?.is_none() {
         return Err(AppError::BusinessError("字典数据不存在"));
     }
 
     if let Some(x) = DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await? {
-        if x.dict_code.unwrap_or_default() != item.dict_code {
+        if x.id.unwrap_or_default() != item.id {
             return Err(AppError::BusinessError("字典标签已存在"));
         }
     }
 
     if let Some(x) = DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await? {
-        if x.dict_code.unwrap_or_default() != item.dict_code {
+        if x.id.unwrap_or_default() != item.id {
             return Err(AppError::BusinessError("字典键值已存在"));
         }
     }
 
     let sys_dict_data = DictData {
-        dict_code: Some(item.dict_code),         //字典编码
+        id: Some(item.id),         //字典编码
         dict_sort: item.dict_sort,               //字典排序
         dict_label: item.dict_label,             //字典标签
         dict_value: item.dict_value,             //字典键值
@@ -100,7 +100,7 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
         update_time: None,                       //修改时间
     };
 
-    DictData::update_by_map(rb, &sys_dict_data, value! {"dict_code": &item.dict_code}).await?;
+    DictData::update_by_map(rb, &sys_dict_data, value! {"id": &item.id}).await?;
     ok_result()
 }
 
@@ -114,7 +114,7 @@ pub async fn update_sys_dict_data_status(State(state): State<Arc<AppState>>, Jso
     let rb = &state.batis;
 
     let update_sql = format!(
-        "update sys_dict_data set status = ? where dict_code in ({})",
+        "update sys_dict_data set status = ? where id in ({})",
         item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
     );
 
@@ -137,7 +137,7 @@ pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json
         None => Err(AppError::BusinessError("字典数据不存在")),
         Some(x) => {
             let sys_dict_data = QueryDictDataDetailResp {
-                dict_code: x.dict_code.unwrap_or_default(), //字典编码
+                id: x.id.unwrap_or_default(), //字典编码
                 dict_sort: x.dict_sort,                     //字典排序
                 dict_label: x.dict_label,                   //字典标签
                 dict_value: x.dict_value,                   //字典键值
@@ -174,7 +174,7 @@ pub async fn query_sys_dict_data_list(State(state): State<Arc<AppState>>, Json(i
 
     for x in d.records {
         list.push(DictDataListDataResp {
-            dict_code: x.dict_code.unwrap_or_default(), //字典编码
+            id: x.id.unwrap_or_default(), //字典编码
             dict_sort: x.dict_sort,                     //字典排序
             dict_label: x.dict_label,                   //字典标签
             dict_value: x.dict_value,                   //字典键值
