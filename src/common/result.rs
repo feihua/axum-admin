@@ -1,5 +1,6 @@
 use crate::common::error::AppResult;
 use axum::Json;
+use rbatis::rbdc::DateTime;
 use serde::Serialize;
 use std::fmt::Debug;
 
@@ -56,4 +57,17 @@ pub fn err_result_msg(msg: &str) -> AppResult<Json<BaseResponse<String>>> {
         code: 1,
         data: Some("None".to_string()),
     }))
+}
+
+pub fn serialize_datetime<S>(dt: &Option<DateTime>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    match dt {
+        Some(datetime) => {
+            let formatted = datetime.format("YYYY-MM-DD hh:mm:ss");
+            serializer.serialize_str(&formatted)
+        }
+        None => serializer.serialize_str(""),
+    }
 }

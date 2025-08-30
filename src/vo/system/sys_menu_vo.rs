@@ -1,25 +1,9 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use crate::common::result::serialize_datetime;
+use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
-
-/*
-添加菜单信息请求参数
-*/
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AddMenuReq {
-    pub menu_name: String,         //菜单名称
-    pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
-    pub visible: i8,               //菜单状态（0:隐藏, 显示:1）
-    pub status: i8,                //状态(1:正常，0:禁用)
-    pub sort: i32,                 //排序
-    pub parent_id: Option<i64>,    //父ID
-    pub menu_url: Option<String>,  //路由路径
-    pub api_url: Option<String>,   //接口URL
-    pub menu_icon: Option<String>, //菜单图标
-    pub remark: Option<String>,    //备注
-}
 
 /*
 删除菜单信息请求参数
@@ -34,14 +18,14 @@ pub struct DeleteMenuReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateMenuReq {
-    pub id: i64,                   //主键
+pub struct MenuReq {
+    pub id: Option<i64>,           //主键
     pub menu_name: String,         //菜单名称
     pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
     pub visible: i8,               //菜单状态（0:隐藏, 显示:1）
     pub status: i8,                //状态(1:正常，0:禁用)
     pub sort: i32,                 //排序
-    pub parent_id: i64,            //父ID
+    pub parent_id: Option<i64>,    //父ID
     pub menu_url: Option<String>,  //路由路径
     pub api_url: Option<String>,   //接口URL
     pub menu_icon: Option<String>, //菜单图标
@@ -66,47 +50,6 @@ pub struct QueryMenuDetailReq {
 }
 
 /*
-查询菜单信息详情响应参数
-*/
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct QueryMenuDetailResp {
-    pub id: i64,             //主键
-    pub menu_name: String,   //菜单名称
-    pub menu_type: i8,       //菜单类型(1：目录   2：菜单   3：按钮)
-    pub visible: i8,         //菜单状态（0:隐藏, 显示:1）
-    pub status: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,           //排序
-    pub parent_id: i64,      //父ID
-    pub menu_url: String,    //路由路径
-    pub api_url: String,     //接口URL
-    pub menu_icon: String,   //菜单图标
-    pub remark: String,      //备注
-    pub create_time: String, //创建时间
-    pub update_time: String, //修改时间
-}
-
-impl QueryMenuDetailResp {
-    pub fn new() -> QueryMenuDetailResp {
-        QueryMenuDetailResp {
-            id: 0,
-            menu_name: "".to_string(),
-            menu_type: 0,
-            visible: 0,
-            status: 0,
-            sort: 0,
-            parent_id: 0,
-            menu_url: "".to_string(),
-            api_url: "".to_string(),
-            menu_icon: "".to_string(),
-            remark: "".to_string(),
-            create_time: "".to_string(),
-            update_time: "".to_string(),
-        }
-    }
-}
-
-/*
 查询菜单信息列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
@@ -120,26 +63,22 @@ pub struct QueryMenuListReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MenuListDataResp {
-    pub id: i64,             //主键
-    pub menu_name: String,   //菜单名称
-    pub menu_type: i8,       //菜单类型(1：目录   2：菜单   3：按钮)
-    pub visible: i8,         //菜单状态（0:隐藏, 显示:1）
-    pub status: i8,          //状态(1:正常，0:禁用)
-    pub sort: i32,           //排序
-    pub parent_id: i64,      //父ID
-    pub menu_url: String,    //路由路径
-    pub api_url: String,     //接口URL
-    pub menu_icon: String,   //菜单图标
-    pub remark: String,      //备注
-    pub create_time: String, //创建时间
-    pub update_time: String, //修改时间
-}
-
-impl MenuListDataResp {
-    pub fn new() -> Vec<MenuListDataResp> {
-        Vec::new()
-    }
+pub struct MenuResp {
+    pub id: Option<i64>,           //主键
+    pub menu_name: String,         //菜单名称
+    pub menu_type: i8,             //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: i8,               //菜单状态（0:隐藏, 显示:1）
+    pub status: i8,                //状态(1:正常，0:禁用)
+    pub sort: i32,                 //排序
+    pub parent_id: Option<i64>,    //父ID
+    pub menu_url: Option<String>,  //路由路径
+    pub api_url: Option<String>,   //接口URL
+    pub menu_icon: Option<String>, //菜单图标
+    pub remark: Option<String>,    //备注
+    #[serde(serialize_with = "serialize_datetime")]
+    pub create_time: Option<DateTime>, //创建时间
+    #[serde(serialize_with = "serialize_datetime")]
+    pub update_time: Option<DateTime>, //修改时间
 }
 
 /*
@@ -148,13 +87,7 @@ impl MenuListDataResp {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MenuListSimpleDataResp {
-    pub id: i64,           //主键
-    pub menu_name: String, //菜单名称
-    pub parent_id: i64,    //父ID
-}
-
-impl MenuListSimpleDataResp {
-    pub fn new() -> Vec<MenuListSimpleDataResp> {
-        Vec::new()
-    }
+    pub id: Option<i64>,        //主键
+    pub menu_name: String,      //菜单名称
+    pub parent_id: Option<i64>, //父ID
 }

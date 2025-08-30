@@ -2,7 +2,7 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_operate_log_vo::QueryOperateLogListReq;
+use crate::vo::system::sys_operate_log_vo::{OperateLogResp, QueryOperateLogListReq};
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
@@ -39,6 +39,29 @@ pub struct OperateLog {
  */
 rbatis::crud!(OperateLog {}, "sys_operate_log");
 
+impl Into<OperateLogResp> for OperateLog {
+    fn into(self) -> OperateLogResp {
+        OperateLogResp {
+            id: self.id,                             //日志主键
+            title: self.title,                       //模块标题
+            business_type: self.business_type,       //业务类型（0其它 1新增 2修改 3删除）
+            method: self.method,                     //方法名称
+            request_method: self.request_method,     //请求方式
+            operator_type: self.operator_type,       //操作类别（0其它 1后台用户 2手机端用户）
+            operate_name: self.operate_name,         //操作人员
+            dept_name: self.dept_name,               //部门名称
+            operate_url: self.operate_url,           //请求URL
+            operate_ip: self.operate_ip,             //主机地址
+            operate_location: self.operate_location, //操作地点
+            operate_param: self.operate_param,       //请求参数
+            json_result: self.json_result,           //返回参数
+            status: self.status,                     //操作状态(0:异常,正常)
+            error_msg: self.error_msg,               //错误消息
+            operate_time: self.operate_time,         //操作时间
+            cost_time: self.cost_time,               //消耗时间
+        }
+    }
+}
 /*
  *根据id查询操作日志记录
  *author：刘飞华

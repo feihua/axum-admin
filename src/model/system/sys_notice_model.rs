@@ -2,7 +2,7 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_notice_vo::QueryNoticeListReq;
+use crate::vo::system::sys_notice_vo::{NoticeReq, NoticeResp, QueryNoticeListReq};
 use rbatis::rbdc::datetime::DateTime;
 use serde::{Deserialize, Serialize};
 /*
@@ -17,7 +17,7 @@ pub struct Notice {
     pub notice_type: i8,               //公告类型（1:通知,2:公告）
     pub notice_content: String,        //公告内容
     pub status: i8,                    //公告状态（0:关闭,1:正常 ）
-    pub remark: String,                //备注
+    pub remark: Option<String>,        //备注
     pub create_time: Option<DateTime>, //创建时间
     pub update_time: Option<DateTime>, //修改时间
 }
@@ -29,6 +29,35 @@ pub struct Notice {
  */
 rbatis::crud!(Notice {}, "sys_notice");
 
+impl From<NoticeReq> for Notice {
+    fn from(item: NoticeReq) -> Self {
+        Notice {
+            id: item.id,                         //公告ID
+            notice_title: item.notice_title,     //公告标题
+            notice_type: item.notice_type,       //公告类型（1:通知,2:公告）
+            notice_content: item.notice_content, //公告内容
+            status: item.status,                 //公告状态（0:关闭,1:正常 ）
+            remark: item.remark,                 //备注
+            create_time: None,                   //创建时间
+            update_time: None,                   //修改时间
+        }
+    }
+}
+
+impl Into<NoticeResp> for Notice {
+    fn into(self) -> NoticeResp {
+        NoticeResp {
+            id: self.id,                         //公告ID
+            notice_title: self.notice_title,     //公告标题
+            notice_type: self.notice_type,       //公告类型（1:通知,2:公告）
+            notice_content: self.notice_content, //公告内容
+            status: self.status,                 //公告状态（0:关闭,1:正常 ）
+            remark: self.remark,                 //备注
+            create_time: self.create_time,       //创建时间
+            update_time: self.update_time,       //修改时间
+        }
+    }
+}
 /*
  *根据id查询通知公告表
  *author：刘飞华

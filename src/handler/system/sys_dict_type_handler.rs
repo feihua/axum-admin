@@ -2,13 +2,13 @@ use crate::common::error::AppError;
 use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dict_data_model::{count_dict_data_by_type, update_dict_data_type};
 use crate::model::system::sys_dict_type_model::DictType;
-use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_dict_type_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use rbatis::plugin::page::PageRequest;
+use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -16,7 +16,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<AddDictTypeReq>) -> impl IntoResponse {
+pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
     log::info!("add sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
@@ -24,19 +24,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
         return Err(AppError::BusinessError("字典类型已存在"));
     }
 
-    let sys_dict_type = DictType {
-        id: None,                           //字典主键
-        dict_name: item.dict_name,               //字典名称
-        dict_type: item.dict_type,               //字典类型
-        status: item.status,                     //状态（0：停用，1:正常）
-        remark: item.remark.unwrap_or_default(), //备注
-        create_time: None,                       //创建时间
-        update_time: None,                       //修改时间
-    };
-
-    DictType::insert(rb, &sys_dict_type).await?;
-
-    ok_result()
+    DictType::insert(rb, &DictType::from(item)).await.map(|_| ok_result())?
 }
 
 /*
@@ -60,9 +48,7 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
         }
     }
 
-    DictType::delete_by_map(rb, value! {"id": &item.ids}).await?;
-
-    ok_result()
+    DictType::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -70,16 +56,17 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictTypeReq>) -> impl IntoResponse {
+pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
     log::info!("update sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
-    if DictType::select_by_id(rb, &item.id).await?.is_none() {
+    let id = item.id;
+    if DictType::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("字典类型不存在"));
     }
 
     if let Some(x) = DictType::select_by_dict_type(rb, &item.dict_type).await? {
-        if x.id.unwrap_or_default() != item.id {
+        if x.id != id {
             return Err(AppError::BusinessError("字典类型已存在"));
         }
 
@@ -87,19 +74,9 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
         update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
     }
 
-    let sys_dict_type = DictType {
-        id: Some(item.id),             //字典主键
-        dict_name: item.dict_name,               //字典名称
-        dict_type: item.dict_type,               //字典类型
-        status: item.status,                     //状态（0：停用，1:正常）
-        remark: item.remark.unwrap_or_default(), //备注
-        create_time: None,                       //创建时间
-        update_time: None,                       //修改时间
-    };
-
-    DictType::update_by_map(rb, &sys_dict_type, value! {"id": &item.id}).await?;
-
-    ok_result()
+    let mut data = DictType::from(item);
+    data.update_time = Some(DateTime::now());
+    DictType::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*
@@ -111,16 +88,11 @@ pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Jso
     log::info!("update sys_dict_type_status params: {:?}", &item);
     let rb = &state.batis;
 
-    let update_sql = format!(
-        "update sys_dict_type set status = ? where id in ({})",
-        item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
-    );
+    let update_sql = format!("update sys_dict_type set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
-    rb.exec(&update_sql, param).await?;
-
-    ok_result()
+    rb.exec(&update_sql, param).await.map(|_| ok_result())?
 }
 
 /*
@@ -132,22 +104,13 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
     log::info!("query sys_dict_type_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    match DictType::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("字典类型不存在")),
-        Some(x) => {
-            let sys_dict_type = QueryDictTypeDetailResp {
-                id: x.id.unwrap_or_default(),     //字典主键
-                dict_name: x.dict_name,                     //字典名称
-                dict_type: x.dict_type,                     //字典类型
-                status: x.status,                           //状态（0：停用，1:正常）
-                remark: x.remark,                           //备注
-                create_time: time_to_string(x.create_time), //创建时间
-                update_time: time_to_string(x.update_time), //修改时间
-            };
-
-            ok_result_data(sys_dict_type)
-        }
-    }
+    DictType::select_by_id(rb, &item.id).await?.map_or_else(
+        || Err(AppError::BusinessError("字典类型不存在")),
+        |x| {
+            let data: DictTypeResp = x.into();
+            ok_result_data(data)
+        },
+    )
 }
 
 /*
@@ -160,23 +123,8 @@ pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(i
     let rb = &state.batis;
 
     let page = &PageRequest::new(item.page_no, item.page_size);
-    let d = DictType::select_dict_type_list(rb, page, &item).await?;
 
-    let mut sys_dict_type_list_data: Vec<DictTypeListDataResp> = Vec::new();
-
-    let total = d.total;
-
-    for x in d.records {
-        sys_dict_type_list_data.push(DictTypeListDataResp {
-            id: x.id.unwrap_or_default(),     //字典主键
-            dict_name: x.dict_name,                     //字典名称
-            dict_type: x.dict_type,                     //字典类型
-            status: x.status,                           //状态（0：停用，1:正常）
-            remark: x.remark,                           //备注
-            create_time: time_to_string(x.create_time), //创建时间
-            update_time: time_to_string(x.update_time), //修改时间
-        })
-    }
-
-    ok_result_page(sys_dict_type_list_data, total)
+    DictType::select_dict_type_list(rb, page, &item)
+        .await
+        .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<DictTypeResp>>(), x.total))?
 }

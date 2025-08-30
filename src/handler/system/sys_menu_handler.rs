@@ -2,12 +2,12 @@ use crate::common::error::AppError;
 use crate::common::result::{ok_result, ok_result_data};
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
-use crate::utils::time_util::time_to_string;
 use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -15,12 +15,11 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<AddMenuReq>) -> impl IntoResponse {
+pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
     log::info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
-    let name = item.menu_name;
-    if Menu::select_by_menu_name(rb, &name).await?.is_some() {
+    if Menu::select_by_menu_name(rb, &item.menu_name).await?.is_some() {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
@@ -31,25 +30,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<A
         }
     }
 
-    let sys_menu = Menu {
-        id: None,                                      //主键
-        menu_name: name,                               //菜单名称
-        menu_type: item.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
-        visible: item.visible,                         //菜单状态（0:隐藏, 显示:1）
-        status: item.status,                           //状态(1:正常，0:禁用)
-        sort: item.sort,                               //排序
-        parent_id: item.parent_id.unwrap_or_default(), //上级菜单
-        menu_url: item.menu_url,                       //路由路径
-        api_url: item.api_url,                         //接口URL
-        menu_icon: item.menu_icon,                     //菜单图标
-        remark: item.remark,                           //备注
-        create_time: None,                             //创建时间
-        update_time: None,                             //修改时间
-    };
-
-    Menu::insert(rb, &sys_menu).await?;
-
-    ok_result()
+    Menu::insert(rb, &Menu::from(item)).await.map(|_| ok_result())?
 }
 
 /*
@@ -71,9 +52,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("菜单已分配,不允许删除"));
     }
 
-    Menu::delete_by_map(rb, value! {"id": &item.id}).await?;
-
-    ok_result()
+    Menu::delete_by_map(rb, value! {"id": &item.id}).await.map(|_| ok_result())?
 }
 
 /*
@@ -81,16 +60,17 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuReq>) -> impl IntoResponse {
+pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
     log::info!("update sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
-    if Menu::select_by_id(rb, &item.id).await?.is_none() {
+    let id = item.id;
+    if Menu::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
     if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
-        if x.id.unwrap_or_default() != item.id {
+        if x.id != item.id {
             return Err(AppError::BusinessError("菜单名称已存在"));
         }
     }
@@ -98,31 +78,15 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     let menu_url = item.menu_url.clone();
     if menu_url.is_some() {
         if let Some(x) = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await? {
-            if x.id.unwrap_or_default() != item.id {
+            if x.id != item.id {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
     }
 
-    let sys_menu = Menu {
-        id: Some(item.id),         //主键
-        menu_name: item.menu_name, //菜单名称
-        menu_type: item.menu_type, //菜单类型(1：目录   2：菜单   3：按钮)
-        visible: item.visible,     //菜单状态（0:隐藏, 显示:1）
-        status: item.status,       //状态(1:正常，0:禁用)
-        sort: item.sort,           //排序
-        parent_id: item.parent_id, //父ID
-        menu_url: item.menu_url,   //路由路径
-        api_url: item.api_url,     //接口URL
-        menu_icon: item.menu_icon, //菜单图标
-        remark: item.remark,       //备注
-        create_time: None,         //创建时间
-        update_time: None,         //修改时间
-    };
-
-    Menu::update_by_map(rb, &sys_menu, value! {"id": &item.id}).await?;
-
-    ok_result()
+    let mut data = Menu::from(item);
+    data.update_time = Some(DateTime::now());
+    Menu::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*
@@ -139,9 +103,7 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(ite
 
     let mut param = vec![value!(item.status)];
     param.extend(item.ids.iter().map(|&id| value!(id)));
-    rb.exec(&update_sql, param).await?;
-
-    ok_result()
+    rb.exec(&update_sql, param).await.map(|_| ok_result())?
 }
 
 /*
@@ -153,28 +115,13 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
     log::info!("query sys_menu_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    match Menu::select_by_id(rb, &item.id).await? {
-        None => Err(AppError::BusinessError("菜单信息不存在")),
-        Some(x) => {
-            let sys_menu = QueryMenuDetailResp {
-                id: x.id.unwrap_or_default(),               //主键
-                menu_name: x.menu_name,                     //菜单名称
-                menu_type: x.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
-                visible: x.visible,                         //菜单状态（0:隐藏, 显示:1）
-                status: x.status,                           //状态(1:正常，0:禁用)
-                sort: x.sort,                               //排序
-                parent_id: x.parent_id,                     //父ID
-                menu_url: x.menu_url.unwrap_or_default(),   //路由路径
-                api_url: x.api_url.unwrap_or_default(),     //接口URL
-                menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
-                remark: x.remark.unwrap_or_default(),       //备注
-                create_time: time_to_string(x.create_time), //创建时间
-                update_time: time_to_string(x.update_time), //修改时间
-            };
-
-            ok_result_data(sys_menu)
-        }
-    }
+    Menu::select_by_id(rb, &item.id).await?.map_or_else(
+        || Err(AppError::BusinessError("菜单信息不存在")),
+        |x| {
+            let data: MenuResp = x.into();
+            ok_result_data(data)
+        },
+    )
 }
 
 /*
@@ -186,28 +133,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
     log::info!("query sys_menu_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let list = Menu::select_all(rb).await?;
-
-    let mut menu_list: Vec<MenuListDataResp> = Vec::new();
-    for x in list {
-        menu_list.push(MenuListDataResp {
-            id: x.id.unwrap_or_default(),               //主键
-            menu_name: x.menu_name,                     //菜单名称
-            menu_type: x.menu_type,                     //菜单类型(1：目录   2：菜单   3：按钮)
-            visible: x.visible,                         //菜单状态（0:隐藏, 显示:1）
-            status: x.status,                           //状态(1:正常，0:禁用)
-            sort: x.sort,                               //排序
-            parent_id: x.parent_id,                     //父ID
-            menu_url: x.menu_url.unwrap_or_default(),   //路由路径
-            api_url: x.api_url.unwrap_or_default(),     //接口URL
-            menu_icon: x.menu_icon.unwrap_or_default(), //菜单图标
-            remark: x.remark.unwrap_or_default(),       //备注
-            create_time: time_to_string(x.create_time), //创建时间
-            update_time: time_to_string(x.update_time), //修改时间
-        })
-    }
-
-    ok_result_data(menu_list)
+    Menu::select_all(rb).await.map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
 }
 
 /*
@@ -223,9 +149,9 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
     let mut menu_list: Vec<MenuListSimpleDataResp> = Vec::new();
     for x in list {
         menu_list.push(MenuListSimpleDataResp {
-            id: x.id.unwrap_or_default(), //主键
-            menu_name: x.menu_name,       //菜单名称
-            parent_id: x.parent_id,       //父ID
+            id: x.id,               //主键
+            menu_name: x.menu_name, //菜单名称
+            parent_id: x.parent_id, //父ID
         })
     }
 

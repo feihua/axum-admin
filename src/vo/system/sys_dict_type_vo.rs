@@ -1,19 +1,9 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
+use crate::common::result::serialize_datetime;
+use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
-
-/*
-添加字典类型表请求参数
-*/
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct AddDictTypeReq {
-    pub dict_name: String,      //字典名称
-    pub dict_type: String,      //字典类型
-    pub status: i8,             //状态（0：停用，1:正常）
-    pub remark: Option<String>, //备注
-}
 
 /*
 删除字典类型表请求参数
@@ -28,8 +18,8 @@ pub struct DeleteDictTypeReq {
 */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct UpdateDictTypeReq {
-    pub id: i64,                //字典主键
+pub struct DictTypeReq {
+    pub id: Option<i64>,        //字典主键
     pub dict_name: String,      //字典名称
     pub dict_type: String,      //字典类型
     pub status: i8,             //状态（0：停用，1:正常）
@@ -54,35 +44,6 @@ pub struct QueryDictTypeDetailReq {
 }
 
 /*
-查询字典类型表详情响应参数
-*/
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct QueryDictTypeDetailResp {
-    pub id: i64,             //字典主键
-    pub dict_name: String,   //字典名称
-    pub dict_type: String,   //字典类型
-    pub status: i8,          //状态（0：停用，1:正常）
-    pub remark: String,      //备注
-    pub create_time: String, //创建时间
-    pub update_time: String, //修改时间
-}
-
-impl QueryDictTypeDetailResp {
-    pub fn new() -> QueryDictTypeDetailResp {
-        QueryDictTypeDetailResp {
-            id: 0,                       //字典主键
-            dict_name: "".to_string(),   //字典名称
-            dict_type: "".to_string(),   //字典类型
-            status: 0,                   //状态（0：停用，1:正常）
-            remark: "".to_string(),      //备注
-            create_time: "".to_string(), //创建时间
-            update_time: "".to_string(), //修改时间
-        }
-    }
-}
-
-/*
 查询字典类型表列表请求参数
 */
 #[derive(Debug, Serialize, Deserialize)]
@@ -103,17 +64,14 @@ fn default_status() -> Option<i8> {
 */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DictTypeListDataResp {
-    pub id: i64,             //字典主键
-    pub dict_name: String,   //字典名称
-    pub dict_type: String,   //字典类型
-    pub status: i8,          //状态（0：停用，1:正常）
-    pub remark: String,      //备注
-    pub create_time: String, //创建时间
-    pub update_time: String, //修改时间
-}
-impl DictTypeListDataResp {
-    pub fn new() -> Vec<DictTypeListDataResp> {
-        Vec::new()
-    }
+pub struct DictTypeResp {
+    pub id: Option<i64>,        //字典主键
+    pub dict_name: String,      //字典名称
+    pub dict_type: String,      //字典类型
+    pub status: i8,             //状态（0：停用，1:正常）
+    pub remark: Option<String>, //备注
+    #[serde(serialize_with = "serialize_datetime")]
+    pub create_time: Option<DateTime>, //创建时间
+    #[serde(serialize_with = "serialize_datetime")]
+    pub update_time: Option<DateTime>, //修改时间
 }

@@ -1,7 +1,7 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
-use crate::vo::system::sys_user_vo::QueryUserListReq;
+use crate::vo::system::sys_user_vo::{QueryUserListReq, UserReq, UserResp};
 use rbatis::executor::Executor;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::rbdc::Error;
@@ -19,7 +19,7 @@ pub struct User {
     pub nick_name: String,                 //用户昵称
     pub user_type: Option<String>,         //用户类型（00系统用户）
     pub email: String,                     //用户邮箱
-    pub avatar: String,                    //头像路径
+    pub avatar: Option<String>,            //头像路径
     pub password: String,                  //密码
     pub status: i8,                        //状态(1:正常，0:禁用)
     pub dept_id: i64,                      //部门ID
@@ -41,6 +41,57 @@ pub struct User {
  */
 rbatis::crud!(User {}, "sys_user");
 
+impl From<UserReq> for User {
+    fn from(item: UserReq) -> Self {
+        User {
+            id: None,                                    //主键
+            mobile: item.mobile,                         //手机
+            user_name: item.user_name,                   //用户账号
+            nick_name: item.nick_name,                   //用户昵称
+            user_type: Some("01".to_string()),           //用户类型（00系统用户）
+            email: item.email,                           //用户邮箱
+            avatar: item.avatar,                         //头像路径
+            password: item.password.unwrap_or_default(), //密码
+            status: item.status,                         //状态(1:正常，0:禁用)
+            dept_id: item.dept_id,                       //部门ID
+            login_ip: "".to_string(),                    //最后登录IP
+            login_date: None,                            //最后登录时间
+            login_browser: "".to_string(),               //浏览器类型
+            login_os: "".to_string(),                    //操作系统
+            pwd_update_date: None,                       //密码最后更新时间
+            remark: item.remark,                         //备注
+            del_flag: 1,                                 //删除标志（0代表删除 1代表存在）
+            create_time: None,                           //创建时间
+            update_time: None,                           //修改时间
+        }
+    }
+}
+
+impl Into<UserResp> for User {
+    fn into(self) -> UserResp {
+        UserResp {
+            id: self.id,                                   //主键
+            mobile: self.mobile,                           //手机
+            user_name: self.user_name,                     //姓名
+            nick_name: self.nick_name,                     //用户昵称
+            user_type: self.user_type.unwrap_or_default(), //用户类型（00系统用户）
+            email: self.email,                             //用户邮箱
+            avatar: self.avatar,                           //头像路径
+            status: self.status,                           //状态(1:正常，0:禁用)
+            dept_id: self.dept_id,                         //部门ID
+            login_ip: self.login_ip,                       //最后登录IP
+            login_date: self.login_date,                   //最后登录时间
+            login_browser: self.login_browser,             //浏览器类型
+            login_os: self.login_os,                       //操作系统
+            pwd_update_date: self.pwd_update_date,         //密码最后更新时间
+            remark: self.remark,                           //备注
+            create_time: self.create_time,                 //创建时间
+            update_time: self.update_time,                 //修改时间
+            dept_info: None,
+            post_ids: None,
+        }
+    }
+}
 /*
  *根据id查询用户信息
  *author：刘飞华
@@ -110,14 +161,7 @@ impl_select_page!(User{select_sys_user_list(req:&QueryUserListReq) =>"
                 ` and u.user_name = #{user_name} `
             limit #{page_no},#{page_size}` "
 )]
-async fn select_allocated_list(
-    rb: &dyn Executor,
-    role_id: i64,
-    user_name: &str,
-    mobile: &str,
-    page_no: u64,
-    page_size: u64,
-) -> Result<Vec<User>, Error> {
+async fn select_allocated_list(rb: &dyn Executor, role_id: i64, user_name: &str, mobile: &str, page_no: u64, page_size: u64) -> Result<Vec<User>, Error> {
     impled!()
 }
 
@@ -133,12 +177,7 @@ async fn select_allocated_list(
             if user_name != '':
                 ` and u.user_name = #{user_name} `"
 )]
-async fn count_allocated_list(
-    rb: &dyn Executor,
-    role_id: i64,
-    user_name: &str,
-    mobile: &str,
-) -> Result<u64, Error> {
+async fn count_allocated_list(rb: &dyn Executor, role_id: i64, user_name: &str, mobile: &str) -> Result<u64, Error> {
     impled!()
 }
 
@@ -155,14 +194,7 @@ async fn count_allocated_list(
                 ` and u.user_name = #{user_name} `
             limit #{page_no},#{page_size}` "
 )]
-pub async fn select_unallocated_list(
-    rb: &dyn Executor,
-    role_id: i64,
-    user_name: &str,
-    mobile: &str,
-    page_no: u64,
-    page_size: u64,
-) -> rbatis::Result<Vec<User>> {
+pub async fn select_unallocated_list(rb: &dyn Executor, role_id: i64, user_name: &str, mobile: &str, page_no: u64, page_size: u64) -> rbatis::Result<Vec<User>> {
     impled!()
 }
 
@@ -178,11 +210,6 @@ pub async fn select_unallocated_list(
             if user_name != '':
                 ` and u.user_name = #{user_name} `"
 )]
-pub async fn count_unallocated_list(
-    rb: &dyn Executor,
-    role_id: i64,
-    user_name: &str,
-    mobile: &str,
-) -> rbatis::Result<u64> {
+pub async fn count_unallocated_list(rb: &dyn Executor, role_id: i64, user_name: &str, mobile: &str) -> rbatis::Result<u64> {
     impled!()
 }
