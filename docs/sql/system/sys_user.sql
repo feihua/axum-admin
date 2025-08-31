@@ -25,6 +25,7 @@ create table sys_user
 ) comment '用户信息';
 
 
-INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, remark) VALUES (1, '18613030111', 'admin','admin', 'xx@qq.com','123456', 1,  '超级管理员');
-INSERT INTO sys_user (id, mobile, user_name, nick_name, email, password, status, remark) VALUES (2, '18613030222', 'test', 'test', '123@qq.com','123456', 1, '演示权限');
+INSERT INTO sys_user (id, mobile, user_name, nick_name, avatar, email, password, status, remark) VALUES (1, '18613030111', 'admin','admin', 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png','xx@qq.com','123456', 1,  '超级管理员');
+INSERT INTO sys_user (id, mobile, user_name, nick_name, avatar, email, password, status, remark) VALUES (2, '18613030222', 'test', 'test', 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png','123@qq.com','123456', 1, '演示权限');
+
 

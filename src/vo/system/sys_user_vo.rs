@@ -117,7 +117,7 @@ pub struct UserLoginReq {
 pub struct QueryUserMenuResp {
     pub sys_menu: Vec<MenuList>,
     pub btn_menu: Vec<String>,
-    pub avatar: String,
+    pub avatar: Option<String>,
     pub name: String,
 }
 

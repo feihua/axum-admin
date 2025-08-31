@@ -525,7 +525,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
             let resp = QueryUserMenuResp {
                 sys_menu,
                 btn_menu,
-                avatar: "https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png".to_string(),
+                avatar: user.avatar,
                 name: user.user_name,
             };
 
