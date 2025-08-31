@@ -52,13 +52,9 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     }
 
     for id in ids {
-        let role_result = Role::select_by_id(rb, &id).await?;
-        let _ = match role_result {
-            None => {
-                return Err(AppError::BusinessError("角色不存在,不能删除"));
-            }
-            Some(x) => x,
-        };
+        if let None = Role::select_by_id(rb, &id).await? {
+            return Err(AppError::BusinessError("角色不存在,不能删除"));
+        }
 
         if count_user_role_by_role_id(rb, id).await? > 0 {
             return Err(AppError::BusinessError("分配,不能删除"));
@@ -66,9 +62,7 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     }
 
     RoleMenu::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-
     RoleDept::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-
     Role::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
 }
 

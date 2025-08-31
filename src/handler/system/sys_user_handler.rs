@@ -84,9 +84,7 @@ pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppStat
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
-
     UserPost::delete_by_map(rb, value! {"user_id": &ids}).await?;
-
     User::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
 }
 
