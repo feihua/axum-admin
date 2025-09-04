@@ -75,4 +75,8 @@ impl AppError {
             messages.join(", ")
         }).collect::<Vec<String>>().join("; ")
     }
+
+    pub fn validation_error(e: &validator::ValidationErrors) -> AppError {
+        AppError::ValidationError(Self::build_validation_error_message(e))
+    }
 }

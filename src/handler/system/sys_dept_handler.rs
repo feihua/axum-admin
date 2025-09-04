@@ -25,6 +25,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<D
         let err_msg = AppError::build_validation_error_message(&e);
         log::info!("fn add_sys_dept validate params: {:?} error：{:?}", &item, &err_msg);
         return Err(AppError::ValidationError(err_msg));
+        //return Err(AppError::validation_error(&e));
     }
 
     let rb = &state.batis;
