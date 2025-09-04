@@ -75,6 +75,10 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
  */
 pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(mut item): Json<DeptReq>) -> impl IntoResponse {
     log::info!("update sys_dept params: {:?}", &item);
+    if let Err(e) = item.validate() {
+        return Err(AppError::validation_error(&e));
+    }
+    
     let rb = &state.batis;
 
     let id = item.id;
