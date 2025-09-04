@@ -75,7 +75,7 @@ async fn main() {
     let rd = init_redis(config.redis.url.as_str()).await;
 
     // 创建共享应用状态，包含数据库连接池
-    let shared_state = Arc::new(AppState { batis: rb.clone(), redis: rd });
+    let shared_state = Arc::new(AppState { batis: rb, redis: rd });
 
     // 构建应用路由，并合并多个子路由
     let app = Router::new().nest(
@@ -91,7 +91,7 @@ async fn main() {
             .merge(build_sys_login_log_route())
             .merge(build_sys_operate_log_route())
             .merge(build_sys_notice_route())
-            .route_layer(md::from_fn_with_state(shared_state.clone(), auth)) // 添加认证中间件
+            .route_layer(md::from_fn_with_state(Arc::clone(&shared_state), auth)) // 添加认证中间件
             .with_state(shared_state), // 设置共享状态
     );
 
