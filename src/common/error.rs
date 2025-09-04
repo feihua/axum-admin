@@ -40,7 +40,24 @@ impl IntoResponse for AppError {
             code: 1,
             data: Some("None".to_string()),
         };
-        (StatusCode::OK, Json(response)).into_response()
+
+        match self {
+            AppError::DbError(_) | AppError::RedisError(_) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            },
+            AppError::DiskCacheRead { source:_ } => {
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            },
+            AppError::JwtTokenError (_msg) => {
+                (StatusCode::UNAUTHORIZED, Json(response)).into_response()
+            },
+            AppError::BusinessError(_msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            },
+            AppError::ValidationError(_msg) => {
+                (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
+            },
+        }
     }
 }
 
