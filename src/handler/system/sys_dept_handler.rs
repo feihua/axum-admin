@@ -10,24 +10,15 @@ use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
+use axum_valid::Valid;
 use validator::Validate;
 /*
  *添加部门表
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-
-
-
-pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<DeptReq>) -> impl IntoResponse {
+pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     log::info!("add sys_dept params: {:?}", &item);
-    if let Err(e) = item.validate() {
-        let err_msg = AppError::build_validation_error_message(&e);
-        log::info!("fn add_sys_dept validate params: {:?} error：{:?}", &item, &err_msg);
-        return Err(AppError::ValidationError(err_msg));
-        //return Err(AppError::validation_error(&e));
-    }
-
     let rb = &state.batis;
 
     if Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await?.is_some() {
@@ -43,6 +34,9 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<D
             let ancestors = format!("{},{}", dept.ancestors.unwrap_or_default(), &item.parent_id);
             let mut sys_dept = Dept::from(item);
             sys_dept.ancestors = Some(ancestors);
+            if let Err(e) = sys_dept.validate() {
+                return Err(AppError::validation_error(&e));
+            }
             Dept::insert(rb, &sys_dept).await.map(|_| ok_result())?
         }
     }
@@ -73,12 +67,8 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(mut item): Json<DeptReq>) -> impl IntoResponse {
+pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     log::info!("update sys_dept params: {:?}", &item);
-    if let Err(e) = item.validate() {
-        return Err(AppError::validation_error(&e));
-    }
-    
     let rb = &state.batis;
 
     let id = item.id;
@@ -130,6 +120,9 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Json(mut item):
 
     let mut data = Dept::from(item);
     data.update_time = Some(DateTime::now());
+    if let Err(e) = data.validate() {
+        return Err(AppError::validation_error(&e));
+    }
     Dept::update_by_map(rb, &data, value! {"id":  &id}).await.map(|_| ok_result())?
 }
 

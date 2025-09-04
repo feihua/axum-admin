@@ -8,7 +8,9 @@ edition = "2021"
 [dependencies]
 axum ={ version = "0.8.4" }
 tokio ={ version = "1",features = ["full"]}
+axum-valid = "0.24.0"
 validator = { version = "0.20.0", features = ["derive"] }
+garde = "0.22.0"
 serde = { version = "1.0", features = ["derive"] }
 
 rbs = { version = "4.6"}
