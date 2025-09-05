@@ -416,16 +416,15 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
     log::info!("query user_role params: {:?}", item);
     let rb = &state.batis;
 
-    let sys_role_list = Role::select_all(rb).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
-    let mut user_role_ids = sys_role_list.into_iter().map(|x| x.id).collect::<Vec<i64>>();
+    let role_list = Role::select_all(rb).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
+    let sys_role_list = role_list.clone();
+    let mut user_role_ids = role_list.into_iter().map(|x| x.id.unwrap_or_default()).collect::<Vec<i64>>();
 
     if item.user_id != 1 {
-        user_role_ids.clear();
         let vec1 = UserRole::select_by_map(rb, value! {"user_id": item.user_id}).await?;
-        for x in vec1 {
-            user_role_ids.push(x.role_id);
-        }
+        user_role_ids = vec1.into_iter().map(|x| x.id.unwrap_or_default()).collect::<Vec<i64>>();
     }
+
     ok_result_data(QueryUserRoleResp { sys_role_list, user_role_ids })
 }
 

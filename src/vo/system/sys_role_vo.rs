@@ -63,7 +63,7 @@ fn default_status() -> Option<i8> {
 /*
 查询角色信息列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RoleResp {
     pub id: Option<i64>,        //主键
