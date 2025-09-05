@@ -6,12 +6,13 @@ use crate::vo::system::sys_dept_vo::{DeptReq, DeptResp, QueryDeptListReq};
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 /*
  *部门
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize,Validate)]
 pub struct Dept {
     pub id: Option<i64>,               //部门id
     pub parent_id: i64,                //父部门id
@@ -104,7 +105,7 @@ impl_select!(Dept{select_page_dept_list(req:&QueryDeptListReq) =>"
      if req.dept_name != null && req.dept_name != '':
       ` and dept_name = #{req.dept_name} `
      if req.status != 2:
-      ` and status = #req.{status} `
+      ` and status = #{req.status} `
      if !sql.contains('count'):
       ` order by sort"
 },"sys_dept");
