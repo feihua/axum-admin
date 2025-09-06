@@ -6,11 +6,11 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use axum_valid::Valid;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
-use axum_valid::Valid;
 use validator::Validate;
 /*
  *添加部门表
@@ -135,24 +135,17 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
     log::info!("update sys_dept_status params: {:?}", &item);
     let rb = &state.batis;
 
+    let mut ids = vec![item.id];
     if item.status == 1 {
-        for id in item.ids.clone() {
-            if let Some(x) = Dept::select_by_id(rb, &id).await? {
-                let ancestors = x.ancestors.unwrap_or_default();
-                let ids = ancestors.split(",").map(|s| s.i64()).collect::<Vec<i64>>();
-
-                let update_sql = format!("update sys_dept set status = ? where id in ({})", ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-                let mut param = vec![value!(item.status)];
-                param.extend(ids.iter().map(|&id| value!(id)));
-                rb.exec(&update_sql, param).await?;
-            }
+        if let Some(x) = Dept::select_by_id(rb, &item.id).await? {
+            let ancestors = x.ancestors.unwrap_or_default();
+            ids.extend(&ancestors.split(",").map(|s| s.i64()).collect::<Vec<i64>>())
         }
     }
-    let update_sql = format!("update sys_dept set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
+    let update_sql = format!("update sys_dept set status = ? where id in ({})", ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
     let mut param = vec![value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| value!(id)));
+    param.extend(ids.iter().map(|&id| value!(id)));
     rb.exec(&update_sql, param).await.map(|_| ok_result())?
 }
 /*
