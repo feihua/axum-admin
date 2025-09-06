@@ -138,8 +138,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
     let mut ids = vec![item.id];
     if item.status == 1 {
         if let Some(x) = Dept::select_by_id(rb, &item.id).await? {
-            let ancestors = x.ancestors.unwrap_or_default();
-            ids.extend(&ancestors.split(",").map(|s| s.i64()).collect::<Vec<i64>>())
+            ids.extend(&x.ancestors.unwrap_or_default().split(",").map(|s| s.i64()).collect::<Vec<i64>>())
         }
     }
     let update_sql = format!("update sys_dept set status = ? where id in ({})", ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
