@@ -6,6 +6,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use log::info;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::DateTime;
 use rbs::value;
@@ -16,7 +17,7 @@ use std::sync::Arc;
  *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(mut item): Json<NoticeReq>) -> impl IntoResponse {
-    log::info!("add sys_notice params: {:?}", &item);
+    info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
     if Notice::select_by_title(rb, &item.notice_title).await?.is_some() {
@@ -33,7 +34,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(mut item): 
  *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<DeleteNoticeReq>) -> impl IntoResponse {
-    log::info!("delete sys_notice params: {:?}", &item);
+    info!("delete sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
     Notice::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
@@ -45,7 +46,7 @@ pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<NoticeReq>) -> impl IntoResponse {
-    log::info!("update sys_notice params: {:?}", &item);
+    info!("update sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
     let id = item.id;
@@ -70,7 +71,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateNoticeStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_notice_status params: {:?}", &item);
+    info!("update sys_notice_status params: {:?}", &item);
     let rb = &state.batis;
 
     let update_sql = format!("update sys_notice set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -87,7 +88,7 @@ pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(i
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_notice_detail params: {:?}", &item);
+    info!("query sys_notice_detail params: {:?}", &item);
     let rb = &state.batis;
 
     Notice::select_by_id(rb, &item.id).await?.map_or_else(
@@ -105,7 +106,7 @@ pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(it
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeListReq>) -> impl IntoResponse {
-    log::info!("query sys_notice_list params: {:?}", &item);
+    info!("query sys_notice_list params: {:?}", &item);
     let rb = &state.batis;
 
     let page = &PageRequest::new(item.page_no, item.page_size);

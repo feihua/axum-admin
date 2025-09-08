@@ -18,6 +18,7 @@ use axum::http::HeaderMap;
 use axum::response::IntoResponse;
 use axum::Json;
 use chrono::Local;
+use log::info;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
@@ -32,7 +33,7 @@ use std::sync::Arc;
  *date：2024/12/12 14:41:44
  */
 pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<UserReq>) -> impl IntoResponse {
-    log::info!("add sys_user params: {:?}", &item);
+    info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
     if User::select_by_user_name(rb, &item.user_name).await?.is_some() {
@@ -63,7 +64,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<U
  *date：2024/12/12 14:41:44
  */
 pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(item): Json<DeleteUserReq>) -> impl IntoResponse {
-    log::info!("delete sys_user params: {:?}", &item);
+    info!("delete sys_user params: {:?}", &item);
     let rb = &state.batis;
     let mut conn = state.redis.get_connection()?;
 
@@ -94,7 +95,7 @@ pub async fn delete_sys_user(headers: HeaderMap, State(state): State<Arc<AppStat
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<UserReq>) -> impl IntoResponse {
-    log::info!("update sys_user params: {:?}", &item);
+    info!("update sys_user params: {:?}", &item);
     let rb = &state.batis;
 
     let mut conn = state.redis.get_connection()?;
@@ -152,7 +153,7 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_user_status params: {:?}", &item);
+    info!("update sys_user_status params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
@@ -180,7 +181,7 @@ pub async fn update_sys_user_status(State(state): State<Arc<AppState>>, Json(ite
  *date：2024/12/12 14:41:44
  */
 pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(item): Json<ResetUserPwdReq>) -> impl IntoResponse {
-    log::info!("update sys_user_password params: {:?}", &item);
+    info!("update sys_user_password params: {:?}", &item);
 
     let rb = &state.batis;
     let mut conn = state.redis.get_connection()?;
@@ -210,7 +211,7 @@ pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(it
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_user_password(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserPwdReq>) -> impl IntoResponse {
-    log::info!("update sys_user_password params: {:?}", &item);
+    info!("update sys_user_password params: {:?}", &item);
 
     let rb = &state.batis;
 
@@ -235,7 +236,7 @@ pub async fn update_sys_user_password(headers: HeaderMap, State(state): State<Ar
  *date：2024/12/12 14:41:44
  */
 pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryUserDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_user_detail params: {:?}", &item);
+    info!("query sys_user_detail params: {:?}", &item);
     let rb = &state.batis;
 
     let mut x = match User::select_by_id(rb, item.id).await? {
@@ -269,7 +270,7 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
  *date：2024/12/12 14:41:44
  */
 pub async fn query_sys_user_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryUserListReq>) -> impl IntoResponse {
-    log::info!("query sys_user_list params: {:?}", &item);
+    info!("query sys_user_list params: {:?}", &item);
     let rb = &state.batis;
 
     let page = &PageRequest::new(item.page_no, item.page_size);
@@ -285,16 +286,16 @@ pub async fn query_sys_user_list(State(state): State<Arc<AppState>>, Json(item):
  *date：2024/12/12 14:41:44
  */
 pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(item): Json<UserLoginReq>) -> impl IntoResponse {
-    log::info!("user login params: {:?}, {:?}", &item, state.batis);
+    info!("user login params: {:?}, {:?}", &item, state.batis);
     let rb = &state.batis;
     let mut conn = state.redis.get_connection()?;
 
     let user_agent = headers.get("User-Agent").unwrap().to_str().unwrap();
-    log::info!("user agent: {:?}", user_agent);
+    info!("user agent: {:?}", user_agent);
     let agent = UserAgentUtil::new(user_agent);
 
     let user_result = User::select_by_mobile(rb, &item.mobile).await?;
-    log::info!("query user by mobile: {:?}", user_result);
+    info!("query user by mobile: {:?}", user_result);
 
     match user_result {
         None => {
@@ -368,7 +369,7 @@ async fn add_login_log(rb: &RBatis, name: String, status: i8, msg: &str, agent: 
     };
 
     match LoginLog::insert(rb, &sys_login_log).await {
-        Ok(_u) => log::info!("add_login_log success: {:?}", sys_login_log),
+        Ok(_u) => info!("add_login_log success: {:?}", sys_login_log),
         Err(err) => log::error!("add_login_log error params: {:?}, error message: {:?}", sys_login_log, err),
     }
 }
@@ -391,7 +392,7 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
                 }
             }
         }
-        log::info!("admin login: {:?}", id);
+        info!("admin login: {:?}", id);
         (btn_menu, true)
     } else {
         let btn_menu_map: Vec<HashMap<String, String>> = rb.query_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await.unwrap();
@@ -402,7 +403,7 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
                 }
             }
         }
-        log::info!("ordinary login: {:?}", id);
+        info!("ordinary login: {:?}", id);
         (btn_menu, false)
     }
 }
@@ -413,7 +414,7 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
  *date：2024/12/12 14:41:44
  */
 pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Json<QueryUserRoleReq>) -> impl IntoResponse {
-    log::info!("query user_role params: {:?}", item);
+    info!("query user_role params: {:?}", item);
     let rb = &state.batis;
 
     let role_list = Role::select_all(rb).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
@@ -430,7 +431,7 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
 
 // 更新用户角色
 pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Json<UpdateUserRoleReq>) -> impl IntoResponse {
-    log::info!("update_user_role params: {:?}", item);
+    info!("update_user_role params: {:?}", item);
     let rb = &state.batis;
     let mut conn = state.redis.get_connection()?;
 
@@ -464,7 +465,7 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
 // 查询用户菜单
 pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let user_id = headers.get("user_id").unwrap().to_str().unwrap().parse::<i64>().unwrap();
-    log::info!("query user menu params user_id {:?}", user_id);
+    info!("query user menu params user_id {:?}", user_id);
 
     let rb = &state.batis;
     let mut conn = state.redis.get_connection()?;
@@ -479,10 +480,10 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
             let sys_menu_list: Vec<Menu>;
 
             if is_admin {
-                log::info!("The current user is a super administrator");
+                info!("The current user is a super administrator");
                 sys_menu_list = Menu::select_all(rb).await?;
             } else {
-                log::info!("The current user is not a super administrator");
+                info!("The current user is not a super administrator");
                 let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
                 sys_menu_list = rb.query_decode(sql_str, vec![value!(user.id)]).await?;
             }

@@ -7,6 +7,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use log::info;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
@@ -16,7 +17,7 @@ use std::sync::Arc;
  *date：2024/12/12 14:41:44
  */
 pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
-    log::info!("add sys_menu params: {:?}", &item);
+    info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     if Menu::select_by_menu_name(rb, &item.menu_name).await?.is_some() {
@@ -39,7 +40,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<M
  *date：2024/12/12 14:41:44
  */
 pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<DeleteMenuReq>) -> impl IntoResponse {
-    log::info!("delete sys_menu params: {:?}", &item);
+    info!("delete sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     //有下级的时候 不能直接删除
@@ -61,7 +62,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
-    log::info!("update sys_menu params: {:?}", &item);
+    info!("update sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
     let id = item.id;
@@ -95,7 +96,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
  *date：2024/12/12 14:41:44
  */
 pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_menu_status params: {:?}", &item);
+    info!("update sys_menu_status params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ");
@@ -112,7 +113,7 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(ite
  *date：2024/12/12 14:41:44
  */
 pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_menu_detail params: {:?}", &item);
+    info!("query sys_menu_detail params: {:?}", &item);
     let rb = &state.batis;
 
     Menu::select_by_id(rb, &item.id).await?.map_or_else(
@@ -130,7 +131,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
  *date：2024/12/12 14:41:44
  */
 pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
-    log::info!("query sys_menu_list params: {:?}", &item);
+    info!("query sys_menu_list params: {:?}", &item);
     let rb = &state.batis;
 
     Menu::select_all(rb).await.map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?

@@ -7,6 +7,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use log::info;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::DateTime;
 use rbs::value;
@@ -17,7 +18,7 @@ use std::sync::Arc;
  *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
-    log::info!("add sys_dict_type params: {:?}", &item);
+    info!("add sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
     if DictType::select_by_dict_type(rb, &item.dict_type).await?.is_some() {
@@ -33,7 +34,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
  *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDictTypeReq>) -> impl IntoResponse {
-    log::info!("delete sys_dict_type params: {:?}", &item);
+    info!("delete sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
     let ids = item.ids.clone();
@@ -57,7 +58,7 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
-    log::info!("update sys_dict_type params: {:?}", &item);
+    info!("update sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
     let id = item.id;
@@ -85,7 +86,7 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictTypeStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_dict_type_status params: {:?}", &item);
+    info!("update sys_dict_type_status params: {:?}", &item);
     let rb = &state.batis;
 
     let update_sql = format!("update sys_dict_type set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -101,7 +102,7 @@ pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Jso
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_dict_type_detail params: {:?}", &item);
+    info!("query sys_dict_type_detail params: {:?}", &item);
     let rb = &state.batis;
 
     DictType::select_by_id(rb, &item.id).await?.map_or_else(
@@ -119,7 +120,7 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeListReq>) -> impl IntoResponse {
-    log::info!("query sys_dict_type_list params: {:?}", &item);
+    info!("query sys_dict_type_list params: {:?}", &item);
     let rb = &state.batis;
 
     let page = &PageRequest::new(item.page_no, item.page_size);

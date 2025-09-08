@@ -6,18 +6,18 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use log::info;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
-
 /*
  *添加字典数据
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<DictDataReq>) -> impl IntoResponse {
-    log::info!("add sys_dict_data params: {:?}", &item);
+    info!("add sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
     if DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await?.is_some() {
@@ -37,7 +37,7 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): J
  *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDictDataReq>) -> impl IntoResponse {
-    log::info!("delete sys_dict_data params: {:?}", &item);
+    info!("delete sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
     DictData::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
@@ -49,7 +49,7 @@ pub async fn delete_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<DictDataReq>) -> impl IntoResponse {
-    log::info!("update sys_dict_data params: {:?}", &item);
+    info!("update sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
     let id = item.id;
@@ -81,7 +81,7 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dict_data_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictDataStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_dict_data_status params: {:?}", &item);
+    info!("update sys_dict_data_status params: {:?}", &item);
     let rb = &state.batis;
 
     let update_sql = format!("update sys_dict_data set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
@@ -97,7 +97,7 @@ pub async fn update_sys_dict_data_status(State(state): State<Arc<AppState>>, Jso
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictDataDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_dict_data_detail params: {:?}", &item);
+    info!("query sys_dict_data_detail params: {:?}", &item);
     let rb = &state.batis;
 
     DictData::select_by_id(rb, &item.id).await?.map_or_else(
@@ -115,7 +115,7 @@ pub async fn query_sys_dict_data_detail(State(state): State<Arc<AppState>>, Json
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dict_data_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictDataListReq>) -> impl IntoResponse {
-    log::info!("query sys_dict_data_list params: {:?}", &item);
+    info!("query sys_dict_data_list params: {:?}", &item);
     let rb = &state.batis;
 
     let page = &PageRequest::new(item.page_no, item.page_size);

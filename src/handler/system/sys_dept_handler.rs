@@ -7,6 +7,7 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use axum_valid::Valid;
+use log::info;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
@@ -18,7 +19,7 @@ use validator::Validate;
  *date：2024/12/25 11:36:48
  */
 pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
-    log::info!("add sys_dept params: {:?}", &item);
+    info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
     if Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await?.is_some() {
@@ -48,7 +49,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
  *date：2024/12/25 11:36:48
  */
 pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDeptReq>) -> impl IntoResponse {
-    log::info!("delete sys_dept params: {:?}", &item);
+    info!("delete sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
     if select_dept_count(rb, &item.id).await? > 0 {
@@ -68,7 +69,7 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
-    log::info!("update sys_dept params: {:?}", &item);
+    info!("update sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
     let id = item.id;
@@ -132,7 +133,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
  *date：2024/12/25 11:36:48
  */
 pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDeptStatusReq>) -> impl IntoResponse {
-    log::info!("update sys_dept_status params: {:?}", &item);
+    info!("update sys_dept_status params: {:?}", &item);
     let rb = &state.batis;
 
     let mut ids = vec![item.id];
@@ -153,7 +154,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptDetailReq>) -> impl IntoResponse {
-    log::info!("query sys_dept_detail params: {:?}", &item);
+    info!("query sys_dept_detail params: {:?}", &item);
     let rb = &state.batis;
 
     Dept::select_by_id(rb, &item.id).await?.map_or_else(
@@ -171,7 +172,7 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
  *date：2024/12/25 11:36:48
  */
 pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptListReq>) -> impl IntoResponse {
-    log::info!("query sys_dept_list params: {:?}", &item);
+    info!("query sys_dept_list params: {:?}", &item);
     let rb = &state.batis;
 
     Dept::select_page_dept_list(rb, &item)
