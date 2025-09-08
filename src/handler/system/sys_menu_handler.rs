@@ -24,9 +24,8 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<M
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
-    let menu_url = item.menu_url.clone();
-    if menu_url.is_some() {
-        if Menu::select_by_menu_url(rb, &menu_url.unwrap()).await?.is_some() {
+    if let Some(url) = item.menu_url.clone() {
+        if Menu::select_by_menu_url(rb, &url).await?.is_some() {
             return Err(AppError::BusinessError("路由路径已存在"));
         }
     }
@@ -76,9 +75,8 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    let menu_url = item.menu_url.clone();
-    if menu_url.is_some() {
-        if let Some(x) = Menu::select_by_menu_url(rb, &menu_url.unwrap()).await? {
+    if let Some(url) = item.menu_url.clone() {
+        if let Some(x) = Menu::select_by_menu_url(rb, &url).await? {
             if x.id != item.id {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
