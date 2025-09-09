@@ -98,9 +98,9 @@ impl_select_page!(Post{select_page() =>"
 impl_select_page!(Post{select_post_list(req:&QueryPostListReq) =>"
     where 1=1
      if req.postCode != null && req.postCode != '':
-      ` and post_code = #{req.postCode} `
+      ` and post_code like concat('%', #{req.postCode}, '%') `
      if req.postName != null &&req. postName != '':
-      ` and post_name = #{req.postName} `
+      ` and post_name like concat('%', #{req.postName}, '%') `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

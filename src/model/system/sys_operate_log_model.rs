@@ -88,7 +88,7 @@ impl_select_page!(OperateLog{select_page_by_name(
     req:&QueryOperateLogListReq) =>"
     where 1=1
      if req.title != '' && req.title != null:
-       ` and title = #{req.title} `
+       ` and title like concat('%', #{req.title}, '%') `
      if req.businessType != 4:
        ` and business_type = #{req.businessType} `
      if req.method != '' && req.method != null:

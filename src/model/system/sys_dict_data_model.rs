@@ -111,9 +111,9 @@ impl_select_page!(DictData{select_page() =>"
 impl_select_page!(DictData{select_dict_data_list(req:&QueryDictDataListReq) =>"
     where 1=1
      if req.dictLabel != null && req.dictLabel != '':
-      ` and dict_label = #{req.dictLabel} `
+      ` and dict_label = like concat('%', #{req.dictLabel}, '%') `
      if req.dictType != null && req.dictType != '':
-      ` and dict_type = #{req.dictType} `
+      ` and dict_type = like concat('%', #{req.dictType}, '%') `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

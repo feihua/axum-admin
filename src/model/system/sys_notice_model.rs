@@ -77,10 +77,10 @@ impl_select!(Notice{select_by_title(title:&str) -> Option => "`where notice_titl
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(Notice{select_sys_notice_list(req:QueryNoticeListReq) =>"
+impl_select_page!(Notice{select_sys_notice_list(req:&QueryNoticeListReq) =>"
     where 1=1
      if req.noticeTitle != '' && req.noticeTitle != null:
-       ` and notice_title = #{req.noticeTitle} `
+       ` and notice_title like concat('%', #{req.noticeTitle}, '%') `
      if req.noticeType != 0:
       ` and notice_type = #{req.noticeType} `
      if req.status != 2:

@@ -138,9 +138,9 @@ impl_select_page!(User{select_page() =>"
 impl_select_page!(User{select_sys_user_list(req:&QueryUserListReq) =>"
       where 1=1
       if req.mobile != null && req.mobile != '':
-       ` and mobile = #{req.mobile} `
+       ` and mobile like concat('%', #{req.mobile}, '%') `
      if req.userName != null && req.userName != '':
-       ` and user_name = #{req.userName} `
+       ` and user_name like concat('%', #{req.userName}, '%') `
      if req.status != 2:
        ` and status = #{req.status} `
      if req.deptId != 0:
