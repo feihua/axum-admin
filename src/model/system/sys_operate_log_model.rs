@@ -89,22 +89,22 @@ impl_select_page!(OperateLog{select_page_by_name(
     where 1=1
      if req.title != '' && req.title != null:
        ` and title = #{req.title} `
-     if req.business_type != 4:
-       ` and business_type = #{req.business_type} `
+     if req.businessType != 4:
+       ` and business_type = #{req.businessType} `
      if req.method != '' && req.method != null:
        ` and method = #{req.method} `
-     if req.request_method != '' && req.request_method != null:
-       ` and request_method = #{req.request_method} `
-     if req.operator_type != 3:
-       ` and operator_type = #{req.operator_type} `
-     if req.operate_name != '' && req.operate_name != null:
-       ` and operate_name = #{req.operate_name} `
-     if req.dept_name != '' && req.dept_name != null:
-       ` and dept_name = #{req.dept_name} `
-     if req.operate_url != '' && req.operate_url != null:
-       ` and operate_url = #{req.operate_url} `
-     if req.operate_ip != '' && req.operate_ip != null:
-       ` and operate_ip = #{req.operate_ip} `
+     if req.requestMethod != '' && req.requestMethod != null:
+       ` and request_method = #{req.requestMethod} `
+     if req.operatorType != 3:
+       ` and operator_type = #{req.operatorType} `
+     if req.operateName != '' && req.operateName != null:
+       ` and operate_name = #{req.operateName} `
+     if req.deptName != '' && req.deptName != null:
+       ` and dept_name = #{req.deptName} `
+     if req.operateUrl != '' && req.operateUrl != null:
+       ` and operate_url = #{req.operateUrl} `
+     if req.operateIp != '' && req.operateIp != null:
+       ` and operate_ip = #{req.operateIp} `
      if req.status != 2:
        ` and status = #{req.status} `
      if !sql.contains('count'):

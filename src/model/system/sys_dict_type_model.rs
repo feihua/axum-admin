@@ -87,10 +87,10 @@ impl_select_page!(DictType{select_page() =>"
  */
 impl_select_page!(DictType{select_dict_type_list(req:&QueryDictTypeListReq) =>"
     where 1=1
-     if req.dict_name != null && req.dict_name != '':
-      ` and dict_name = #{req.dict_name} `
-     if req.dict_type != null && req.dict_type != '':
-      ` and dict_type = #{req.dict_type} `
+     if req.dictName != null && req.dictName != '':
+      ` and dict_name = #{req.dictName} `
+     if req.dictType != null && req.dictType != '':
+      ` and dict_type = #{req.dictType} `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

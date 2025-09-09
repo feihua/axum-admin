@@ -12,7 +12,7 @@ use validator::Validate;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize,Validate)]
+#[derive(Clone, Debug, Serialize, Deserialize, Validate)]
 pub struct Dept {
     pub id: Option<i64>,               //部门id
     pub parent_id: i64,                //父部门id
@@ -102,8 +102,8 @@ impl_select_page!(Dept{select_page() =>"
  */
 impl_select!(Dept{select_page_dept_list(req:&QueryDeptListReq) =>"
     where 1=1
-     if req.dept_name != null && req.dept_name != '':
-      ` and dept_name = #{req.dept_name} `
+     if req.deptName != null && req.deptName != '':
+      ` and dept_name = #{req.deptName} `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

@@ -83,8 +83,8 @@ impl_select_page!(LoginLog{select_page() =>"
  */
 impl_select_page!(LoginLog{select_login_log_list(req:&QueryLoginLogListReq) =>"
     where 1=1
-     if req.login_name != '' && req.login_name != null:
-       ` and login_name = #{req.login_name} `
+     if req.loginName != '' && req.loginName != null:
+       ` and login_name = #{req.loginName} `
      if req.ipaddr != '' && req.ipaddr != null:
        ` and ipaddr = #{req.ipaddr} `
      if req.browser != '' && req.browser != null:

@@ -110,10 +110,10 @@ impl_select_page!(DictData{select_page() =>"
  */
 impl_select_page!(DictData{select_dict_data_list(req:&QueryDictDataListReq) =>"
     where 1=1
-     if req.dict_label != null && req.dict_label != '':
-      ` and dict_label = #{req.dict_label} `
-     if req.dict_type != null && req.dict_type != '':
-      ` and dict_type = #{req.dict_type} `
+     if req.dictLabel != null && req.dictLabel != '':
+      ` and dict_label = #{req.dictLabel} `
+     if req.dictType != null && req.dictType != '':
+      ` and dict_type = #{req.dictType} `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

@@ -139,12 +139,12 @@ impl_select_page!(User{select_sys_user_list(req:&QueryUserListReq) =>"
       where 1=1
       if req.mobile != null && req.mobile != '':
        ` and mobile = #{req.mobile} `
-     if req.user_name != null && req.user_name != '':
-       ` and user_name = #{req.user_name} `
+     if req.userName != null && req.userName != '':
+       ` and user_name = #{req.userName} `
      if req.status != 2:
        ` and status = #{req.status} `
-     if req.dept_id != 0:
-       ` and (dept_id = #{req.dept_id} OR dept_id IN (SELECT id FROM sys_dept WHERE find_in_set(#{req.dept_id}, ancestors))) `
+     if req.deptId != 0:
+       ` and (dept_id = #{req.deptId} OR dept_id IN (SELECT id FROM sys_dept WHERE find_in_set(#{req.deptId}, ancestors))) `
      if !sql.contains('count'):
         ` order by create_time desc `"},"sys_user");
 

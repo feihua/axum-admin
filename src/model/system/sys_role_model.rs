@@ -98,10 +98,10 @@ impl_select_page!(Role{select_page() =>"
  */
 impl_select_page!(Role{select_sys_role_list(req:&QueryRoleListReq) =>"
       where 1=1
-     if req.role_name != null && req.role_name != '':
-       ` and role_name = #{req.role_name} `
-     if req.role_key != null && req.role_key != '':
-       ` and role_key = #{req.role_key} `
+     if req.roleName != null && req.roleName != '':
+       ` and role_name = #{req.roleName} `
+     if req.roleKey != null && req.roleKey != '':
+       ` and role_key = #{req.roleKey} `
      if req.status != 2:
        ` and status = #{req.status} `
      if !sql.contains('count'):
