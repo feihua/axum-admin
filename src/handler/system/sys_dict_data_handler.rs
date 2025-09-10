@@ -54,6 +54,10 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
 
     let id = item.id;
 
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if DictData::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("字典数据不存在"));
     }

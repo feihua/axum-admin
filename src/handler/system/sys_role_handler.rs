@@ -78,6 +78,10 @@ pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     let id = item.id;
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if id == Some(1) {
         return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }

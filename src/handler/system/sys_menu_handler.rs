@@ -65,6 +65,11 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     let id = item.id;
+
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if Menu::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("菜单信息不存在"));
     }

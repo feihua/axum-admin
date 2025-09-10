@@ -73,6 +73,11 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
     let rb = &state.batis;
 
     let id = item.id;
+
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if Some(item.parent_id) == id {
         return Err(AppError::BusinessError("上级部门不能是自己"));
     }

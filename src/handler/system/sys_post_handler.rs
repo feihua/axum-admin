@@ -62,6 +62,10 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 
     let id = item.id;
 
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if Post::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("岗位不存在"));
     }

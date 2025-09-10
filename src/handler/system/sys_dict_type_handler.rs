@@ -62,6 +62,11 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
     let rb = &state.batis;
 
     let id = item.id;
+
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     if DictType::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
         return Err(AppError::BusinessError("字典类型不存在"));
     }

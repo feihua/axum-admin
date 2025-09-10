@@ -102,6 +102,10 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
 
     let mut conn = state.redis.get_connection()?;
     let id = item.id;
+    if item.id.is_none() {
+        return Err(AppError::BusinessError("主键不能为空"));
+    }
+
     let key = format!("axum:admin:user:info:{}", id.unwrap_or_default());
     let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
