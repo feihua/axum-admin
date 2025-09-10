@@ -9,7 +9,7 @@ create table sys_role
     remark      varchar(255)                           not null comment '备注',
     del_flag    tinyint      default 1                 not null comment '删除标志（0代表删除 1代表存在）',
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间',
+    update_time datetime      null on update CURRENT_TIMESTAMP comment '修改时间',
     constraint role_name
         unique (role_name)
 ) comment '角色信息';

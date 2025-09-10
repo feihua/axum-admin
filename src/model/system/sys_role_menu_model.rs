@@ -32,10 +32,7 @@ rbatis::crud!(RoleMenu {}, "sys_role_menu");
  *date：2024/12/12 14:41:44
  */
 #[sql("select menu_id from sys_role_menu where role_id = ?")]
-pub async fn query_menu_by_role(
-    rb: &RBatis,
-    role_id: i64,
-) -> rbatis::Result<Vec<HashMap<String, i64>>> {
+pub async fn query_menu_by_role(rb: &RBatis, role_id: i64) -> rbatis::Result<Vec<HashMap<String, i64>>> {
     impled!()
 }
 

@@ -8,7 +8,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -60,9 +59,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
         }
     }
 
-    let mut data = Notice::from(item);
-    data.update_time = Some(DateTime::now());
-    Notice::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    Notice::update_by_map(rb, &Notice::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*

@@ -22,7 +22,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<RoleReq>) -> impl IntoResponse {
+pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(mut item): Json<RoleReq>) -> impl IntoResponse {
     info!("add sys_role params: {:?}", &item);
     let rb = &state.batis;
 
@@ -34,6 +34,7 @@ pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<R
         return Err(AppError::BusinessError("角色权限已存在"));
     }
 
+    item.id = None;
     Role::insert(rb, &Role::from(item)).await.map(|_| ok_result())?
 }
 
@@ -97,9 +98,7 @@ pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    let mut data = Role::from(item);
-    data.update_time = Some(DateTime::now());
-    Role::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    Role::update_by_map(rb, &Role::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*

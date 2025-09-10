@@ -32,7 +32,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<UserReq>) -> impl IntoResponse {
+pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Json<UserReq>) -> impl IntoResponse {
     info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
@@ -49,12 +49,14 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(item): Json<U
     }
 
     let post_ids = item.post_ids.clone();
+    item.id = None;
     let id = User::insert(rb, &User::from(item)).await?.last_insert_id;
 
     let mut user_post_list: Vec<UserPost> = Vec::new();
     for post_id in post_ids {
         user_post_list.push(UserPost { user_id: id.i64(), post_id })
     }
+
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await.map(|_| ok_result())?
 }
 
@@ -142,9 +144,7 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
     UserPost::delete_by_map(rb, value! {"user_id": &item.id}).await?;
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
 
-    let mut data = User::from(item);
-    data.update_time = Some(DateTime::now());
-    User::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    User::update_by_map(rb, &User::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*

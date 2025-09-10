@@ -11,7 +11,7 @@ create table sys_dict_data
     status      tinyint      default 0                 not null comment '状态（0：停用，1:正常）',
     remark      varchar(500) default ''                not null comment '备注',
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间',
+    update_time datetime      null on update CURRENT_TIMESTAMP comment '修改时间',
     primary key (id)
 )comment = '字典数据表';
 

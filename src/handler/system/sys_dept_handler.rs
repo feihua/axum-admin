@@ -119,8 +119,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
     }
     item.ancestors = Some(ancestors.clone());
 
-    let mut data = Dept::from(item);
-    data.update_time = Some(DateTime::now());
+    let data = Dept::from(item);
     if let Err(e) = data.validate() {
         return Err(AppError::validation_error(&e));
     }

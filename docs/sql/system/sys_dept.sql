@@ -12,7 +12,7 @@ create table sys_dept
     status      tinyint     default 0                 not null comment '部门状态（0：停用，1:正常）',
     del_flag    tinyint     default 1                 not null comment '删除标志（0代表删除 1代表存在）',
     create_time datetime    default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime    default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间'
+    update_time datetime     null on update CURRENT_TIMESTAMP comment '修改时间'
 ) comment = '部门表';
 
 INSERT INTO sys_dept (parent_id, ancestors, dept_name, sort, leader, phone, email, status, del_flag) VALUES (0, '0', '测试科技', 1, 'admin', '18613030352', '1002219331@qq.com', 1, 1);

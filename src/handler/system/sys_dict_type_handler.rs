@@ -9,7 +9,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -17,7 +16,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
+pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(mut item): Json<DictTypeReq>) -> impl IntoResponse {
     info!("add sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
@@ -25,6 +24,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
         return Err(AppError::BusinessError("字典类型已存在"));
     }
 
+    item.id = None;
     DictType::insert(rb, &DictType::from(item)).await.map(|_| ok_result())?
 }
 
@@ -75,9 +75,7 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
         update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
     }
 
-    let mut data = DictType::from(item);
-    data.update_time = Some(DateTime::now());
-    DictType::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    DictType::update_by_map(rb, &DictType::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*

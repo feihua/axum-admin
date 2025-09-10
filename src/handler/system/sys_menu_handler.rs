@@ -8,7 +8,6 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
-use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -16,7 +15,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
+pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(mut item): Json<MenuReq>) -> impl IntoResponse {
     info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
@@ -30,6 +29,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<M
         }
     }
 
+    item.id = None;
     Menu::insert(rb, &Menu::from(item)).await.map(|_| ok_result())?
 }
 
@@ -83,9 +83,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    let mut data = Menu::from(item);
-    data.update_time = Some(DateTime::now());
-    Menu::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    Menu::update_by_map(rb, &Menu::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*

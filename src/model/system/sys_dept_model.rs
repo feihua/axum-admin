@@ -37,7 +37,7 @@ rbatis::crud!(Dept {}, "sys_dept");
 
 impl From<DeptReq> for Dept {
     fn from(item: DeptReq) -> Self {
-        Dept {
+        let mut model = Dept {
             id: item.id,               //部门id
             parent_id: item.parent_id, //父部门id
             ancestors: item.ancestors, //祖级列表
@@ -50,7 +50,13 @@ impl From<DeptReq> for Dept {
             del_flag: None,            //删除标志（0代表删除 1代表存在）
             create_time: None,         //创建时间
             update_time: None,         //修改时间
+        };
+        if let None = item.id {
+            model.create_time = Some(DateTime::now());
+        } else {
+            model.update_time = Some(DateTime::now());
         }
+        model
     }
 }
 

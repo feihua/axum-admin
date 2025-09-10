@@ -31,7 +31,7 @@ rbatis::crud!(Role {}, "sys_role");
 
 impl From<RoleReq> for Role {
     fn from(item: RoleReq) -> Self {
-        Role {
+        let mut model = Role {
             id: item.id,                 //主键
             role_name: item.role_name,   //名称
             role_key: item.role_key,     //角色权限字符串
@@ -41,7 +41,13 @@ impl From<RoleReq> for Role {
             del_flag: None,              //删除标志（0代表删除 1代表存在）
             create_time: None,           //创建时间
             update_time: None,           //修改时间
+        };
+        if let None = item.id {
+            model.create_time = Some(DateTime::now());
+        } else {
+            model.update_time = Some(DateTime::now());
         }
+        model
     }
 }
 

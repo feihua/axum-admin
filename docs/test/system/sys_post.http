@@ -4,8 +4,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "postCode": "abc1",
-    "postName": "测试1",
+    "postCode": "abc12",
+    "postName": "测试2",
     "sort": 0,
     "status": 1,
     "remark": "123"
@@ -27,8 +27,8 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "id": 1,
-  "postCode": "abc1",
+  "id": 5,
+  "postCode": "abc12",
   "postName": "测试2",
   "sort": 0,
   "status": 1,
@@ -50,7 +50,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "id": 1
+  "id": 5
 }
 
 

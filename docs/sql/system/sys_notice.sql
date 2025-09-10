@@ -8,7 +8,7 @@ create table sys_notice
     status         tinyint      default 0                 not null comment '公告状态（0:关闭,1:正常 ）',
     remark         varchar(255) default ''                not null comment '备注',
     create_time    datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time    datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间'
+    update_time    datetime      null on update CURRENT_TIMESTAMP comment '修改时间'
 ) comment '通知公告表';
 
 

@@ -13,7 +13,7 @@ create table sys_menu
     menu_icon   varchar(255) default ''                not null comment '菜单图标',
     remark      varchar(255) default ''                not null comment '备注',
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '修改时间',
+    update_time datetime      null on update CURRENT_TIMESTAMP comment '修改时间',
     constraint menu_name
         unique (menu_name)
 )

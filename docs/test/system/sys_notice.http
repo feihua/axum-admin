@@ -70,5 +70,5 @@ Authorization: Bearer {{token}}
 {
   "pageNo": 1,
   "pageSize": 10,
-  "noticeType": 1
+  "noticeTitle": "123"
 }

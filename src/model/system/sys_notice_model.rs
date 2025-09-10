@@ -31,7 +31,7 @@ rbatis::crud!(Notice {}, "sys_notice");
 
 impl From<NoticeReq> for Notice {
     fn from(item: NoticeReq) -> Self {
-        Notice {
+        let mut model = Notice {
             id: item.id,                         //公告ID
             notice_title: item.notice_title,     //公告标题
             notice_type: item.notice_type,       //公告类型（1:通知,2:公告）
@@ -40,7 +40,13 @@ impl From<NoticeReq> for Notice {
             remark: item.remark,                 //备注
             create_time: None,                   //创建时间
             update_time: None,                   //修改时间
+        };
+        if let None = item.id {
+            model.create_time = Some(DateTime::now());
+        } else {
+            model.update_time = Some(DateTime::now());
         }
+        model
     }
 }
 

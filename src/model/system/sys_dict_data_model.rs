@@ -36,7 +36,7 @@ rbatis::crud!(DictData {}, "sys_dict_data");
 
 impl From<DictDataReq> for DictData {
     fn from(item: DictDataReq) -> Self {
-        DictData {
+        let mut model = DictData {
             id: item.id,                 //字典编码
             dict_sort: item.dict_sort,   //字典排序
             dict_label: item.dict_label, //字典标签
@@ -49,7 +49,13 @@ impl From<DictDataReq> for DictData {
             remark: item.remark,         //备注
             create_time: None,           //创建时间
             update_time: None,           //修改时间
+        };
+        if let None = item.id {
+            model.create_time = Some(DateTime::now());
+        } else {
+            model.update_time = Some(DateTime::now());
         }
+        model
     }
 }
 

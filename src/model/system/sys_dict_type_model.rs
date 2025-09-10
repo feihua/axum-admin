@@ -30,7 +30,7 @@ rbatis::crud!(DictType {}, "sys_dict_type");
 
 impl From<DictTypeReq> for DictType {
     fn from(item: DictTypeReq) -> Self {
-        DictType {
+        let mut model = DictType {
             id: item.id,               //字典主键
             dict_name: item.dict_name, //字典名称
             dict_type: item.dict_type, //字典类型
@@ -38,7 +38,13 @@ impl From<DictTypeReq> for DictType {
             remark: item.remark,       //备注
             create_time: None,         //创建时间
             update_time: None,         //修改时间
+        };
+        if let None = item.id {
+            model.create_time = Some(DateTime::now());
+        } else {
+            model.update_time = Some(DateTime::now());
         }
+        model
     }
 }
 

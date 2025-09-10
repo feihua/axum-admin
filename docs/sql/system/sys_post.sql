@@ -1,3 +1,4 @@
+drop table if exists sys_post;
 create table sys_post
 (
     id          bigint auto_increment comment '岗位id'
@@ -8,7 +9,7 @@ create table sys_post
     status      tinyint      default 0                 not null comment '岗位状态（0：停用，1:正常）',
     remark      varchar(500) default ''                not null comment '备注',
     create_time datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    update_time datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间'
+    update_time datetime     null on update CURRENT_TIMESTAMP comment '更新时间'
 ) comment = '岗位信息表';
 
 INSERT INTO sys_post (post_code, post_name, sort, status, remark) VALUES ('ceo', '董事长', 1, 1, '');

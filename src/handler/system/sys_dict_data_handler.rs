@@ -8,7 +8,6 @@ use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
 use rbatis::plugin::page::PageRequest;
-use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -16,7 +15,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): Json<DictDataReq>) -> impl IntoResponse {
+pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(mut item): Json<DictDataReq>) -> impl IntoResponse {
     info!("add sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
@@ -28,6 +27,7 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(item): J
         return Err(AppError::BusinessError("字典键值已存在"));
     }
 
+    item.id = None;
     DictData::insert(rb, &DictData::from(item)).await.map(|_| ok_result())?
 }
 
@@ -70,9 +70,7 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
         }
     }
 
-    let mut data = DictData::from(item);
-    data.update_time = Some(DateTime::now());
-    DictData::update_by_map(rb, &data, value! {"id": &id}).await.map(|_| ok_result())?
+    DictData::update_by_map(rb, &DictData::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
 
 /*
