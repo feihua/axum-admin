@@ -94,9 +94,9 @@ impl_select_page!(DictType{select_page() =>"
 impl_select_page!(DictType{select_dict_type_list(req:&QueryDictTypeListReq) =>"
     where 1=1
      if req.dictName != null && req.dictName != '':
-      ` and dict_name = like concat('%', #{req.dictName}, '%') `
+      ` and dict_name like concat('%', #{req.dictName}, '%') `
      if req.dictType != null && req.dictType != '':
-      ` and dict_type = like concat('%', #{req.dictType}, '%') `
+      ` and dict_type like concat('%', #{req.dictType}, '%') `
      if req.status != 2:
       ` and status = #{req.status} `
      if !sql.contains('count'):

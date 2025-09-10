@@ -75,14 +75,14 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     }
 
     if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
-        if x.id != item.id {
+        if x.id != id {
             return Err(AppError::BusinessError("菜单名称已存在"));
         }
     }
 
     if let Some(url) = item.menu_url.clone() {
         if let Some(x) = Menu::select_by_menu_url(rb, &url).await? {
-            if x.id != item.id {
+            if x.id != id {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
