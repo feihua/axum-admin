@@ -29,6 +29,9 @@ pub enum AppError {
 
     #[error("验证异常: {0}")]
     ValidationError(String),
+
+    #[error("内部异常: {0}")]
+    InternalError(&'static str),
 }
 pub type AppResult<T> = Result<T, AppError>;
 
@@ -57,12 +60,19 @@ impl IntoResponse for AppError {
             AppError::ValidationError(_msg) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
             },
+            AppError::InternalError(_msg) => {
+                (StatusCode::FORBIDDEN, Json(response)).into_response()
+            },
         }
     }
 }
 
 
 impl AppError {
+    pub fn default() -> Result<(), AppError> {
+        Err(AppError::InternalError("服务器发生内部异常，请稍后再试"))
+    }
+    
     pub fn build_validation_error_message(e: &validator::ValidationErrors) -> String {
         e.field_errors().iter().map(|(field, errors)| {
             let messages: Vec<String> = errors.iter().map(|error| {
@@ -80,3 +90,4 @@ impl AppError {
         AppError::ValidationError(Self::build_validation_error_message(e))
     }
 }
+
