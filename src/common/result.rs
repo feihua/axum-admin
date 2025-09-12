@@ -21,6 +21,10 @@ pub struct ResponsePage<T> {
     pub data: Option<T>,
 }
 
+pub fn ok() -> AppResult<Json<BaseResponse<()>>> {
+    ok_result_data(())
+}
+
 pub fn ok_result() -> AppResult<Json<BaseResponse<String>>> {
     ok_result_msg("操作成功")
 }
@@ -71,3 +75,4 @@ where
         None => serializer.serialize_str(""),
     }
 }
+
