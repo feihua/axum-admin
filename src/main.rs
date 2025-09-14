@@ -50,6 +50,7 @@ use garde::rules::ip::IpKind::Any;
 use tower_http::cors::CorsLayer;
 use tower_http::timeout::TimeoutLayer;
 use tracing_appender::rolling;
+use crate::common::daily_logfile::DailyLogFile;
 use crate::handler::system::sys_user_handler::reset_sys_user_password;
 
 // 定义应用状态结构体，包含数据库连接池
@@ -101,16 +102,18 @@ struct ApiDoc;
 #[tokio::main]
 async fn main() {
     // #[cfg(debug_assertions)]
+    // #[cfg(not(debug_assertions))]
     // {
     //     // 初始化日志配置
     //     log4rs::init_file("src/config/log4rs.yaml", Default::default()).unwrap();
     // }
 
-    // #[cfg(not(debug_assertions))]
-    let file_appender = rolling::daily("log", "axum-admin");
+    let file_appender = rolling::daily("log", "axum-admin.log");
     let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
-    let subscriber = tracing_subscriber::fmt()
+    // let daily_writer = DailyLogFile::new("log", "axum-admin", "log");
+    tracing_subscriber::fmt()
         .with_writer(non_blocking)
+        // .with_writer(daily_writer)
         .with_ansi(false)
         .with_max_level(tracing::Level::TRACE)
         .with_thread_ids(true)
