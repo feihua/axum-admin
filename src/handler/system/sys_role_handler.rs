@@ -17,8 +17,8 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
-use std::time::Duration;
-use tokio::time::sleep;
+// use std::time::Duration;
+// use tokio::time::sleep;
 /*
  *添加角色信息
  *author：刘飞华
@@ -73,7 +73,7 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     let mut tx = rb.acquire_begin().await?;
     RoleMenu::delete_by_map(&mut tx, value! {"role_id": &item.ids}).await?;
     RoleDept::delete_by_map(&mut tx, value! {"role_id": &item.ids}).await?;
-    panic!("测试");
+    // panic!("测试");
     Role::delete_by_map(&mut tx, value! {"id": &item.ids}).await?;
     tx.commit().await?;
     ok_result()

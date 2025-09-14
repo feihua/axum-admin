@@ -9,8 +9,7 @@ pub mod route;
 pub mod utils;
 pub mod vo;
 
-use axum::{middleware as md, BoxError, Router};
-
+use axum::{middleware as md, Router};
 use crate::route::system::sys_dept_route::build_sys_dept_route;
 use crate::route::system::sys_dict_data_route::build_sys_dict_data_route;
 use crate::route::system::sys_dict_type_route::build_sys_dict_type_route;
@@ -30,9 +29,9 @@ use serde::{Deserialize};
 use std::sync::Arc;
 use std::time::Duration;
 use axum::body::Body;
-use axum::http::{Method, Request, Response, StatusCode};
+use axum::http::{Method, Request, Response};
 use axum::response::IntoResponse;
-use tower::{ServiceBuilder};
+// use tower::{ServiceBuilder};
 use tower_http::{
     catch_panic::CatchPanicLayer, classify::ServerErrorsFailureClass, trace::TraceLayer,
 };
@@ -43,15 +42,15 @@ use utoipa_swagger_ui::SwaggerUi;
 use uuid::Uuid;
 use utils::db::init_db;
 use crate::common::error::AppError;
-use crate::middleware::error::{ handle_middleware_error};
-use crate::middleware::swagger::swagger_auth;
+// use crate::middleware::error::{ handle_middleware_error};
+// use crate::middleware::swagger::swagger_auth;
 use axum::routing::get;
-use garde::rules::ip::IpKind::Any;
+// use garde::rules::ip::IpKind::Any;
 use tower_http::cors::CorsLayer;
 use tower_http::timeout::TimeoutLayer;
 use tracing_appender::rolling;
-use crate::common::daily_logfile::DailyLogFile;
-use crate::handler::system::sys_user_handler::reset_sys_user_password;
+// use crate::common::daily_logfile::DailyLogFile;
+// use crate::handler::system::sys_user_handler::reset_sys_user_password;
 
 // 定义应用状态结构体，包含数据库连接池
 pub struct AppState {
@@ -133,7 +132,7 @@ async fn main() {
 
     // 跨域中间件
     let cors = CorsLayer::new()
-        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE, Method::PATCH])
         .allow_origin(tower_http::cors::Any)
         .allow_headers(tower_http::cors::Any);
 
