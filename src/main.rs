@@ -163,7 +163,7 @@ async fn main() {
     // 全局异常捕获中间件
     let panic = CatchPanicLayer::custom(|panic_info: Box<dyn std::any::Any + Send>| {
         // 这里可以上报日志、监控或做其他操作
-        eprintln!("Custom panic hook: {panic_info:?}");
+        error!("Custom panic hook: {panic_info:?}");
         AppError::default().into_response()
     });
 
