@@ -34,12 +34,6 @@ pub enum AppError {
     InternalError(&'static str),
 }
 
-impl AppError {
-    pub fn default() -> Result<(), AppError> {
-        Err(AppError::InternalError("服务器发生内部异常，请稍后再试"))
-    }
-}
-
 pub type AppResult<T> = Result<T, AppError>;
 
 #[async_trait]
@@ -76,6 +70,13 @@ impl IntoResponse for AppError {
 
 
 impl AppError {
+    pub fn default() -> AppError {
+        AppError::InternalError("服务器发生内部异常，请稍后再试")
+    }
+    pub fn interrupt() -> AppResult<Json<BaseResponse<()>>> {
+        Err(AppError::default())
+    }
+
     pub fn build_validation_error_message(e: &validator::ValidationErrors) -> String {
         e.field_errors().iter().map(|(field, errors)| {
             let messages: Vec<String> = errors.iter().map(|error| {
