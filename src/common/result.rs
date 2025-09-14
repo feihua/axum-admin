@@ -14,6 +14,14 @@ pub struct BaseResponse<T> {
 }
 
 #[derive(Serialize, Debug, Clone,ToSchema)]
+pub struct EmptyResponse
+{
+    pub code: i32,
+    pub msg: String,
+    pub data: Option<()>,
+}
+
+#[derive(Serialize, Debug, Clone,ToSchema)]
 pub struct ResponsePage<T> {
     pub code: i32,
     pub msg: String,

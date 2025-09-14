@@ -1,5 +1,5 @@
 use crate::common::error::{AppError};
-use crate::common::result::{ok, ok_result, ok_result_data, BaseResponse};
+use crate::common::result::{ok, ok_result, ok_result_data, BaseResponse, EmptyResponse};
 use crate::model::system::sys_dept_model::{check_dept_exist_user, select_children_dept_by_id, select_dept_count, select_normal_children_dept_by_id, Dept};
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
@@ -24,7 +24,7 @@ use validator::Validate;
     post,
     path = "/api/system/dept/addDept",
     request_body = DeptReq,
-    responses((status = 200, description = "successfully", body = BaseResponse<String>))
+    responses((status = 200, description = "successfully", body = EmptyResponse))
 )]
 pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     // panic!("test");
@@ -59,6 +59,12 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/deleteDept",
+    request_body = DeleteDeptReq,
+    responses((status = 200, description = "successfully", body = EmptyResponse))
+)]
 pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDeptReq>) -> impl IntoResponse {
     info!("delete sys_dept params: {:?}", &item);
     let rb = &state.batis;
@@ -79,6 +85,12 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/updateDept",
+    request_body = DeptReq,
+    responses((status = 200, description = "successfully", body = EmptyResponse))
+)]
 pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     info!("update sys_dept params: {:?}", &item);
     let rb = &state.batis;
@@ -147,6 +159,12 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/updateDeptStatus",
+    request_body = UpdateDeptStatusReq,
+    responses((status = 200, description = "successfully", body = EmptyResponse))
+)]
 pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDeptStatusReq>) -> impl IntoResponse {
     info!("update sys_dept_status params: {:?}", &item);
     let rb = &state.batis;
@@ -168,6 +186,12 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/queryDeptDetail",
+    request_body = QueryDeptDetailReq,
+    responses((status = 200, description = "successfully", body = BaseResponse<DeptResp>))
+)]
 pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptDetailReq>) -> impl IntoResponse {
     info!("query sys_dept_detail params: {:?}", &item);
     let rb = &state.batis;
@@ -186,6 +210,12 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/queryDeptList",
+    request_body = QueryDeptListReq,
+    responses((status = 200, description = "successfully", body = BaseResponse<Vec<DeptResp>>))
+)]
 pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptListReq>) -> impl IntoResponse {
     info!("query sys_dept_list params: {:?}", &item);
     let rb = &state.batis;

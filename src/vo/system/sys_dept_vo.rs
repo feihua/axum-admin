@@ -42,7 +42,7 @@ pub struct DeptReq {
 /*
 更新部门表状态请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,ToSchema)]
 pub struct UpdateDeptStatusReq {
     pub id: i64,
     pub status: i8,
@@ -51,7 +51,7 @@ pub struct UpdateDeptStatusReq {
 /*
 查询部门表详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,ToSchema)]
 pub struct QueryDeptDetailReq {
     pub id: i64,
 }
@@ -59,7 +59,7 @@ pub struct QueryDeptDetailReq {
 /*
 查询部门表列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate,ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDeptListReq {
     pub dept_name: Option<String>, //部门名称
@@ -75,7 +75,7 @@ fn default_status() -> Option<i8> {
 /*
 查询部门表列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone,ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DeptResp {
     pub id: Option<i64>,           //部门id
@@ -88,7 +88,9 @@ pub struct DeptResp {
     pub email: String,             //邮箱
     pub status: i8,                //部状态（0：停用，1:正常）
     #[serde(serialize_with = "serialize_datetime")]
+    #[schema(value_type = Option<String>)]
     pub create_time: Option<DateTime>, //创建时间
     #[serde(serialize_with = "serialize_datetime")]
+    #[schema(value_type = Option<String>)]
     pub update_time: Option<DateTime>, //修改时间
 }

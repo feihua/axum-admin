@@ -83,16 +83,25 @@ struct RedisConfig {
     url: String,
 }
 
+//这个宏用于生成OpenAPI文档，有没有办法可以通过脚本自动生成？
 #[derive(OpenApi)]
 #[openapi(
     paths(
         handler::system::sys_dept_handler::add_sys_dept,
+        handler::system::sys_dept_handler::delete_sys_dept,
+        handler::system::sys_dept_handler::update_sys_dept,
+        handler::system::sys_dept_handler::update_sys_dept_status,
+        handler::system::sys_dept_handler::query_sys_dept_detail,
+        handler::system::sys_dept_handler::query_sys_dept_list,
     ),
     components(
-        schemas(vo::system::sys_dept_vo::DeleteDeptReq)
+        schemas(
+            vo::system::sys_dept_vo::DeptReq,
+            vo::system::sys_dept_vo::DeleteDeptReq
+        )
     ),
     tags(
-            (name = "ToDo App", description = "Todo items management API")
+        (name = "axum-admin", description = "OpenAPI")
     )
 )]
 struct ApiDoc;
