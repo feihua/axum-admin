@@ -60,22 +60,12 @@ impl IntoResponse for AppError {
             AppError::ValidationError(_msg) => {
                 (StatusCode::INTERNAL_SERVER_ERROR, Json(response)).into_response()
             },
-            AppError::InternalError(_msg) => {
-                (StatusCode::FORBIDDEN, Json(response)).into_response()
-            },
         }
     }
 }
 
 
 impl AppError {
-    pub fn default() -> AppError {
-        AppError::InternalError("服务器发生内部异常，请稍后再试")
-    }
-    pub fn interrupt() -> AppResult<Json<BaseResponse<()>>> {
-        Err(AppError::default())
-    }
-
     pub fn build_validation_error_message(e: &validator::ValidationErrors) -> String {
         e.field_errors().iter().map(|(field, errors)| {
             let messages: Vec<String> = errors.iter().map(|error| {
