@@ -89,7 +89,7 @@ impl_select!(Dept{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(Dept{select_by_dept_name(dept_name:&str, parent_id:i64) -> Option => "`where dept_name = #{dept_name} and parent_id = #{parent_id} limit 1`"}, "sys_dept");
+impl_select!(Dept{select_by_dept_name(dept_name:&str, parent_id:&i64) -> Option => "`where dept_name = #{dept_name} and parent_id = #{parent_id} limit 1`"}, "sys_dept");
 
 /*
  *分页查询部门

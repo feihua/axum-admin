@@ -17,6 +17,8 @@ use rbatis::plugin::page::PageRequest;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::time::sleep;
 /*
  *添加角色信息
  *author：刘飞华
@@ -44,6 +46,7 @@ pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(mut item): Js
  *date：2024/12/12 14:41:44
  */
 pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<DeleteRoleReq>) -> impl IntoResponse {
+    // sleep(Duration::from_secs(10)).await;
     info!("delete sys_role params: {:?}", &item);
     let rb = &state.batis;
 
@@ -63,9 +66,17 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    RoleMenu::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-    RoleDept::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-    Role::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    // RoleMenu::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
+    // RoleDept::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
+    // Role::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+
+    let mut tx = rb.acquire_begin().await?;
+    RoleMenu::delete_by_map(&mut tx, value! {"role_id": &item.ids}).await?;
+    RoleDept::delete_by_map(&mut tx, value! {"role_id": &item.ids}).await?;
+    panic!("测试");
+    Role::delete_by_map(&mut tx, value! {"id": &item.ids}).await?;
+    tx.commit().await?;
+    ok_result()
 }
 
 /*
@@ -216,7 +227,7 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
 
     let rb = &state.batis;
 
-    RoleMenu::delete_by_map(rb, value! {"role_id": &role_id}).await?;
+    RoleMenu::delete_by_map(rb, value! {"role_id": &item.role_id}).await?;
 
     let mut role_menu: Vec<RoleMenu> = Vec::new();
 

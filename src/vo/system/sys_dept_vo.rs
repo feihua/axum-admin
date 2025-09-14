@@ -7,10 +7,11 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::LazyLock;
 use validator::Validate;
+use utoipa::ToSchema;
 /*
 删除部门表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize,ToSchema)]
 pub struct DeleteDeptReq {
     pub id: i64,
 }
@@ -20,7 +21,7 @@ static PHONE_NUMBER: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d{11}$").u
 /*
 更新部门表请求参数
 */
-#[derive(Debug, Serialize, Deserialize, Validate)]
+#[derive(Debug, Serialize, Deserialize, Validate,ToSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DeptReq {
     pub id: Option<i64>, //部门id

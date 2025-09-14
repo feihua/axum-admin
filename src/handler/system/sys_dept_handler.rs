@@ -1,5 +1,5 @@
-use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data};
+use crate::common::error::{AppError};
+use crate::common::result::{ok, ok_result, ok_result_data, BaseResponse};
 use crate::model::system::sys_dept_model::{check_dept_exist_user, select_children_dept_by_id, select_dept_count, select_normal_children_dept_by_id, Dept};
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
@@ -12,17 +12,28 @@ use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
 use std::sync::Arc;
+// use std::time::Duration;
+// use tokio::time::sleep;
 use validator::Validate;
 /*
  *添加部门表
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[utoipa::path(
+    post,
+    path = "/api/system/dept/addDept",
+    request_body = DeptReq,
+    responses((status = 200, description = "successfully", body = BaseResponse<String>))
+)]
 pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
+    // panic!("test");
+    // sleep(Duration::from_secs(8)).await;
+    // return AppError::interrupt();
     info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    if Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await?.is_some() {
+    if Dept::select_by_dept_name(rb, &item.dept_name, &item.parent_id).await?.is_some() {
         return Err(AppError::BusinessError("部门名称已存在"));
     }
 
@@ -38,7 +49,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
             if let Err(e) = sys_dept.validate() {
                 return Err(AppError::validation_error(&e));
             }
-            Dept::insert(rb, &sys_dept).await.map(|_| ok_result())?
+            Dept::insert(rb, &sys_dept).await.map(|_| ok())?
         }
     }
 }
@@ -94,7 +105,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
         }
     };
 
-    if let Some(dept) = Dept::select_by_dept_name(rb, &item.dept_name, item.parent_id).await? {
+    if let Some(dept) = Dept::select_by_dept_name(rb, &item.dept_name, &item.parent_id).await? {
         if dept.id != id {
             return Err(AppError::BusinessError("部门名称已存在"));
         }

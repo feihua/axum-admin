@@ -3,22 +3,27 @@ use axum::Json;
 use rbatis::rbdc::DateTime;
 use serde::Serialize;
 use std::fmt::Debug;
+use utoipa::{ToSchema};
 
 // 统一返回vo
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone,ToSchema)]
 pub struct BaseResponse<T> {
     pub code: i32,
     pub msg: String,
     pub data: Option<T>,
 }
 
-#[derive(Serialize, Debug, Clone)]
+#[derive(Serialize, Debug, Clone,ToSchema)]
 pub struct ResponsePage<T> {
     pub code: i32,
     pub msg: String,
     pub total: u64,
     pub success: bool,
     pub data: Option<T>,
+}
+
+pub fn ok() -> AppResult<Json<BaseResponse<()>>> {
+    ok_result_data(())
 }
 
 pub fn ok_result() -> AppResult<Json<BaseResponse<String>>> {
