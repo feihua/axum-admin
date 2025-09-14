@@ -30,8 +30,12 @@ pub struct ResponsePage<T> {
     pub data: Option<T>,
 }
 
-pub fn ok() -> AppResult<Json<BaseResponse<()>>> {
-    ok_result_data(())
+pub fn ok() -> AppResult<Json<EmptyResponse>> {
+    Ok(Json(EmptyResponse {
+        msg: "操作成功".to_string(),
+        code: 0,
+        data: Some(()),
+    }))
 }
 
 pub fn ok_result() -> AppResult<Json<BaseResponse<String>>> {

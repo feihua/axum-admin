@@ -1,5 +1,5 @@
 use crate::common::error::{AppError};
-use crate::common::result::{ok, ok_result, ok_result_data, BaseResponse, EmptyResponse};
+use crate::common::result::{ok, ok_result_data, BaseResponse, EmptyResponse};
 use crate::model::system::sys_dept_model::{check_dept_exist_user, select_children_dept_by_id, select_dept_count, select_normal_children_dept_by_id, Dept};
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
@@ -77,7 +77,7 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("部门存在用户,不允许删除"));
     }
 
-    Dept::delete_by_map(rb, value! {"id": &item.id}).await.map(|_| ok_result())?
+    Dept::delete_by_map(rb, value! {"id": &item.id}).await.map(|_| ok())?
 }
 
 /*
@@ -151,7 +151,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
     if let Err(e) = data.validate() {
         return Err(AppError::validation_error(&e));
     }
-    Dept::update_by_map(rb, &data, value! {"id":  &id}).await.map(|_| ok_result())?
+    Dept::update_by_map(rb, &data, value! {"id":  &id}).await.map(|_| ok())?
 }
 
 /*
@@ -179,7 +179,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
 
     let mut param = vec![value!(item.status)];
     param.extend(ids.iter().map(|&id| value!(id)));
-    rb.exec(&update_sql, param).await.map(|_| ok_result())?
+    rb.exec(&update_sql, param).await.map(|_| ok())?
 }
 /*
  *查询部门表详情
