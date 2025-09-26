@@ -298,12 +298,12 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
     info!("user agent: {:?}", user_agent);
     let agent = UserAgentUtil::new(user_agent);
 
-    let user_result = User::select_by_mobile(rb, &item.mobile).await?;
+    let user_result = User::select_by_account(rb, &item.account).await?;
     info!("query user by mobile: {:?}", user_result);
 
     match user_result {
         None => {
-            add_login_log(rb, item.mobile, 0, "用户不存在", agent).await;
+            add_login_log(rb, item.account, 0, "用户不存在", agent).await;
             Err(AppError::BusinessError("用户不存在"))
         }
         Some(user) => {
@@ -313,14 +313,14 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
             let password = user.password;
 
             if password.ne(&item.password) {
-                add_login_log(rb, item.mobile, 0, "密码不正确", agent).await;
+                add_login_log(rb, item.account, 0, "密码不正确", agent).await;
                 return err_result_msg("密码不正确");
             }
 
             let (btn_menu, is_super) = query_btn_menu(&id, rb.clone()).await;
 
             if btn_menu.len() == 0 {
-                add_login_log(rb, item.mobile, 0, "用户没有分配角色或者菜单,不能登录", agent).await;
+                add_login_log(rb, item.account, 0, "用户没有分配角色或者菜单,不能登录", agent).await;
                 return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录"));
             }
 
@@ -338,7 +338,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
             // 存储登录时间
             conn.hset::<_, _, _, ()>(&key, "last_login", Local::now().format("%Y-%m-%d %H:%M:%S").to_string())?;
 
-            add_login_log(rb, item.mobile, 1, "登录成功", agent.clone()).await;
+            add_login_log(rb, item.account, 1, "登录成功", agent.clone()).await;
             s_user.login_os = agent.os;
             s_user.login_browser = agent.browser;
             s_user.login_date = Some(DateTime::now());

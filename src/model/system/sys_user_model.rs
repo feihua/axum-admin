@@ -106,6 +106,13 @@ impl Into<UserResp> for User {
 impl_select!(User{select_by_id(id:i64) -> Option => "`where id = #{id} limit 1`"}, "sys_user");
 
 /*
+ *根据account查询用户信息
+ *author：刘飞华
+ *date：2025/09/26 13:42:44
+ */
+impl_select!(User{select_by_account(account:&str) -> Option => "`where user_name = #{account} or mobile = #{account} or email = #{account} limit 1`"},"sys_user");
+
+/*
  *根据mobile查询用户信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
