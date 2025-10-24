@@ -1,5 +1,5 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data};
+use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
 use crate::vo::system::sys_menu_vo::*;
@@ -8,6 +8,7 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
+use rbatis::PageRequest;
 use rbs::value;
 use std::sync::Arc;
 /*
@@ -42,17 +43,18 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     info!("delete sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
-    //有下级的时候 不能直接删除
+    let ids = item.ids;
+    for x in ids.clone() {
+        if select_count_menu_by_parent_id(rb, &x).await? > 0 {
+            return Err(AppError::BusinessError("存在子菜单,不允许删除"));
+        }
 
-    if select_count_menu_by_parent_id(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("存在子菜单,不允许删除"));
+        if select_count_menu_by_menu_id(rb, &x).await? > 0 {
+            return Err(AppError::BusinessError("菜单已分配,不允许删除"));
+        }
     }
 
-    if select_count_menu_by_menu_id(rb, &item.id).await? > 0 {
-        return Err(AppError::BusinessError("菜单已分配,不允许删除"));
-    }
-
-    Menu::delete_by_map(rb, value! {"id": &item.id}).await.map(|_| ok_result())?
+    Menu::delete_by_map(rb, value! {"id": &ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -135,7 +137,13 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
     info!("query sys_menu_list params: {:?}", &item);
     let rb = &state.batis;
 
-    Menu::select_all(rb).await.map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
+    let menu_name = item.menu_name;
+    let parent_id = item.parent_id;
+    let status = item.status;
+
+    Menu::query_sys_menu_list(rb, menu_name, parent_id, status)
+        .await
+        .map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
 }
 
 /*
@@ -158,4 +166,24 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
     }
 
     ok_result_data(menu_list)
+}
+
+/*
+ *查询菜单信息列表
+ *author：刘飞华
+ *date：2024/12/12 14:41:44
+ */
+pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
+    info!("query sys_menu_list params: {:?}", &item);
+    let rb = &state.batis;
+
+    let menu_name = item.menu_name;
+    let parent_id = item.parent_id;
+    let status = item.status;
+
+    let page = &PageRequest::new(item.page_no, item.page_size);
+
+    Menu::query_sys_menu_resource_list(rb, page, menu_name, parent_id, status)
+        .await
+        .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>(), x.total))?
 }

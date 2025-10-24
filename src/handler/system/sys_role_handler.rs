@@ -183,6 +183,7 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
             key: y.id.unwrap_or_default().to_string(),
             label: y.menu_name,
             is_penultimate: y.parent_id == Some(2),
+            is_leaf: x.menu_type == 3,
         });
         menu_ids.push(x.id)
     }

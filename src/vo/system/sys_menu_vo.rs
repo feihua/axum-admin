@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 /*
 删除菜单信息请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct DeleteMenuReq {
-    pub id: i64,
+    pub ids: Vec<i64>,
 }
 
 /*
@@ -55,7 +55,15 @@ pub struct QueryMenuDetailReq {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryMenuListReq {
+    pub page_no: u64,
+    pub page_size: u64,
     pub menu_name: Option<String>, //菜单名称
+    pub menu_type: Option<i8>,     //菜单类型(1：目录   2：菜单   3：按钮)
+    pub visible: Option<i8>,       //显示状态（0:隐藏, 显示:1）
+    pub status: Option<i8>,        //菜单状态(1:正常，0:禁用)
+    pub parent_id: Option<i64>,    //父ID
+    pub menu_url: Option<String>,  //路由路径
+    pub api_url: Option<String>,   //接口URL
 }
 
 /*

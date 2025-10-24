@@ -164,5 +164,6 @@ INSERT INTO sys_menu (menu_name, menu_type, status, sort, parent_id, menu_url, a
 
 INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('其他', 1, 1, 3, 0, '/other', '', 'AudioOutlined', '其他');
 
+INSERT INTO sys_menu (menu_name, menu_type, `status`, sort, parent_id, menu_url, api_url, menu_icon, remark) VALUES ('查询菜单资源', 3, 1, 7, 29, '', '/api/system/menu/queryMenuResourceList', '', '查询菜单资源');
 
 

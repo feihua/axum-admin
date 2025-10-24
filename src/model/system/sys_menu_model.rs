@@ -125,3 +125,37 @@ pub async fn select_count_menu_by_parent_id(rb: &RBatis, parent_id: &i64) -> rba
  *date：2025/01/04 22:24:01
  */
 impl_select!(Menu{select_menu_list() -> Vec => "`where menu_type != 3 and status = 1`"}, "sys_menu");
+
+/*
+ *查询菜单列表
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+impl_select!(Menu{query_sys_menu_list(menu_name:Option<String>, parent_id: Option<i64>, status:Option<i8>) =>"
+    where menu_type != 3
+     if menu_name != '' && menu_name != null:
+       ` and menu_name like concat('%', #{menu_name}, '%') `
+     if parent_id != 0 && parent_id != null:
+      ` and parent_id = #{parent_id} `
+     if status != 2 && status != null:
+       ` and status = #{status} `
+     if !sql.contains('count'):
+       ` order by sort asc `"
+},"sys_menu");
+
+/*
+ *查询菜单资源
+ *author：刘飞华
+ *date：2024/12/25 10:01:11
+ */
+impl_select_page!(Menu{query_sys_menu_resource_list(menu_name:Option<String>, parent_id: Option<i64>, status:Option<i8>) =>"
+    where menu_type = 3
+     if menu_name != '' && menu_name != null:
+       ` and menu_name like concat('%', #{menu_name}, '%') `
+     if parent_id != 0 && parent_id != null:
+      ` and parent_id = #{parent_id} `
+     if status != 2 && status != null:
+       ` and status = #{status} `
+     if !sql.contains('count'):
+       ` order by sort asc `"
+},"sys_menu");

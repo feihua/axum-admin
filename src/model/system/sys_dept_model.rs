@@ -63,17 +63,19 @@ impl From<DeptReq> for Dept {
 impl Into<DeptResp> for Dept {
     fn into(self) -> DeptResp {
         DeptResp {
-            id: self.id,                   //部门id
-            parent_id: self.parent_id,     //父部门id
-            ancestors: self.ancestors,     //祖级列表
-            dept_name: self.dept_name,     //部门名称
-            sort: self.sort,               //显示顺序
-            leader: self.leader,           //负责人
-            phone: self.phone,             //联系电话
-            email: self.email,             //邮箱
-            status: self.status,           //部状态（0：停用，1:正常）
-            create_time: self.create_time, //创建时间
-            update_time: self.update_time, //修改时间
+            id: self.id,                       //部门id
+            key: self.id.unwrap().to_string(), //部门id
+            parent_id: self.parent_id,         //父部门id
+            ancestors: self.ancestors,         //祖级列表
+            dept_name: self.dept_name.clone(), //部门名称
+            title: self.dept_name,             //部门名称
+            sort: self.sort,                   //显示顺序
+            leader: self.leader,               //负责人
+            phone: self.phone,                 //联系电话
+            email: self.email,                 //邮箱
+            status: self.status,               //部状态（0：停用，1:正常）
+            create_time: self.create_time,     //创建时间
+            update_time: self.update_time,     //修改时间
         }
     }
 }
