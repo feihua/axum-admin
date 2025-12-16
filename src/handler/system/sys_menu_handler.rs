@@ -154,18 +154,9 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
 pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let rb = &state.batis;
 
-    let list = Menu::select_menu_list(rb).await?;
-
-    let mut menu_list: Vec<MenuListSimpleDataResp> = Vec::new();
-    for x in list {
-        menu_list.push(MenuListSimpleDataResp {
-            id: x.id,               //主键
-            menu_name: x.menu_name, //菜单名称
-            parent_id: x.parent_id, //父ID
-        })
-    }
-
-    ok_result_data(menu_list)
+    Menu::select_menu_list(rb)
+        .await
+        .map(|x| ok_result_data(x.into_iter().map(|x| MenuSimpleResp::from(x)).collect::<Vec<MenuSimpleResp>>()))?
 }
 
 /*

@@ -2,9 +2,9 @@
 // createTime：2024/12/12 14:41:44
 
 use crate::common::result::serialize_datetime;
+use crate::model::system::sys_menu_model::Menu;
 use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
-
 /*
 删除菜单信息请求参数
 */
@@ -94,8 +94,17 @@ pub struct MenuResp {
 */
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct MenuListSimpleDataResp {
+pub struct MenuSimpleResp {
     pub id: Option<i64>,        //主键
     pub menu_name: String,      //菜单名称
     pub parent_id: Option<i64>, //父ID
+}
+impl From<Menu> for MenuSimpleResp {
+    fn from(item: Menu) -> Self {
+        MenuSimpleResp {
+            id: item.id,               //主键
+            menu_name: item.menu_name, //菜单名称
+            parent_id: item.parent_id, //父ID
+        }
+    }
 }
