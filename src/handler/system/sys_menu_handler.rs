@@ -25,8 +25,10 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(mut item): Js
     }
 
     if let Some(url) = item.menu_url.clone() {
-        if Menu::select_by_menu_url(rb, &url).await?.is_some() {
-            return Err(AppError::BusinessError("路由路径已存在"));
+        if url != "".to_string() {
+            if Menu::select_by_menu_url(rb, &url).await?.is_some() {
+                return Err(AppError::BusinessError("路由路径已存在"));
+            }
         }
     }
 
@@ -68,7 +70,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 
     let id = item.id;
 
-    if item.id.is_none() {
+    if id.is_none() {
         return Err(AppError::BusinessError("主键不能为空"));
     }
 
@@ -83,9 +85,11 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     }
 
     if let Some(url) = item.menu_url.clone() {
-        if let Some(x) = Menu::select_by_menu_url(rb, &url).await? {
-            if x.id != id {
-                return Err(AppError::BusinessError("路由路径已存在"));
+        if url != "".to_string() {
+            if let Some(x) = Menu::select_by_menu_url(rb, &url).await? {
+                if x.id != id {
+                    return Err(AppError::BusinessError("路由路径已存在"));
+                }
             }
         }
     }
