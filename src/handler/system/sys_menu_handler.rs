@@ -20,13 +20,13 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(mut item): Js
     info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
-    if Menu::select_by_menu_name(rb, &item.menu_name).await?.is_some() {
+    if Menu::check_menu_name_unique(rb, &item.menu_name, None).await?.is_some() {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if Menu::select_by_menu_url(rb, &url).await?.is_some() {
+            if Menu::check_menu_url_unique(rb, &url, None).await?.is_some() {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
@@ -78,18 +78,14 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
-    if let Some(x) = Menu::select_by_menu_name(rb, &item.menu_name).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("菜单名称已存在"));
-        }
+    if Menu::check_menu_name_unique(rb, &item.menu_name, id).await?.is_some() {
+        return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if let Some(x) = Menu::select_by_menu_url(rb, &url).await? {
-                if x.id != id {
-                    return Err(AppError::BusinessError("路由路径已存在"));
-                }
+            if Menu::check_menu_url_unique(rb, &url, id).await?.is_some() {
+                return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
     }

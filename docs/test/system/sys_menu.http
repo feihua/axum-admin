@@ -4,17 +4,17 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "menuName": "查询菜单信息列表1",
-  "menuType": 3,
+  "menuName": "首页1",
+  "menuType": 1,
+  "visible": 1,
   "status": 1,
-  "sort": 6,
-  "parentId": 24,
-  "menuUrl": "",
-  "apiUrl": "/api/system/menu/queryMenuList",
-  "menu_icon": "",
-  "remark": "查询菜单信息列表"
+  "sort": 1,
+  "parentId": 0,
+  "menuUrl": "/home",
+  "apiUrl": "",
+  "menuIcon": "DashboardOutlined",
+  "remark": "首页"
 }
-
 ###删除菜单信息 deleteMenu
 POST {{host}}/api/system/menu/deleteMenu
 Content-Type: application/json
@@ -30,16 +30,17 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-    "id": 31,
-  "menuName": "查询菜单信息列表12",
-  "menuType": 3,
+  "id": 1,
+  "menuName": "首页",
+  "menuType": 1,
+  "visible": 1,
   "status": 1,
-  "sort": 6,
-  "parentId": 24,
-  "menuUrl": "",
-  "apiUrl": "/api/system/menu/queryMenuList",
-  "menu_icon": "",
-  "remark": "查询菜单信息列表"
+  "sort": 1,
+  "parentId": 0,
+  "menuUrl": "/home",
+  "apiUrl": "",
+  "menuIcon": "DashboardOutlined",
+  "remark": "首页"
 }
 
 ###更新菜单信息 updateMenuStatus状态

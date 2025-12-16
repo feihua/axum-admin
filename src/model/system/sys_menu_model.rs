@@ -89,18 +89,28 @@ impl Into<MenuResp> for Menu {
 impl_select!(Menu{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_menu");
 
 /*
- *根据menu_name查询菜单信息
+ *检查菜单名称的唯一性
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select!(Menu{select_by_menu_name(menu_name:&str) -> Option => "`where menu_name = #{menu_name} limit 1`"}, "sys_menu");
+impl_select!(Menu{check_menu_name_unique(menu_name:&str, id: Option<i64>) -> Option => "
+    where menu_name = #{menu_name}
+     if id != null:
+        ` and id != #{id} `
+        ` limit 1` "
+}, "sys_menu");
 
 /*
- *根据menu_url查询菜单信息
+ *检查菜单路径的唯一性
  *author：刘飞华
  *date：2025/01/04 22:24:01
  */
-impl_select!(Menu{select_by_menu_url(menu_url:&str) -> Option => "`where menu_url = #{menu_url} limit 1`"}, "sys_menu");
+impl_select!(Menu{check_menu_url_unique(menu_url:&str, id: Option<i64>) -> Option => "
+    where menu_url = #{menu_url}
+     if id != null:
+        ` and id != #{id} `
+        ` limit 1` "
+}, "sys_menu");
 
 /*
  *根据ids查询菜单信息
