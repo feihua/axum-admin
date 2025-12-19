@@ -49,7 +49,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
     let rb = &state.batis;
 
     let id = item.id;
-    if item.id.is_none() {
+    if id.is_none() {
         return Err(AppError::BusinessError("主键不能为空"));
     }
 

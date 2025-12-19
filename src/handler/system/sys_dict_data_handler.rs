@@ -54,7 +54,7 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
 
     let id = item.id;
 
-    if item.id.is_none() {
+    if id.is_none() {
         return Err(AppError::BusinessError("主键不能为空"));
     }
 
