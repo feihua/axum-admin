@@ -20,11 +20,11 @@ pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(mut item): Js
     info!("add sys_post params: {:?}", &item);
     let rb = &state.batis;
 
-    if Post::select_by_name(rb, &item.post_name).await?.is_some() {
+    if Post::check_post_name_unique(rb, &item.post_name, None).await?.is_some() {
         return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
-    if Post::select_by_code(rb, &item.post_code).await?.is_some() {
+    if Post::check_post_code_unique(rb, &item.post_code, None).await?.is_some() {
         return Err(AppError::BusinessError("岗位编码已存在"));
     }
 
@@ -70,16 +70,12 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("岗位不存在"));
     }
 
-    if let Some(x) = Post::select_by_name(rb, &item.post_name).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("岗位名称已存在"));
-        }
+    if let Some(x) = Post::check_post_name_unique(rb, &item.post_name, id).await? {
+        return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
-    if let Some(x) = Post::select_by_code(rb, &item.post_code).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("岗位编码已存在"));
-        }
+    if let Some(x) = Post::check_post_code_unique(rb, &item.post_code, id).await? {
+        return Err(AppError::BusinessError("岗位编码已存在"));
     }
 
     Post::update_by_map(rb, &Post::from(item), value! {"id": &id}).await.map(|_| ok_result())?

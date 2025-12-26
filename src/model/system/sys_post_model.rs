@@ -77,14 +77,24 @@ impl_select!(Post{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(Post{select_by_code(post_code:&str) -> Option => "`where post_code = #{post_code} limit 1`"}, "sys_post");
+impl_select!(Post{check_post_code_unique(post_code:&str, id:Option<i64>) -> Option => "
+    `where post_code = #{post_code} `
+     if id != null:
+      ` and id != #{id} `
+    limit 1"
+}, "sys_post");
 
 /*
  *根据post_name查询岗位信息
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(Post{select_by_name(post_name:&str) -> Option => "`where post_name = #{post_name} limit 1`"}, "sys_post");
+impl_select!(Post{check_post_name_unique(post_name:&str, id:Option<i64>) -> Option => "
+    `where post_name = #{post_name} `
+     if id != null:
+      ` and id != #{id} `
+     limit 1"
+}, "sys_post");
 
 /*
  *分页查询岗位信息
