@@ -70,11 +70,11 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("岗位不存在"));
     }
 
-    if let Some(x) = Post::check_post_name_unique(rb, &item.post_name, id).await? {
+    if Post::check_post_name_unique(rb, &item.post_name, id).await?.is_some() {
         return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
-    if let Some(x) = Post::check_post_code_unique(rb, &item.post_code, id).await? {
+    if Post::check_post_code_unique(rb, &item.post_code, id).await?.is_some() {
         return Err(AppError::BusinessError("岗位编码已存在"));
     }
 

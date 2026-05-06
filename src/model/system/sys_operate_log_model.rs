@@ -89,13 +89,13 @@ impl_select_page!(OperateLog{select_page_by_name(
     where 1=1
      if req.title != '' && req.title != null:
        ` and title like concat('%', #{req.title}, '%') `
-     if req.businessType != 4:
+     if req.businessType != null:
        ` and business_type = #{req.businessType} `
      if req.method != '' && req.method != null:
        ` and method = #{req.method} `
      if req.requestMethod != '' && req.requestMethod != null:
        ` and request_method = #{req.requestMethod} `
-     if req.operatorType != 3:
+     if req.operatorType != null:
        ` and operator_type = #{req.operatorType} `
      if req.operateName != '' && req.operateName != null:
        ` and operate_name = #{req.operateName} `
