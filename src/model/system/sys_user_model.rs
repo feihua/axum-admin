@@ -95,6 +95,7 @@ impl Into<UserResp> for User {
             update_time: self.update_time,                 //修改时间
             dept_info: None,
             post_ids: None,
+            role_ids: None,
         }
     }
 }

@@ -49,6 +49,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Js
     }
 
     let post_ids = item.post_ids.clone();
+    let role_ids = item.role_ids.clone();
     item.id = None;
     let id = User::insert(rb, &User::from(item)).await?.last_insert_id;
 
@@ -57,7 +58,22 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Js
         user_post_list.push(UserPost { user_id: id.i64(), post_id })
     }
 
-    UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await.map(|_| ok_result())?
+    UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
+
+    if role_ids.is_some() {
+        let mut user_role_list: Vec<UserRole> = Vec::new();
+        for role_id in role_ids.unwrap_or_default() {
+            user_role_list.push(UserRole {
+                id: None,
+                user_id: id.i64(),
+                role_id,
+                create_time: None,
+            })
+        }
+        UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await.map(|_| ok_result())?
+    } else {
+        ok_result()
+    }
 }
 
 /*
@@ -147,6 +163,23 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
 
     UserPost::delete_by_map(rb, value! {"user_id": &item.id}).await?;
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
+
+    let role_ids = item.role_ids.clone();
+
+    if role_ids.is_some() {
+        let mut user_role_list: Vec<UserRole> = Vec::new();
+        for role_id in role_ids.unwrap_or_default() {
+            user_role_list.push(UserRole {
+                id: None,
+                user_id: user.id.unwrap_or_default(),
+                role_id,
+                create_time: None,
+            })
+        }
+
+        UserRole::delete_by_map(rb, value! {"user_id": &item.id}).await?;
+        UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await?;
+    }
 
     User::update_by_map(rb, &User::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
@@ -260,11 +293,14 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
         }
     };
 
-    let post_ids = UserPost::select_by_map(rb, value! {"user_id": item.id}).await?.iter().map(|x| x.post_id).collect::<Vec<i64>>();
-
     x.dept_info = dept;
+
+    let post_ids = UserPost::select_by_map(rb, value! {"user_id": item.id}).await?.iter().map(|x| x.post_id).collect::<Vec<i64>>();
     x.post_ids = Some(post_ids);
 
+    let role_ids = UserRole::select_by_map(rb, value! {"user_id": item.id}).await?.iter().map(|x| x.role_id).collect::<Vec<i64>>();
+
+    x.role_ids = Some(role_ids);
     ok_result_data(x)
 }
 

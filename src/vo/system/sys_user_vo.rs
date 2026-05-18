@@ -32,6 +32,7 @@ pub struct UserReq {
     pub dept_id: i64,             //部门ID
     pub remark: Option<String>,   //备注
     pub post_ids: Vec<i64>,       //岗位ids
+    pub role_ids: Option<Vec<i64>>, //角色ids
 }
 fn default_avatar() -> Option<String> {
     Some("https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png".to_string())
@@ -99,6 +100,7 @@ pub struct UserResp {
     pub update_time: Option<DateTime>, //修改时间
     pub dept_info: Option<DeptResp>, //部门详细信息
     pub post_ids: Option<Vec<i64>>, //岗位ids
+    pub role_ids: Option<Vec<i64>>, //角色ids
 }
 /*
 登录请求参数
