@@ -1,7 +1,7 @@
 use crate::common::error::AppError;
 use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
-use crate::model::system::sys_role_menu_model::select_count_menu_by_menu_id;
+use crate::model::system::sys_role_menu_model::RoleMenu;
 use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -20,13 +20,13 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(mut item): Js
     info!("add sys_menu params: {:?}", &item);
     let rb = &state.batis;
 
-    if Menu::check_menu_name_unique(rb, &item.menu_name, None).await?.is_some() {
+    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name}).await?.len() > 0 {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if Menu::check_menu_url_unique(rb, &url, None).await?.is_some() {
+            if Menu::select_by_map(rb, value! {"menu_url": url}).await?.len() > 0 {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
@@ -51,7 +51,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
             return Err(AppError::BusinessError("存在子菜单,不允许删除"));
         }
 
-        if select_count_menu_by_menu_id(rb, &x).await? > 0 {
+        if RoleMenu::select_count_menu_by_menu_id(rb, &x).await? > 0 {
             return Err(AppError::BusinessError("菜单已分配,不允许删除"));
         }
     }
@@ -78,13 +78,13 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
-    if Menu::check_menu_name_unique(rb, &item.menu_name, id).await?.is_some() {
+    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id!=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if Menu::check_menu_url_unique(rb, &url, id).await?.is_some() {
+            if Menu::select_by_map(rb, value! {"menu_url": url, "id!=": &id}).await?.len() > 0 {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
@@ -137,11 +137,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
     info!("query sys_menu_list params: {:?}", &item);
     let rb = &state.batis;
 
-    let menu_name = item.menu_name;
-    let parent_id = item.parent_id;
-    let status = item.status;
-
-    Menu::query_sys_menu_list(rb, menu_name, parent_id, status)
+    Menu::select_by_map(rb, value! {})
         .await
         .map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
 }
@@ -154,7 +150,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
 pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     let rb = &state.batis;
 
-    Menu::select_menu_list(rb)
+    Menu::select_by_map(rb, value! {"menu_type!=": 3, "status": 1})
         .await
         .map(|x| ok_result_data(x.into_iter().map(|x| MenuSimpleResp::from(x)).collect::<Vec<MenuSimpleResp>>()))?
 }
@@ -164,17 +160,15 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
-    info!("query sys_menu_list params: {:?}", &item);
+pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Json(req): Json<QueryMenuListReq>) -> impl IntoResponse {
+    info!("query sys_menu_list params: {:?}", &req);
     let rb = &state.batis;
 
-    let menu_name = item.menu_name;
-    let parent_id = item.parent_id;
-    let status = item.status;
+    let item = &req;
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    Menu::query_sys_menu_resource_list(rb, page, menu_name, parent_id, status)
+    Menu::select_by_page(rb, page, item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>(), x.total))?
 }

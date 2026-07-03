@@ -1,10 +1,11 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
-use crate::rbatis::rbatis_codegen::IntoSql;
-use crate::vo::system::sys_menu_vo::{MenuReq, MenuResp};
+use crate::vo::system::sys_menu_vo::MenuResp;
+use crate::vo::system::sys_menu_vo::{MenuReq, QueryMenuListReq};
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *菜单信息
@@ -27,14 +28,6 @@ pub struct Menu {
     pub create_time: Option<DateTime>, //创建时间
     pub update_time: Option<DateTime>, //修改时间
 }
-
-/*
- *菜单信息基本操作
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-rbatis::crud!(Menu {}, "sys_menu");
-
 impl From<MenuReq> for Menu {
     fn from(item: MenuReq) -> Self {
         let mut model = Menu {
@@ -80,44 +73,12 @@ impl Into<MenuResp> for Menu {
         }
     }
 }
-
 /*
- *根据id查询菜单信息
+ *菜单信息基本操作
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-impl_select!(Menu{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_menu");
-
-/*
- *检查菜单名称的唯一性
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-impl_select!(Menu{check_menu_name_unique(menu_name:&str, id: Option<i64>) -> Option => "
-    where menu_name = #{menu_name}
-     if id != null:
-        ` and id != #{id} `
-        ` limit 1` "
-}, "sys_menu");
-
-/*
- *检查菜单路径的唯一性
- *author：刘飞华
- *date：2025/01/04 22:24:01
- */
-impl_select!(Menu{check_menu_url_unique(menu_url:&str, id: Option<i64>) -> Option => "
-    where menu_url = #{menu_url}
-     if id != null:
-        ` and id != #{id} `
-        ` limit 1` "
-}, "sys_menu");
-
-/*
- *根据ids查询菜单信息
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-impl_select!(Menu{select_by_ids(ids:&[i64]) -> Vec => "`where status = 1 and id in ${ids.sql()} order by sort asc`"}, "sys_menu");
+rbatis::crud!(Menu {}, "sys_menu");
 
 /*
  *查询菜单数量
@@ -129,43 +90,36 @@ pub async fn select_count_menu_by_parent_id(rb: &RBatis, parent_id: &i64) -> rba
     impled!()
 }
 
-/*
- *查询菜单信息(排除按钮)
- *author：刘飞华
- *date：2025/01/04 22:24:01
- */
-impl_select!(Menu{select_menu_list() -> Vec => "`where menu_type != 3 and status = 1`"}, "sys_menu");
+impl Menu {
+    /*
+     *根据id查询菜单信息
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Menu>> {
+        Ok(Menu::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
 
-/*
- *查询菜单列表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Menu{query_sys_menu_list(menu_name:Option<String>, parent_id: Option<i64>, status:Option<i8>) =>"
-    where menu_type != 3
-     if menu_name != '' && menu_name != null:
-       ` and menu_name like concat('%', #{menu_name}, '%') `
-     if parent_id != 0 && parent_id != null:
-      ` and parent_id = #{parent_id} `
-     if status != 2 && status != null:
-       ` and status = #{status} `
-     if !sql.contains('count'):
-       ` order by sort asc `"
-},"sys_menu");
-
-/*
- *查询菜单资源
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(Menu{query_sys_menu_resource_list(menu_name:Option<String>, parent_id: Option<i64>, status:Option<i8>) =>"
-    where menu_type = 3
-     if menu_name != '' && menu_name != null:
-       ` and menu_name like concat('%', #{menu_name}, '%') `
-     if parent_id != 0 && parent_id != null:
-      ` and parent_id = #{parent_id} `
-     if status != 2 && status != null:
-       ` and status = #{status} `
-     if !sql.contains('count'):
-       ` order by sort asc `"
-},"sys_menu");
+    /*
+     *根据条件分页查询菜单信息
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_menu`
+            <where>
+            <if test="req.menuName != '' && req.menuName != null">
+                ` and menu_name like concat('%', #{req.menuName}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryMenuListReq) -> rbatis::Result<rbatis::Page<Menu>> {
+        impled!()
+    }
+}

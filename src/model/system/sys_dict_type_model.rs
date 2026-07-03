@@ -2,8 +2,12 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_dict_type_vo::{DictTypeReq, DictTypeResp, QueryDictTypeListReq};
+use crate::vo::system::sys_dict_type_vo::DictTypeReq;
+use crate::vo::system::sys_dict_type_vo::DictTypeResp;
+use crate::vo::system::sys_dict_type_vo::QueryDictTypeListReq;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *字典类型
@@ -27,7 +31,6 @@ pub struct DictType {
  *date：2024/12/25 10:01:11
  */
 rbatis::crud!(DictType {}, "sys_dict_type");
-
 impl From<DictTypeReq> for DictType {
     fn from(item: DictTypeReq) -> Self {
         let mut model = DictType {
@@ -61,44 +64,83 @@ impl Into<DictTypeResp> for DictType {
         }
     }
 }
-
-/*
- *根据id查询字典类型
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
-
-/*
- *根据dict_type查询字典类型
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(DictType{select_by_dict_type(dict_type:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
-
-/*
- *分页查询字典类型
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(DictType{select_page() =>"
-     if !sql.contains('count'):
-       order by create_time desc"
-},"sys_dict_type");
+// /*
+//  *根据id查询字典类型
+//  *author：刘飞华
+//  *date：2024/12/25 10:01:11
+//  */
+// impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
+//
+// /*
+//  *根据dict_type查询字典类型
+//  *author：刘飞华
+//  *date：2024/12/25 10:01:11
+//  */
+// impl_select!(DictType{select_by_dict_type(dict_type:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
+//
+// /*
+//  *分页查询字典类型
+//  *author：刘飞华
+//  *date：2024/12/25 10:01:11
+//  */
+// impl_select_page!(DictType{select_page() =>"
+//      if !sql.contains('count'):
+//        order by create_time desc"
+// },"sys_dict_type");
 
 /*
  *根据条件分页查询字典类型
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select_page!(DictType{select_dict_type_list(req:&QueryDictTypeListReq) =>"
-    where 1=1
-     if req.dictName != null && req.dictName != '':
-      ` and dict_name like concat('%', #{req.dictName}, '%') `
-     if req.dictType != null && req.dictType != '':
-      ` and dict_type like concat('%', #{req.dictType}, '%') `
-     if req.status != 2:
-      ` and status = #{req.status} `
-     if !sql.contains('count'):
-      ` order by create_time desc"
-},"sys_dict_type");
+// impl_select_page!(DictType{select_dict_type_list(req:&QueryDictTypeListReq) =>"
+//     where 1=1
+//      if req.dictName != null && req.dictName != '':
+//       ` and dict_name like concat('%', #{req.dictName}, '%') `
+//      if req.dictType != null && req.dictType != '':
+//       ` and dict_type like concat('%', #{req.dictType}, '%') `
+//      if req.status != 2:
+//       ` and status = #{req.status} `
+//      if !sql.contains('count'):
+//       ` order by create_time desc"
+// },"sys_dict_type");
+
+impl DictType {
+    /*
+     *根据id查询字典类型表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<DictType>> {
+        Ok(DictType::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
+
+    /*
+     *根据条件分页查询字典类型表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_dict_type`
+            <where>
+            <if test="req.dictName != '' && req.dictName != null">
+                ` and dict_name like concat('%', #{req.dictName}, '%')`
+            </if>
+            <if test="req.dictType != '' && req.dictType != null">
+                ` and dict_type like concat('%', #{req.dictType}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            <if test="req.remark != '' && req.remark != null">
+                ` and remark like concat('%', #{req.remark}, '%')`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryDictTypeListReq) -> rbatis::Result<rbatis::Page<DictType>> {
+        impled!()
+    }
+}

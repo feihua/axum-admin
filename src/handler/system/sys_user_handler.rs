@@ -6,7 +6,7 @@ use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_model::Role;
 use crate::model::system::sys_user_model::User;
 use crate::model::system::sys_user_post_model::UserPost;
-use crate::model::system::sys_user_role_model::{is_admin, UserRole};
+use crate::model::system::sys_user_role_model::UserRole;
 use crate::utils::jwt_util::JwtToken;
 use crate::utils::user_agent_util::UserAgentUtil;
 use crate::vo::system::sys_dept_vo::DeptResp;
@@ -36,15 +36,15 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Js
     info!("add sys_user params: {:?}", &item);
     let rb = &state.batis;
 
-    if User::select_by_user_name(rb, &item.user_name).await?.is_some() {
+    if User::select_by_map(rb, value! {"user_name": &item.user_name}).await?.len() > 0 {
         return Err(AppError::BusinessError("登录账号已存在"));
     }
 
-    if User::select_by_mobile(rb, &item.mobile).await?.is_some() {
+    if User::select_by_map(rb, value! {"mobile": &item.mobile}).await?.len() > 0 {
         return Err(AppError::BusinessError("手机号码已存在"));
     }
 
-    if User::select_by_email(rb, &item.email).await?.is_some() {
+    if User::select_by_map(rb, value! {"email": &item.email}).await?.len() > 0 {
         return Err(AppError::BusinessError("邮箱账号已存在"));
     }
 
@@ -55,7 +55,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Js
 
     let mut user_post_list: Vec<UserPost> = Vec::new();
     for post_id in post_ids {
-        user_post_list.push(UserPost { user_id: id.i64(), post_id })
+        user_post_list.push(UserPost { id: None, user_id: id.i64(), post_id })
     }
 
     UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
@@ -63,12 +63,7 @@ pub async fn add_sys_user(State(state): State<Arc<AppState>>, Json(mut item): Js
     if role_ids.is_some() {
         let mut user_role_list: Vec<UserRole> = Vec::new();
         for role_id in role_ids.unwrap_or_default() {
-            user_role_list.push(UserRole {
-                id: None,
-                user_id: id.i64(),
-                role_id,
-                create_time: None,
-            })
+            user_role_list.push(UserRole { id: None, user_id: id.i64(), role_id })
         }
         UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await.map(|_| ok_result())?
     } else {
@@ -129,33 +124,28 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
-    let user = match User::select_by_id(rb, id.unwrap_or_default()).await? {
+    let user = match User::select_by_id(rb, &id.unwrap_or_default()).await? {
         None => return Err(AppError::BusinessError("用户不存在")),
         Some(x) => x,
     };
 
-    if let Some(x) = User::select_by_user_name(rb, &item.user_name).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("登录账号已存在"));
-        }
+    if User::select_by_map(rb, value! {"user_name": &item.user_name,"id!=": &id}).await?.len() > 0 {
+        return Err(AppError::BusinessError("登录账号已存在"));
     }
 
-    if let Some(x) = User::select_by_mobile(rb, &item.mobile).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("手机号码已存在"));
-        }
+    if User::select_by_map(rb, value! {"mobile": &item.mobile,"id!=": &id}).await?.len() > 0 {
+        return Err(AppError::BusinessError("手机号码已存在"));
     }
 
-    if let Some(x) = User::select_by_email(rb, &item.email).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("邮箱账号已存在"));
-        }
+    if User::select_by_map(rb, value! {"email": &item.email,"id!=": &id}).await?.len() > 0 {
+        return Err(AppError::BusinessError("邮箱账号已存在"));
     }
 
     let post_ids = item.post_ids.clone();
     let mut user_post_list: Vec<UserPost> = Vec::new();
     for post_id in post_ids {
         user_post_list.push(UserPost {
+            id: None,
             user_id: user.id.unwrap_or_default(),
             post_id,
         })
@@ -173,7 +163,6 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
                 id: None,
                 user_id: user.id.unwrap_or_default(),
                 role_id,
-                create_time: None,
             })
         }
 
@@ -230,7 +219,7 @@ pub async fn reset_sys_user_password(State(state): State<Arc<AppState>>, Json(it
         return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
-    let sys_user_result = User::select_by_id(rb, item.id).await?;
+    let sys_user_result = User::select_by_id(rb, &item.id).await?;
 
     match sys_user_result {
         None => Err(AppError::BusinessError("用户不存在")),
@@ -254,7 +243,7 @@ pub async fn update_sys_user_password(headers: HeaderMap, State(state): State<Ar
 
     let user_id = headers.get("user_id").unwrap().to_str().unwrap().parse::<i64>().unwrap();
 
-    match User::select_by_id(rb, user_id).await? {
+    match User::select_by_id(rb, &user_id).await? {
         None => Err(AppError::BusinessError("用户不存在")),
         Some(x) => {
             let mut user = x;
@@ -276,7 +265,7 @@ pub async fn query_sys_user_detail(State(state): State<Arc<AppState>>, Json(item
     info!("query sys_user_detail params: {:?}", &item);
     let rb = &state.batis;
 
-    let mut x = match User::select_by_id(rb, item.id).await? {
+    let mut x = match User::select_by_id(rb, &item.id).await? {
         None => return Err(AppError::BusinessError("用户不存在")),
         Some(user) => {
             let a: UserResp = user.into();
@@ -315,7 +304,7 @@ pub async fn query_sys_user_list(State(state): State<Arc<AppState>>, Json(item):
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    User::select_sys_user_list(rb, page, &item)
+    User::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<UserResp>>(), x.total))?
 }
@@ -337,7 +326,7 @@ pub async fn login(headers: HeaderMap, State(state): State<Arc<AppState>>, Json(
     let user_result = User::select_by_account(rb, &item.account).await?;
     info!("query user by mobile: {:?}", user_result);
 
-    match user_result {
+    match user_result.first().cloned() {
         None => {
             add_login_log(rb, item.account, 0, "用户不存在", agent).await;
             Err(AppError::BusinessError("用户不存在"))
@@ -420,10 +409,10 @@ async fn add_login_log(rb: &RBatis, name: String, status: i8, msg: &str, agent: 
  *date：2024/12/12 14:41:44
  */
 async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
-    let count = is_admin(&rb, id).await.unwrap_or_default();
+    let count = UserRole::is_admin(&rb, id).await.unwrap_or_default();
     let mut btn_menu: Vec<String> = Vec::new();
     if count == 1 {
-        let data = Menu::select_all(&rb).await;
+        let data = Menu::select_by_map(&rb, value! {}).await;
 
         for x in data.unwrap_or_default() {
             if let Some(a) = x.api_url {
@@ -435,7 +424,7 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> (Vec<String>, bool) {
         info!("admin login: {:?}", id);
         (btn_menu, true)
     } else {
-        let btn_menu_map: Vec<HashMap<String, String>> = rb.query_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await.unwrap();
+        let btn_menu_map: Vec<HashMap<String, String>> = rb.exec_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await.unwrap();
         for x in btn_menu_map {
             if let Some(a) = x.get("api_url") {
                 if a.to_string() != "" {
@@ -457,7 +446,7 @@ pub async fn query_user_role(State(state): State<Arc<AppState>>, Json(item): Jso
     info!("query user_role params: {:?}", item);
     let rb = &state.batis;
 
-    let role_list = Role::select_all(rb).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
+    let role_list = Role::select_by_map(rb, value! {}).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
     let sys_role_list = role_list.clone();
     let mut user_role_ids = role_list.into_iter().map(|x| x.id.unwrap_or_default()).collect::<Vec<i64>>();
 
@@ -493,7 +482,6 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
         let r_id = role_id.clone();
         list.push(UserRole {
             id: None,
-            create_time: Some(DateTime::now()),
             role_id: r_id,
             user_id: user_id.clone(),
         })
@@ -511,7 +499,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
     let mut conn = state.redis.get_connection()?;
 
     //根据id查询用户
-    match User::select_by_id(rb, user_id).await? {
+    match User::select_by_id(rb, &user_id).await? {
         None => Err(AppError::BusinessError("用户不存在")),
         Some(user) => {
             let key = format!("axum:admin:user:info:{}", user_id);
@@ -521,11 +509,11 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
 
             if is_admin {
                 info!("The current user is a super administrator");
-                sys_menu_list = Menu::select_all(rb).await?;
+                sys_menu_list = Menu::select_by_map(rb, value! {}).await?;
             } else {
                 info!("The current user is not a super administrator");
                 let sql_str = "select u.* from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?";
-                sys_menu_list = rb.query_decode(sql_str, vec![value!(user.id)]).await?;
+                sys_menu_list = rb.exec_decode(sql_str, vec![value!(user.id)]).await?;
             }
 
             let mut sys_menu: Vec<MenuList> = Vec::new();
@@ -550,8 +538,7 @@ pub async fn query_user_menu(headers: HeaderMap, State(state): State<Arc<AppStat
             for id in sys_menu_ids {
                 menu_ids.push(id)
             }
-            let vec1 = Menu::select_by_ids(rb, &menu_ids).await?;
-            for menu in vec1 {
+            for menu in Menu::select_by_map(rb, value!("id", &menu_ids, "status", 1)).await? {
                 sys_menu.push(MenuList {
                     id: menu.id,
                     parent_id: menu.parent_id,

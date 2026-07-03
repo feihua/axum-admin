@@ -2,9 +2,12 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_dict_data_vo::{DictDataReq, DictDataResp, QueryDictDataListReq};
+use crate::vo::system::sys_dict_data_vo::DictDataReq;
+use crate::vo::system::sys_dict_data_vo::DictDataResp;
+use crate::vo::system::sys_dict_data_vo::QueryDictDataListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *字典数据表
@@ -78,70 +81,59 @@ impl Into<DictDataResp> for DictData {
     }
 }
 
-/*
- *根据id查询字典数据表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(DictData{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_data");
+impl DictData {
+    /*
+     *根据id查询字典数据表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<DictData>> {
+        Ok(DictData::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
 
-/*
- *根据dict_type和dict_label查询字典数据表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(DictData{select_by_dict_label(dict_type:&str, dict_label:&str) -> Option => "`where dict_type = #{dict_type} and dict_label = #{dict_label}`"}, "sys_dict_data");
+    /*
+     *根据条件分页查询字典数据表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_dict_data`
+            <where>
+            <if test="req.dictLabel != '' && req.dictLabel != null">
+                ` and dict_label like concat('%', #{req.dictLabel}, '%')`
+            </if>
+            <if test="req.dictType != '' && req.dictType != null">
+                ` and dict_type like concat('%', #{req.dictType}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryDictDataListReq) -> rbatis::Result<rbatis::Page<DictData>> {
+        impled!()
+    }
 
-/*
- *根据dict_type和dict_value查询字典数据表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(DictData{select_by_dict_value(dict_type:&str, dict_value:&str) -> Option => "`where dict_type = #{dict_type} and dict_value = #{dict_value}`"}, "sys_dict_data");
+    /*
+     *同步修改字典类型
+     *author：刘飞华
+     *date：2024/12/25 10:01:11
+     */
+    #[sql("update sys_dict_data set dict_type = ? where dict_type = ?")]
+    pub async fn update_dict_data_type(rb: &RBatis, new_dict_type: &str, old_dict_type: &str) -> Option<i64> {
+        impled!()
+    }
 
-/*
- *分页查询字典数据表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(DictData{select_page() =>"
-     if !sql.contains('count'):
-       order by create_time desc"
-},"sys_dict_data");
-
-/*
- *根据条件分页查询字典数据表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(DictData{select_dict_data_list(req:&QueryDictDataListReq) =>"
-    where 1=1
-     if req.dictLabel != null && req.dictLabel != '':
-      ` and dict_label like concat('%', #{req.dictLabel}, '%') `
-     if req.dictType != null && req.dictType != '':
-      ` and dict_type like concat('%', #{req.dictType}, '%') `
-     if req.status != 2:
-      ` and status = #{req.status} `
-     if !sql.contains('count'):
-      ` order by create_time desc"
-},"sys_dict_data");
-
-/*
- *同步修改字典类型
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-#[sql("update sys_dict_data set dict_type = ? where dict_type = ?")]
-pub async fn update_dict_data_type(rb: &RBatis, new_dict_type: &str, old_dict_type: &str) -> Option<i64> {
-    impled!()
-}
-
-/*
- *查询字典数据
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-#[sql("select count(1) from sys_dict_data where dict_type= ?")]
-pub async fn count_dict_data_by_type(rb: &RBatis, dict_type: &str) -> rbatis::Result<i64> {
-    impled!()
+    /*
+     *查询字典数据
+     *author：刘飞华
+     *date：2024/12/25 10:01:11
+     */
+    #[sql("select count(1) from sys_dict_data where dict_type= ?")]
+    pub async fn count_dict_data_by_type(rb: &RBatis, dict_type: &str) -> rbatis::Result<i64> {
+        impled!()
+    }
 }

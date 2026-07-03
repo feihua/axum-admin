@@ -19,9 +19,13 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(mut item): 
     info!("add sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    if Notice::select_by_title(rb, &item.notice_title).await?.is_some() {
-        return Err(AppError::BusinessError("公告标题已存在"));
+    let condition = value! {
+        "notice_title": &item.notice_title,
     };
+    let list = Notice::select_by_map(rb, condition).await?;
+    if list.len() > 0 {
+        return Err(AppError::BusinessError("公告标题已存在"));
+    }
 
     item.id = None;
     Notice::insert(rb, &Notice::from(item)).await.map(|_| ok_result())?
@@ -57,10 +61,14 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
         return Err(AppError::BusinessError("通知公告表不存在"));
     }
 
-    if let Some(x) = Notice::select_by_title(rb, &item.notice_title).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("公告标题已存在"));
-        }
+    let condition = value! {
+        "notice_title": &item.notice_title,
+        "id!=":id
+    };
+
+    let list = Notice::select_by_map(rb, condition).await?;
+    if list.len() > 0 {
+        return Err(AppError::BusinessError("公告标题已存在"));
     }
 
     Notice::update_by_map(rb, &Notice::from(item), value! {"id": &id}).await.map(|_| ok_result())?
@@ -112,7 +120,7 @@ pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    Notice::select_sys_notice_list(rb, page, &item)
+    Notice::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<NoticeResp>>(), x.total))?
 }

@@ -1,6 +1,6 @@
 use crate::common::error::AppError;
 use crate::common::result::{ok_result, ok_result_data, ok_result_page};
-use crate::model::system::sys_dict_data_model::{count_dict_data_by_type, update_dict_data_type};
+use crate::model::system::sys_dict_data_model::DictData;
 use crate::model::system::sys_dict_type_model::DictType;
 use crate::vo::system::sys_dict_type_vo::*;
 use crate::AppState;
@@ -20,7 +20,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(mut item
     info!("add sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
-    if DictType::select_by_dict_type(rb, &item.dict_type).await?.is_some() {
+    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type}).await?.len() > 0 {
         return Err(AppError::BusinessError("字典类型已存在"));
     }
 
@@ -44,7 +44,8 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
             Some(p) => p,
         };
 
-        if count_dict_data_by_type(rb, &p.dict_type).await? > 0 {
+        let res_count = DictData::count_dict_data_by_type(rb, &p.dict_type).await?;
+        if res_count > 0 {
             return Err(AppError::BusinessError("已分配,不能删除"));
         }
     }
@@ -67,18 +68,17 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
         return Err(AppError::BusinessError("主键不能为空"));
     }
 
-    if DictType::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
+    let option = DictType::select_by_id(rb, &id.unwrap_or_default()).await?;
+    if option.is_none() {
         return Err(AppError::BusinessError("字典类型不存在"));
     }
 
-    if let Some(x) = DictType::select_by_dict_type(rb, &item.dict_type).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("字典类型已存在"));
-        }
-
-        let dict_type = x.dict_type;
-        update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
+    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type,"id!=": &id}).await?.len() > 0 {
+        return Err(AppError::BusinessError("字典类型已存在"));
     }
+
+    let dict_type = option.unwrap().dict_type;
+    DictData::update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
 
     DictType::update_by_map(rb, &DictType::from(item), value! {"id": &id}).await.map(|_| ok_result())?
 }
@@ -128,7 +128,7 @@ pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(i
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    DictType::select_dict_type_list(rb, page, &item)
+    DictType::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<DictTypeResp>>(), x.total))?
 }

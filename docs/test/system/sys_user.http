@@ -74,7 +74,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "pageNo1": 1,
+  "pageNo": 1,
   "pageSize": 10,
   "mobile": "",
   "userName": "",

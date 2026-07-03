@@ -2,9 +2,11 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_login_log_vo::{LoginLogResp, QueryLoginLogListReq};
+use crate::vo::system::sys_login_log_vo::LoginLogResp;
+use crate::vo::system::sys_login_log_vo::QueryLoginLogListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *系统访问记录
@@ -60,44 +62,6 @@ impl Into<LoginLogResp> for LoginLog {
 }
 
 /*
- *根据id查询系统访问记录
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(LoginLog{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_login_log");
-
-/*
- *分页查询系统访问记录
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(LoginLog{select_page() =>"
-     if !sql.contains('count'):
-       order by login_time desc"
-},"sys_login_log");
-
-/*
- *根据条件分页查询系统访问记录
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(LoginLog{select_login_log_list(req:&QueryLoginLogListReq) =>"
-    where 1=1
-     if req.loginName != '' && req.loginName != null:
-       ` and login_name like concat('%', #{req.loginName}, '%') `
-     if req.ipaddr != '' && req.ipaddr != null:
-       ` and ipaddr like concat('%', #{req.ipaddr}, '%') `
-     if req.browser != '' && req.browser != null:
-       ` and browser like concat('%', #{req.browser}, '%') `
-     if req.os != '' && req.os != null:
-       ` and os like concat('%', #{req.os}, '%') `
-     if req.status != 2:
-       ` and status = #{req.status} `
-     if !sql.contains('count'):
-       ` order by login_time desc `"
-},"sys_login_log");
-
-/*
  *清空系统登录日志
  *author：刘飞华
  *date：2024/12/12 14:41:44
@@ -105,4 +69,47 @@ impl_select_page!(LoginLog{select_login_log_list(req:&QueryLoginLogListReq) =>"
 #[sql("truncate table sys_login_log")]
 pub async fn clean_login_log(rb: &RBatis) -> Option<i64> {
     impled!()
+}
+
+impl LoginLog {
+    /*
+     *根据id查询系统访问记录
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<LoginLog>> {
+        Ok(LoginLog::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
+
+    /*
+     *根据条件分页查询系统访问记录
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_login_log`
+            <where>
+            <if test="req.loginName != '' && req.loginName != null">
+                ` and login_name like concat('%', #{req.loginName}, '%')`
+            </if>
+            <if test="req.ipaddr != '' && req.ipaddr != null">
+                ` and ipaddr like concat('%', #{req.ipaddr}, '%')`
+            </if>
+            <if test="req.browser != '' && req.browser != null">
+                ` and browser like concat('%', #{req.browser}, '%')`
+            </if>
+            <if test="req.os != '' && req.os != null">
+                ` and os like concat('%', #{req.os}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryLoginLogListReq) -> rbatis::Result<rbatis::Page<LoginLog>> {
+        impled!()
+    }
 }

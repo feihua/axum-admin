@@ -2,9 +2,12 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_dept_vo::{DeptReq, DeptResp, QueryDeptListReq};
+use crate::vo::system::sys_dept_vo::DeptReq;
+use crate::vo::system::sys_dept_vo::DeptResp;
+use crate::vo::system::sys_dept_vo::QueryDeptListReq;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 use validator::Validate;
 /*
@@ -79,81 +82,94 @@ impl Into<DeptResp> for Dept {
         }
     }
 }
-/*
- *根据id查询部门
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Dept{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dept");
 
-/*
- *根据部门名称查询部门
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Dept{select_by_dept_name(dept_name:&str, parent_id:i64) -> Option => "`where dept_name = #{dept_name} and parent_id = #{parent_id} limit 1`"}, "sys_dept");
+impl Dept {
+    /*
+     *根据id查询部门表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Dept>> {
+        Ok(Dept::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
+    /*
+     *根据条件分页查询部门表
+     *author：刘飞华
+     *date：2026/07/01 17:45:52
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_dept`
+            <where>
+            <if test="req.parentId != 2">
+                ` and parent_id = #{req.parentId}`
+            </if>
+            <if test="req.ancestors != '' && req.ancestors != null">
+                ` and ancestors like concat('%', #{req.ancestors}, '%')`
+            </if>
+            <if test="req.deptName != '' && req.deptName != null">
+                ` and dept_name like concat('%', #{req.deptName}, '%')`
+            </if>
+            <if test="req.leader != '' && req.leader != null">
+                ` and leader like concat('%', #{req.leader}, '%')`
+            </if>
+            <if test="req.phone != '' && req.phone != null">
+                ` and phone like concat('%', #{req.phone}, '%')`
+            </if>
+            <if test="req.email != '' && req.email != null">
+                ` and email like concat('%', #{req.email}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            <if test="req.delFlag != 2">
+                ` and del_flag = #{req.delFlag}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, req: &QueryDeptListReq) -> rbatis::Result<Vec<Dept>> {
+        impled!()
+    }
 
-/*
- *分页查询部门
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(Dept{select_page() =>"
-     if !sql.contains('count'):
-       order by create_time desc"
-},"sys_dept");
+    /*
+     *根据部门id查询是否有下级部门
+     *author：刘飞华
+     *date：2024/12/12 14:41:44
+     */
+    #[sql("select count(*) from sys_dept where status = 1 and del_flag = '1' and find_in_set(?, ancestors)")]
+    pub async fn select_normal_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
+        impled!()
+    }
 
-/*
- *根据条件分页查询部门
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Dept{select_page_dept_list(req:&QueryDeptListReq) =>"
-    where 1=1
-     if req.deptName != null && req.deptName != '':
-      ` and dept_name = #{req.deptName} `
-     if req.status != 2:
-      ` and status = #{req.status} `
-     if !sql.contains('count'):
-      ` order by sort"
-},"sys_dept");
+    /*
+     *根据父部门id查询下级部门数量
+     *author：刘飞华
+     *date：2024/12/12 14:41:44
+     */
+    #[sql("select count(1) from sys_dept where del_flag = '1' and parent_id = ?")]
+    pub async fn select_dept_count(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
+        impled!()
+    }
 
-/*
- *根据部门id查询是否有下级部门
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-#[sql("select count(*) from sys_dept where status = 1 and del_flag = '1' and find_in_set(?, ancestors)")]
-pub async fn select_normal_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
-    impled!()
-}
+    /*
+     *查询部门是否存在用户
+     *author：刘飞华
+     *date：2024/12/12 14:41:44
+     */
+    #[sql("select count(1) from sys_user where dept_id = ? and del_flag = '1'")]
+    pub async fn check_dept_exist_user(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
+        impled!()
+    }
 
-/*
- *根据父部门id查询下级部门数量
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-#[sql("select count(1) from sys_dept where del_flag = '1' and parent_id = ?")]
-pub async fn select_dept_count(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
-    impled!()
-}
-
-/*
- *查询部门是否存在用户
- *author：刘飞华
- *date：2024/12/12 14:41:44
- */
-#[sql("select count(1) from sys_user where dept_id = ? and del_flag = '1'")]
-pub async fn check_dept_exist_user(rb: &RBatis, id: &i64) -> rbatis::Result<i64> {
-    impled!()
-}
-
-/*
- * 描述：根据部门id查询是所有下级部门
- * author：刘飞华
- * date：2025/1/6 11:29
- */
-#[sql("select * from sys_dept where find_in_set(?, ancestors)")]
-pub async fn select_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Vec<Dept>> {
-    impled!()
+    /*
+     * 描述：根据部门id查询是所有下级部门
+     * author：刘飞华
+     * date：2025/1/6 11:29
+     */
+    #[sql("select * from sys_dept where find_in_set(?, ancestors)")]
+    pub async fn select_children_dept_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Vec<Dept>> {
+        impled!()
+    }
 }

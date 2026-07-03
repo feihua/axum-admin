@@ -63,7 +63,7 @@ pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Json(i
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    LoginLog::select_login_log_list(rb, page, &item)
+    LoginLog::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<LoginLogResp>>(), x.total))?
 }

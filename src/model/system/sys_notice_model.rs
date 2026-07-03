@@ -2,8 +2,12 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_notice_vo::{NoticeReq, NoticeResp, QueryNoticeListReq};
+use crate::vo::system::sys_notice_vo::NoticeReq;
+use crate::vo::system::sys_notice_vo::NoticeResp;
+use crate::vo::system::sys_notice_vo::QueryNoticeListReq;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *通知公告表
@@ -21,13 +25,6 @@ pub struct Notice {
     pub create_time: Option<DateTime>, //创建时间
     pub update_time: Option<DateTime>, //修改时间
 }
-
-/*
- *通知公告表基本操作
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-rbatis::crud!(Notice {}, "sys_notice");
 
 impl From<NoticeReq> for Notice {
     fn from(item: NoticeReq) -> Self {
@@ -64,33 +61,47 @@ impl Into<NoticeResp> for Notice {
         }
     }
 }
-/*
- *根据id查询通知公告表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Notice{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_notice");
 
 /*
- *根据公告标题查询通知公告表
+ *通知公告表基本操作
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-impl_select!(Notice{select_by_title(title:&str) -> Option => "`where notice_title = #{title} limit 1`"}, "sys_notice");
+rbatis::crud!(Notice {}, "sys_notice");
 
-/*
- *根据条件分页查询通知公告表
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(Notice{select_sys_notice_list(req:&QueryNoticeListReq) =>"
-    where 1=1
-     if req.noticeTitle != '' && req.noticeTitle != null:
-       ` and notice_title like concat('%', #{req.noticeTitle}, '%') `
-     if req.noticeType != 0:
-      ` and notice_type = #{req.noticeType} `
-     if req.status != 2:
-       ` and status = #{req.status} `
-     if !sql.contains('count'):
-       ` order by create_time desc `"
-},"sys_notice");
+impl Notice {
+    /*
+     *根据id查询通知公告表
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Notice>> {
+        Ok(Notice::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
+
+    /*
+     *根据条件分页查询通知公告表
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_notice`
+            <where>
+            <if test="req.noticeTitle != '' && req.noticeTitle != null">
+                ` and notice_title like concat('%', #{req.noticeTitle}, '%')`
+            </if>
+            <if test="req.noticeType != 0">
+                ` and notice_type = #{req.noticeType}`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryNoticeListReq) -> rbatis::Result<rbatis::Page<Notice>> {
+        impled!()
+    }
+}

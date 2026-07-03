@@ -2,8 +2,12 @@
 // author：刘飞华
 // createTime：2024/12/25 10:01:11
 
-use crate::vo::system::sys_post_vo::{PostReq, PostResp, QueryPostListReq};
+use crate::vo::system::sys_post_vo::PostReq;
+use crate::vo::system::sys_post_vo::PostResp;
+use crate::vo::system::sys_post_vo::QueryPostListReq;
 use rbatis::rbdc::datetime::DateTime;
+use rbatis::RBatis;
+use rbs::value;
 use serde::{Deserialize, Serialize};
 /*
  *岗位信息
@@ -28,7 +32,6 @@ pub struct Post {
  *date：2024/12/25 10:01:11
  */
 rbatis::crud!(Post {}, "sys_post");
-
 impl From<PostReq> for Post {
     fn from(item: PostReq) -> Self {
         let mut model = Post {
@@ -65,60 +68,39 @@ impl Into<PostResp> for Post {
     }
 }
 
-/*
- *根据id查询岗位信息
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Post{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_post");
+impl Post {
+    /*
+     *根据id查询岗位信息表
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Post>> {
+        Ok(Post::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
 
-/*
- *根据post_code查询岗位信息
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Post{check_post_code_unique(post_code:&str, id:Option<i64>) -> Option => "
-    `where post_code = #{post_code} `
-     if id != null:
-      ` and id != #{id} `
-    limit 1"
-}, "sys_post");
-
-/*
- *根据post_name查询岗位信息
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select!(Post{check_post_name_unique(post_name:&str, id:Option<i64>) -> Option => "
-    `where post_name = #{post_name} `
-     if id != null:
-      ` and id != #{id} `
-     limit 1"
-}, "sys_post");
-
-/*
- *分页查询岗位信息
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(Post{select_page() =>"
-     if !sql.contains('count'):
-       order by create_time desc"
-},"sys_post");
-
-/*
- *根据条件分页查询岗位信息
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-impl_select_page!(Post{select_post_list(req:&QueryPostListReq) =>"
-    where 1=1
-     if req.postCode != null && req.postCode != '':
-      ` and post_code like concat('%', #{req.postCode}, '%') `
-     if req.postName != null &&req. postName != '':
-      ` and post_name like concat('%', #{req.postName}, '%') `
-     if req.status != 2:
-      ` and status = #{req.status} `
-     if !sql.contains('count'):
-      ` order by create_time desc"
-},"sys_post");
+    /*
+     *根据条件分页查询岗位信息表
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    #[html_sql(
+        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+      <select id="select_by_page">
+            `select * from sys_post`
+            <where>
+            <if test="req.postCode != '' && req.postCode != null">
+                ` and post_code like concat('%', #{req.postCode}, '%')`
+            </if>
+            <if test="req.postName != '' && req.postName != null">
+                ` and post_name like concat('%', #{req.postName}, '%')`
+            </if>
+            <if test="req.status != 2">
+                ` and status = #{req.status}`
+            </if>
+            </where>
+      </select>"#
+    )]
+    pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryPostListReq) -> rbatis::Result<rbatis::Page<Post>> {
+        impled!()
+    }
+}

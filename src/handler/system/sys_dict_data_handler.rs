@@ -19,11 +19,13 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(mut item
     info!("add sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    if DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await?.is_some() {
+    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label};
+    if DictData::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("字典标签已存在"));
     }
 
-    if DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await?.is_some() {
+    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value};
+    if DictData::select_by_map(rb, condition1).await?.len() > 0 {
         return Err(AppError::BusinessError("字典键值已存在"));
     }
 
@@ -62,16 +64,14 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
         return Err(AppError::BusinessError("字典数据不存在"));
     }
 
-    if let Some(x) = DictData::select_by_dict_label(rb, &item.dict_type, &item.dict_label).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("字典标签已存在"));
-        }
+    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label,"id!=":&id};
+    if DictData::select_by_map(rb, condition).await?.len() > 0 {
+        return Err(AppError::BusinessError("字典标签已存在"));
     }
 
-    if let Some(x) = DictData::select_by_dict_value(rb, &item.dict_type, &item.dict_value).await? {
-        if x.id != id {
-            return Err(AppError::BusinessError("字典键值已存在"));
-        }
+    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value,"id!=":&id};
+    if DictData::select_by_map(rb, condition1).await?.len() > 0 {
+        return Err(AppError::BusinessError("字典键值已存在"));
     }
 
     DictData::update_by_map(rb, &DictData::from(item), value! {"id": &id}).await.map(|_| ok_result())?
@@ -122,7 +122,7 @@ pub async fn query_sys_dict_data_list(State(state): State<Arc<AppState>>, Json(i
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    DictData::select_dict_data_list(rb, page, &item)
+    DictData::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<DictDataResp>>(), x.total))?
 }

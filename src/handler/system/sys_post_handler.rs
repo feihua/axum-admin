@@ -1,7 +1,7 @@
 use crate::common::error::AppError;
 use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_post_model::Post;
-use crate::model::system::sys_user_post_model::count_user_post_by_id;
+use crate::model::system::sys_user_post_model::UserPost;
 use crate::vo::system::sys_post_vo::*;
 use crate::AppState;
 use axum::extract::State;
@@ -20,11 +20,11 @@ pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(mut item): Js
     info!("add sys_post params: {:?}", &item);
     let rb = &state.batis;
 
-    if Post::check_post_name_unique(rb, &item.post_name, None).await?.is_some() {
+    if Post::select_by_map(rb, value! {"post_name": &item.post_name}).await?.len() > 0 {
         return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
-    if Post::check_post_code_unique(rb, &item.post_code, None).await?.is_some() {
+    if Post::select_by_map(rb, value! {"post_code": &item.post_code}).await?.len() > 0 {
         return Err(AppError::BusinessError("岗位编码已存在"));
     }
 
@@ -43,7 +43,7 @@ pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 
     let ids = item.ids.clone();
     for id in ids {
-        if count_user_post_by_id(rb, id).await? > 0 {
+        if UserPost::count_user_post_by_id(rb, id).await? > 0 {
             return Err(AppError::BusinessError("已分配,不能删除"));
         }
     }
@@ -70,11 +70,11 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("岗位不存在"));
     }
 
-    if Post::check_post_name_unique(rb, &item.post_name, id).await?.is_some() {
+    if Post::select_by_map(rb, value! {"post_name": &item.post_name, "id!=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("岗位名称已存在"));
     }
 
-    if Post::check_post_code_unique(rb, &item.post_code, id).await?.is_some() {
+    if Post::select_by_map(rb, value! {"post_code": &item.post_code, "id!=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("岗位编码已存在"));
     }
 
@@ -126,7 +126,7 @@ pub async fn query_sys_post_list(State(state): State<Arc<AppState>>, Json(item):
 
     let page = &PageRequest::new(item.page_no, item.page_size);
 
-    Post::select_post_list(rb, page, &item)
+    Post::select_by_page(rb, page, &item)
         .await
         .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<PostResp>>(), x.total))?
 }

@@ -1,3 +1,4 @@
+drop table if exists sys_dict_type;
 create table sys_dict_type
 (
     id     bigint                                 not null auto_increment comment '字典主键',
