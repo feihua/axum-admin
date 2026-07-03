@@ -64,12 +64,12 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
         return Err(AppError::BusinessError("字典数据不存在"));
     }
 
-    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label,"id!=":&id};
+    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label,"id !=":&id};
     if DictData::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("字典标签已存在"));
     }
 
-    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value,"id!=":&id};
+    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value,"id !=":&id};
     if DictData::select_by_map(rb, condition1).await?.len() > 0 {
         return Err(AppError::BusinessError("字典键值已存在"));
     }

@@ -129,15 +129,15 @@ pub async fn update_sys_user(State(state): State<Arc<AppState>>, Json(item): Jso
         Some(x) => x,
     };
 
-    if User::select_by_map(rb, value! {"user_name": &item.user_name,"id!=": &id}).await?.len() > 0 {
+    if User::select_by_map(rb, value! {"user_name": &item.user_name,"id !=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("登录账号已存在"));
     }
 
-    if User::select_by_map(rb, value! {"mobile": &item.mobile,"id!=": &id}).await?.len() > 0 {
+    if User::select_by_map(rb, value! {"mobile": &item.mobile,"id !=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("手机号码已存在"));
     }
 
-    if User::select_by_map(rb, value! {"email": &item.email,"id!=": &id}).await?.len() > 0 {
+    if User::select_by_map(rb, value! {"email": &item.email,"id !=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("邮箱账号已存在"));
     }
 

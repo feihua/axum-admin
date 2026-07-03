@@ -78,13 +78,13 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
-    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id!=": &id}).await?.len() > 0 {
+    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id !=": &id}).await?.len() > 0 {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if Menu::select_by_map(rb, value! {"menu_url": url, "id!=": &id}).await?.len() > 0 {
+            if Menu::select_by_map(rb, value! {"menu_url": url, "id !=": &id}).await?.len() > 0 {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }

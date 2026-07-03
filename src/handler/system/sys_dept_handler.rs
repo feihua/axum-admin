@@ -95,7 +95,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
         }
     };
 
-    let condition = value! {"dept_name":&item.dept_name,"parent_id":&item.parent_id,"id!=":&id};
+    let condition = value! {"dept_name":&item.dept_name,"parent_id":&item.parent_id,"id !=":&id};
     if Dept::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("部门名称已存在"));
     }
