@@ -134,9 +134,6 @@ impl DictType {
             <if test="req.status != 2">
                 ` and status = #{req.status}`
             </if>
-            <if test="req.remark != '' && req.remark != null">
-                ` and remark like concat('%', #{req.remark}, '%')`
-            </if>
             </where>
       </select>"#
     )]

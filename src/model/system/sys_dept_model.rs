@@ -102,7 +102,7 @@ impl Dept {
       <select id="select_by_page">
             `select * from sys_dept`
             <where>
-            <if test="req.parentId != 2">
+            <if test="req.parentId != 0">
                 ` and parent_id = #{req.parentId}`
             </if>
             <if test="req.ancestors != '' && req.ancestors != null">
