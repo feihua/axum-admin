@@ -84,7 +84,7 @@ impl Post {
      *date：2026/07/01 17:49:14
      */
     #[html_sql(
-        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
+        r#"
       <select id="select_by_page">
             `select * from sys_post`
             <where>
@@ -98,7 +98,8 @@ impl Post {
                 ` and status = #{req.status}`
             </if>
             </where>
-      </select>"#
+      </select>
+      "#
     )]
     pub async fn select_by_page(rb: &dyn rbatis::Executor, page_req: &rbatis::PageRequest, req: &QueryPostListReq) -> rbatis::Result<rbatis::Page<Post>> {
         impled!()

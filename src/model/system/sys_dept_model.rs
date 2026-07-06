@@ -98,8 +98,7 @@ impl Dept {
      *date：2026/07/01 17:45:52
      */
     #[html_sql(
-        r#"<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "https://raw.githubusercontent.com/rbatis/rbatis/master/rbatis-codegen/mybatis-3-mapper.dtd">
-      <select id="select_by_page">
+        r#"<select id="select_by_page">
             `select * from sys_dept`
             <where>
             <if test="req.parentId != 0">
@@ -127,7 +126,8 @@ impl Dept {
                 ` and del_flag = #{req.delFlag}`
             </if>
             </where>
-      </select>"#
+        </select>
+        "#
     )]
     pub async fn select_by_page(rb: &dyn rbatis::Executor, req: &QueryDeptListReq) -> rbatis::Result<Vec<Dept>> {
         impled!()
