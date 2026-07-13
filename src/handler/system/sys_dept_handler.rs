@@ -22,23 +22,26 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
     info!("add sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    let condition = value! {"dept_name":&item.dept_name,"parent_id":&item.parent_id};
+    let parent_id = &item.parent_id;
+
+    let condition = value! {"dept_name":&item.dept_name,"parent_id":parent_id};
     if Dept::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("部门名称已存在"));
     }
 
-    match Dept::select_by_id(rb, &item.parent_id).await? {
+    match Dept::select_by_id(rb, parent_id).await? {
         None => Err(AppError::BusinessError("添加失败,上级部门不存在")),
         Some(dept) => {
             if dept.status == 0 {
                 return Err(AppError::BusinessError("部门停用，不允许添加"));
             }
-            let ancestors = format!("{},{}", dept.ancestors.unwrap_or_default(), &item.parent_id);
+            let ancestors = format!("{},{}", dept.ancestors.unwrap_or_default(), parent_id);
             let mut sys_dept = Dept::from(item);
             sys_dept.ancestors = Some(ancestors);
             if let Err(e) = sys_dept.validate() {
                 return Err(AppError::validation_error(&e));
             }
+            sys_dept.id = None;
             Dept::insert(rb, &sys_dept).await.map(|_| ok_result())?
         }
     }
@@ -53,15 +56,16 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
     info!("delete sys_dept params: {:?}", &item);
     let rb = &state.batis;
 
-    if Dept::select_dept_count(rb, &item.id).await? > 0 {
+    let id = item.id;
+    if Dept::select_dept_count(rb, &id).await? > 0 {
         return Err(AppError::BusinessError("存在下级部门,不允许删除"));
     }
 
-    if Dept::check_dept_exist_user(rb, &item.id).await? > 0 {
+    if Dept::check_dept_exist_user(rb, &id).await? > 0 {
         return Err(AppError::BusinessError("部门存在用户,不允许删除"));
     }
 
-    Dept::delete_by_map(rb, value! {"id": &item.id}).await.map(|_| ok_result())?
+    Dept::delete_by_map(rb, value! {"id": id}).await.map(|_| ok_result())?
 }
 
 /*
@@ -88,14 +92,15 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
         Some(dept) => dept.ancestors.unwrap_or_default(),
     };
 
-    let ancestors = match Dept::select_by_id(rb, &item.parent_id).await? {
+    let parent_id = &item.parent_id;
+    let ancestors = match Dept::select_by_id(rb, parent_id).await? {
         None => return Err(AppError::BusinessError("上级部门不存在")),
         Some(dept) => {
-            format!("{},{}", dept.ancestors.unwrap_or_default(), &item.parent_id)
+            format!("{},{}", dept.ancestors.unwrap_or_default(), parent_id)
         }
     };
 
-    let condition = value! {"dept_name":&item.dept_name,"parent_id":&item.parent_id,"id !=":&id};
+    let condition = value! {"dept_name":&item.dept_name,"parent_id":parent_id,"id !=":id};
     if Dept::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("部门名称已存在"));
     }
@@ -128,7 +133,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(mut 
     if let Err(e) = data.validate() {
         return Err(AppError::validation_error(&e));
     }
-    Dept::update_by_map(rb, &data, value! {"id":  &id}).await.map(|_| ok_result())?
+    Dept::update_by_map(rb, &data, value! {"id":  id}).await.map(|_| ok_result())?
 }
 
 /*

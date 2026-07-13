@@ -31,7 +31,7 @@ impl UserPost {
      *date：2024/12/12 14:41:44
      */
     #[sql("select count(1) from sys_user_post where post_id = ? ")]
-    pub async fn count_user_post_by_id(rb: &RBatis, post_id: i64) -> rbatis::Result<i64> {
+    pub async fn count_user_post_by_id(rb: &RBatis, post_id: &i64) -> rbatis::Result<i64> {
         impled!()
     }
 }

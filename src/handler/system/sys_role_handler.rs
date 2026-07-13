@@ -46,14 +46,14 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
     info!("delete sys_role params: {:?}", &item);
     let rb = &state.batis;
 
-    let ids = item.ids.clone();
+    let ids = item.ids;
 
     if ids.contains(&1) {
         return Err(AppError::BusinessError("不允许操作超级管理员角色"));
     }
 
-    for id in ids {
-        if let None = Role::select_by_id(rb, &id).await? {
+    for id in &ids {
+        if let None = Role::select_by_id(rb, id).await? {
             return Err(AppError::BusinessError("角色不存在,不能删除"));
         }
 
@@ -62,9 +62,9 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
         }
     }
 
-    RoleMenu::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-    RoleDept::delete_by_map(rb, value! {"role_id": &item.ids}).await?;
-    Role::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    RoleMenu::delete_by_map(rb, value! {"role_id": &ids}).await?;
+    RoleDept::delete_by_map(rb, value! {"role_id": &ids}).await?;
+    Role::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -89,15 +89,15 @@ pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("角色不存在"));
     }
 
-    if Role::select_by_map(rb, value! {"role_name": &item.role_name,"id !=": &id}).await?.len() > 0 {
+    if Role::select_by_map(rb, value! {"role_name": &item.role_name,"id !=": id}).await?.len() > 0 {
         return Err(AppError::BusinessError("角色名称已存在"));
     }
 
-    if Role::select_by_map(rb, value! {"role_key": &item.role_key,"id !=": &id}).await?.len() > 0 {
+    if Role::select_by_map(rb, value! {"role_key": &item.role_key,"id !=": id}).await?.len() > 0 {
         return Err(AppError::BusinessError("角色权限已存在"));
     }
 
-    Role::update_by_map(rb, &Role::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+    Role::update_by_map(rb, &Role::from(item), value! {"id": id}).await.map(|_| ok_result())?
 }
 
 /*
@@ -212,20 +212,11 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
 
     let rb = &state.batis;
 
-    RoleMenu::delete_by_map(rb, value! {"role_id": &role_id}).await?;
+    RoleMenu::delete_by_map(rb, value! {"role_id": role_id}).await?;
 
-    let mut role_menu: Vec<RoleMenu> = Vec::new();
+    let role_menu: Vec<RoleMenu> = item.menu_ids.into_iter().map(|x| RoleMenu { id: None, menu_id: x, role_id }).collect();
 
-    for id in &item.menu_ids {
-        let menu_id = id.clone();
-        role_menu.push(RoleMenu {
-            id: None,
-            menu_id,
-            role_id: role_id.clone(),
-        })
-    }
-
-    RoleMenu::insert_batch(rb, &role_menu, item.menu_ids.len() as u64).await.map(|_| ok_result())?
+    RoleMenu::insert_batch(rb, &role_menu, role_menu.len() as u64).await.map(|_| ok_result())?
 }
 
 /*

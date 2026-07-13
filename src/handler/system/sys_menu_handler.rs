@@ -46,17 +46,17 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
     let rb = &state.batis;
 
     let ids = item.ids;
-    for x in ids.clone() {
-        if select_count_menu_by_parent_id(rb, &x).await? > 0 {
+    for x in &ids {
+        if select_count_menu_by_parent_id(rb, x).await? > 0 {
             return Err(AppError::BusinessError("存在子菜单,不允许删除"));
         }
 
-        if RoleMenu::select_count_menu_by_menu_id(rb, &x).await? > 0 {
+        if RoleMenu::select_count_menu_by_menu_id(rb, x).await? > 0 {
             return Err(AppError::BusinessError("菜单已分配,不允许删除"));
         }
     }
 
-    Menu::delete_by_map(rb, value! {"id": &ids}).await.map(|_| ok_result())?
+    Menu::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -78,19 +78,19 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
         return Err(AppError::BusinessError("菜单信息不存在"));
     }
 
-    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id !=": &id}).await?.len() > 0 {
+    if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id !=": id}).await?.len() > 0 {
         return Err(AppError::BusinessError("菜单名称已存在"));
     }
 
     if let Some(url) = item.menu_url.clone() {
         if url != "".to_string() {
-            if Menu::select_by_map(rb, value! {"menu_url": url, "id !=": &id}).await?.len() > 0 {
+            if Menu::select_by_map(rb, value! {"menu_url": url, "id !=": id}).await?.len() > 0 {
                 return Err(AppError::BusinessError("路由路径已存在"));
             }
         }
     }
 
-    Menu::update_by_map(rb, &Menu::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+    Menu::update_by_map(rb, &Menu::from(item), value! {"id": id}).await.map(|_| ok_result())?
 }
 
 /*

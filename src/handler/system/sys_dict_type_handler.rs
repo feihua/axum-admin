@@ -37,20 +37,19 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
     info!("delete sys_dict_type params: {:?}", &item);
     let rb = &state.batis;
 
-    let ids = item.ids.clone();
-    for id in ids {
-        let p = match DictType::select_by_id(rb, &id).await? {
+    let ids = item.ids;
+    for id in &ids {
+        let dict_type = match DictType::select_by_id(rb, id).await? {
             None => return Err(AppError::BusinessError("字典类型不存在,不能删除")),
-            Some(p) => p,
+            Some(p) => p.dict_type,
         };
 
-        let res_count = DictData::count_dict_data_by_type(rb, &p.dict_type).await?;
-        if res_count > 0 {
+        if DictData::count_dict_data_by_type(rb, &dict_type).await? > 0 {
             return Err(AppError::BusinessError("已分配,不能删除"));
         }
     }
 
-    DictType::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    DictType::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -73,14 +72,16 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
         return Err(AppError::BusinessError("字典类型不存在"));
     }
 
-    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type,"id !=": &id}).await?.len() > 0 {
+    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type,"id !=": id}).await?.len() > 0 {
         return Err(AppError::BusinessError("字典类型已存在"));
     }
 
     let dict_type = option.unwrap().dict_type;
-    DictData::update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
+    if dict_type != item.dict_type {
+        DictData::update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
+    }
 
-    DictType::update_by_map(rb, &DictType::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+    DictType::update_by_map(rb, &DictType::from(item), value! {"id": id}).await.map(|_| ok_result())?
 }
 
 /*

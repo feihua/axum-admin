@@ -22,8 +22,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(mut item): 
     let condition = value! {
         "notice_title": &item.notice_title,
     };
-    let list = Notice::select_by_map(rb, condition).await?;
-    if list.len() > 0 {
+    if Notice::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("公告标题已存在"));
     }
 
@@ -40,7 +39,7 @@ pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
     info!("delete sys_notice params: {:?}", &item);
     let rb = &state.batis;
 
-    Notice::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    Notice::delete_by_map(rb, value! {"id": item.ids}).await.map(|_| ok_result())?
 }
 
 /*
@@ -71,7 +70,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
         return Err(AppError::BusinessError("公告标题已存在"));
     }
 
-    Notice::update_by_map(rb, &Notice::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+    Notice::update_by_map(rb, &Notice::from(item), value! {"id": id}).await.map(|_| ok_result())?
 }
 
 /*

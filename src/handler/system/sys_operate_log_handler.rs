@@ -19,7 +19,7 @@ pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Json(ite
     info!("delete sys_operate_log params: {:?}", &item);
     let rb = &state.batis;
 
-    OperateLog::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    OperateLog::delete_by_map(rb, value! {"id": item.ids}).await.map(|_| ok_result())?
 }
 
 /*

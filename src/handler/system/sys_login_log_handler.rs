@@ -19,7 +19,7 @@ pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item)
     info!("delete sys_login_log params: {:?}", &item);
     let rb = &state.batis;
 
-    LoginLog::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+    LoginLog::delete_by_map(rb, value! {"id": item.ids}).await.map(|_| ok_result())?
 }
 
 /*

@@ -19,12 +19,13 @@ pub async fn add_sys_dict_data(State(state): State<Arc<AppState>>, Json(mut item
     info!("add sys_dict_data params: {:?}", &item);
     let rb = &state.batis;
 
-    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label};
+    let dict_type = &item.dict_type;
+    let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label};
     if DictData::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("字典标签已存在"));
     }
 
-    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value};
+    let condition1 = value! {"dict_type":dict_type,"dict_value":&item.dict_value};
     if DictData::select_by_map(rb, condition1).await?.len() > 0 {
         return Err(AppError::BusinessError("字典键值已存在"));
     }
@@ -64,12 +65,13 @@ pub async fn update_sys_dict_data(State(state): State<Arc<AppState>>, Json(item)
         return Err(AppError::BusinessError("字典数据不存在"));
     }
 
-    let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label,"id !=":&id};
+    let dict_type = &item.dict_type;
+    let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label,"id !=":id};
     if DictData::select_by_map(rb, condition).await?.len() > 0 {
         return Err(AppError::BusinessError("字典标签已存在"));
     }
 
-    let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value,"id !=":&id};
+    let condition1 = value! {"dict_type":dict_type,"dict_value":&item.dict_value,"id !=":id};
     if DictData::select_by_map(rb, condition1).await?.len() > 0 {
         return Err(AppError::BusinessError("字典键值已存在"));
     }
