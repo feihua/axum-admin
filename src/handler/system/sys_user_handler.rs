@@ -452,29 +452,18 @@ pub async fn update_user_role(State(state): State<Arc<AppState>>, Json(item): Js
     let mut conn = state.redis.get_connection()?;
 
     let user_id = item.user_id;
-    let role_ids = &item.role_ids;
-    let len = item.role_ids.len();
 
     let key = format!("axum:admin:user:info:{}", user_id);
-    let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
-    if is_admin {
+    if conn.hget(&key, "isAdmin").unwrap_or_default() {
         return Err(AppError::BusinessError("不允许操作超级管理员用户"));
     }
 
     UserRole::delete_by_map(rb, value! {"user_id": user_id}).await?;
 
-    let mut list: Vec<UserRole> = Vec::new();
-    for role_id in role_ids {
-        let r_id = role_id.clone();
-        list.push(UserRole {
-            id: None,
-            role_id: r_id,
-            user_id: user_id.clone(),
-        })
-    }
+    let list: Vec<UserRole> = item.role_ids.into_iter().map(|role_id| UserRole { id: None, role_id, user_id }).collect();
 
-    UserRole::insert_batch(rb, &list, len as u64).await.map(|_| ok_result())?
+    UserRole::insert_batch(rb, &list, list.len() as u64).await.map(|_| ok_result())?
 }
 
 // 查询用户菜单
