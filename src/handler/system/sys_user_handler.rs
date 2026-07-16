@@ -410,13 +410,11 @@ async fn query_btn_menu(id: &i64, rb: RBatis) -> AppResult<(Vec<String>, bool)> 
         info!("admin login: {:?}", id);
         Ok((btn_menu, true))
     } else {
-        let btn_menu_map: Vec<HashMap<String, String>> = rb.exec_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where t.user_id = ?", vec![value!(id)]).await?;
+        let btn_menu_map: Vec<HashMap<String, String>> = rb.exec_decode("select distinct u.api_url from sys_user_role t left join sys_role usr on t.role_id = usr.id left join sys_role_menu srm on usr.id = srm.role_id left join sys_menu u on srm.menu_id = u.id where u.api_url !='' and t.user_id = ?", vec![value!(id)]).await?;
         let mut btn_menu: Vec<String> = Vec::new();
         for x in btn_menu_map {
             if let Some(a) = x.get("api_url") {
-                if a.to_string() != "" {
-                    btn_menu.push(a.to_string());
-                }
+                btn_menu.push(a.to_string());
             }
         }
         info!("ordinary login: {:?}", id);
