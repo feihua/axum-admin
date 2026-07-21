@@ -1,31 +1,20 @@
-use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
-use crate::model::system::sys_dict_data_model::DictData;
-use crate::model::system::sys_dict_type_model::DictType;
+use crate::service::system::sys_dict_type_service::DictTypeService;
 use crate::vo::system::sys_dict_type_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
-use rbatis::plugin::page::PageRequest;
-use rbs::value;
 use std::sync::Arc;
 /*
  *添加字典类型
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(mut item): Json<DictTypeReq>) -> impl IntoResponse {
+pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
     info!("add sys_dict_type params: {:?}", &item);
-    let rb = &state.batis;
 
-    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type}).await?.len() > 0 {
-        return Err(AppError::BusinessError("字典类型已存在"));
-    }
-
-    item.id = None;
-    DictType::insert(rb, &DictType::from(item)).await.map(|_| ok_result())?
+    DictTypeService::add_sys_dict_type(state, item).await
 }
 
 /*
@@ -35,21 +24,8 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(mut item
  */
 pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDictTypeReq>) -> impl IntoResponse {
     info!("delete sys_dict_type params: {:?}", &item);
-    let rb = &state.batis;
 
-    let ids = item.ids;
-    for id in &ids {
-        let dict_type = match DictType::select_by_id(rb, id).await? {
-            None => return Err(AppError::BusinessError("字典类型不存在,不能删除")),
-            Some(p) => p.dict_type,
-        };
-
-        if DictData::count_dict_data_by_type(rb, &dict_type).await? > 0 {
-            return Err(AppError::BusinessError("已分配,不能删除"));
-        }
-    }
-
-    DictType::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
+    DictTypeService::delete_sys_dict_type(state, item).await
 }
 
 /*
@@ -59,29 +35,8 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  */
 pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
     info!("update sys_dict_type params: {:?}", &item);
-    let rb = &state.batis;
 
-    let id = item.id;
-
-    if id.is_none() {
-        return Err(AppError::BusinessError("主键不能为空"));
-    }
-
-    let option = DictType::select_by_id(rb, &id.unwrap_or_default()).await?;
-    if option.is_none() {
-        return Err(AppError::BusinessError("字典类型不存在"));
-    }
-
-    if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type,"id !=": id}).await?.len() > 0 {
-        return Err(AppError::BusinessError("字典类型已存在"));
-    }
-
-    let dict_type = option.unwrap().dict_type;
-    if dict_type != item.dict_type {
-        DictData::update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
-    }
-
-    DictType::update_by_map(rb, &DictType::from(item), value! {"id": id}).await.map(|_| ok_result())?
+    DictTypeService::update_sys_dict_type(state, item).await
 }
 
 /*
@@ -91,13 +46,8 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  */
 pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictTypeStatusReq>) -> impl IntoResponse {
     info!("update sys_dict_type_status params: {:?}", &item);
-    let rb = &state.batis;
 
-    let update_sql = format!("update sys_dict_type set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-    let mut param = vec![value!(item.status)];
-    param.extend(item.ids.iter().map(|&id| value!(id)));
-    rb.exec(&update_sql, param).await.map(|_| ok_result())?
+    DictTypeService::update_sys_dict_type_status(state, item).await
 }
 
 /*
@@ -107,15 +57,8 @@ pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Jso
  */
 pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeDetailReq>) -> impl IntoResponse {
     info!("query sys_dict_type_detail params: {:?}", &item);
-    let rb = &state.batis;
 
-    DictType::select_by_id(rb, &item.id).await?.map_or_else(
-        || Err(AppError::BusinessError("字典类型不存在")),
-        |x| {
-            let data: DictTypeResp = x.into();
-            ok_result_data(data)
-        },
-    )
+    DictTypeService::query_sys_dict_type_detail(state, item).await
 }
 
 /*
@@ -125,11 +68,6 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
  */
 pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeListReq>) -> impl IntoResponse {
     info!("query sys_dict_type_list params: {:?}", &item);
-    let rb = &state.batis;
 
-    let page = &PageRequest::new(item.page_no, item.page_size);
-
-    DictType::select_by_page(rb, page, &item)
-        .await
-        .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<DictTypeResp>>(), x.total))?
+    DictTypeService::query_sys_dict_type_list(state, item).await
 }

@@ -1,14 +1,10 @@
-use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
-use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
+use crate::service::system::sys_login_log_service::LoginLogService;
 use crate::vo::system::sys_login_log_vo::*;
 use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use log::info;
-use rbatis::plugin::page::PageRequest;
-use rbs::value;
 use std::sync::Arc;
 /*
  *删除系统访问记录
@@ -17,9 +13,8 @@ use std::sync::Arc;
  */
 pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item): Json<DeleteLoginLogReq>) -> impl IntoResponse {
     info!("delete sys_login_log params: {:?}", &item);
-    let rb = &state.batis;
 
-    LoginLog::delete_by_map(rb, value! {"id": item.ids}).await.map(|_| ok_result())?
+    LoginLogService::delete_sys_login_log(state, item).await
 }
 
 /*
@@ -29,9 +24,8 @@ pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item)
  */
 pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     info!("clean sys_login_log ");
-    let rb = &state.batis;
 
-    clean_login_log(rb).await.map(|_| ok_result())?
+    LoginLogService::clean_sys_login_log(state).await
 }
 
 /*
@@ -41,15 +35,8 @@ pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl Int
  */
 pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogDetailReq>) -> impl IntoResponse {
     info!("query sys_login_log_detail params: {:?}", &item);
-    let rb = &state.batis;
 
-    LoginLog::select_by_id(rb, &item.id).await?.map_or_else(
-        || Err(AppError::BusinessError("系统访问记录不存在")),
-        |x| {
-            let data: LoginLogResp = x.into();
-            ok_result_data(data)
-        },
-    )
+    LoginLogService::query_sys_login_log_detail(state, item).await
 }
 
 /*
@@ -59,11 +46,6 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json
  */
 pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogListReq>) -> impl IntoResponse {
     info!("query sys_login_log_list params: {:?}", &item);
-    let rb = &state.batis;
 
-    let page = &PageRequest::new(item.page_no, item.page_size);
-
-    LoginLog::select_by_page(rb, page, &item)
-        .await
-        .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<LoginLogResp>>(), x.total))?
+    LoginLogService::query_sys_login_log_list(state, item).await
 }

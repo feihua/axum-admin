@@ -1,0 +1,10 @@
+pub mod sys_dept_service;
+pub mod sys_dict_data_service;
+pub mod sys_dict_type_service;
+pub mod sys_login_log_service;
+pub mod sys_menu_service;
+pub mod sys_notice_service;
+pub mod sys_operate_log_service;
+pub mod sys_post_service;
+pub mod sys_role_service;
+pub mod sys_user_service;
