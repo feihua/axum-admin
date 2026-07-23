@@ -42,11 +42,11 @@ pub fn ok_result_data<T>(data: T) -> AppResult<Json<BaseResponse<T>>> {
     }))
 }
 
-pub fn ok_result_page<T>(data: Vec<T>, total: u64) -> AppResult<Json<BaseResponse<PageResult<T>>>> {
+pub fn ok_result_page<T>(list: Vec<T>, total: u64) -> AppResult<Json<BaseResponse<PageResult<T>>>> {
     Ok(Json(BaseResponse {
         msg: "操作成功".to_string(),
         code: 0,
-        data: Some(PageResult { list: data, total }),
+        data: Some(PageResult { list, total }),
     }))
 }
 
