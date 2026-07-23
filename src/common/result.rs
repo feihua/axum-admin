@@ -13,12 +13,9 @@ pub struct BaseResponse<T> {
 }
 
 #[derive(Serialize, Debug, Clone)]
-pub struct ResponsePage<T> {
-    pub code: i32,
-    pub msg: String,
+pub struct PageResult<T> {
+    pub list: Vec<T>,
     pub total: u64,
-    pub success: bool,
-    pub data: Option<T>,
 }
 
 pub fn ok() -> AppResult<Json<BaseResponse<()>>> {
@@ -45,13 +42,11 @@ pub fn ok_result_data<T>(data: T) -> AppResult<Json<BaseResponse<T>>> {
     }))
 }
 
-pub fn ok_result_page<T>(data: T, total: u64) -> AppResult<Json<ResponsePage<T>>> {
-    Ok(Json(ResponsePage {
+pub fn ok_result_page<T>(data: Vec<T>, total: u64) -> AppResult<Json<BaseResponse<PageResult<T>>>> {
+    Ok(Json(BaseResponse {
         msg: "操作成功".to_string(),
         code: 0,
-        success: true,
-        data: Some(data),
-        total,
+        data: Some(PageResult { list: data, total }),
     }))
 }
 
@@ -75,4 +70,3 @@ where
         None => serializer.serialize_str(""),
     }
 }
-
