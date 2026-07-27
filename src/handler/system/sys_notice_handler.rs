@@ -1,3 +1,4 @@
+use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_notice_service::NoticeService;
 use crate::vo::system::sys_notice_vo::*;
 use crate::AppState;
@@ -14,7 +15,7 @@ use std::sync::Arc;
 pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<NoticeReq>) -> impl IntoResponse {
     info!("add sys_notice params: {:?}", &item);
 
-    NoticeService::add_sys_notice(state, item).await
+    NoticeService::add_sys_notice(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
 /*
@@ -25,7 +26,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json
 pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<DeleteNoticeReq>) -> impl IntoResponse {
     info!("delete sys_notice params: {:?}", &item);
 
-    NoticeService::delete_sys_notice(state, item).await
+    NoticeService::delete_sys_notice(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -36,7 +37,7 @@ pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
 pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<NoticeReq>) -> impl IntoResponse {
     info!("update sys_notice params: {:?}", &item);
 
-    NoticeService::update_sys_notice(state, item).await
+    NoticeService::update_sys_notice(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -47,7 +48,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
 pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateNoticeStatusReq>) -> impl IntoResponse {
     info!("update sys_notice_status params: {:?}", &item);
 
-    NoticeService::update_sys_notice_status(state, item).await
+    NoticeService::update_sys_notice_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -58,7 +59,7 @@ pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(i
 pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeDetailReq>) -> impl IntoResponse {
     info!("query sys_notice_detail params: {:?}", &item);
 
-    NoticeService::query_sys_notice_detail(state, item).await
+    NoticeService::query_sys_notice_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -69,5 +70,5 @@ pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(it
 pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeListReq>) -> impl IntoResponse {
     info!("query sys_notice_list params: {:?}", &item);
 
-    NoticeService::query_sys_notice_list(state, item).await
+    NoticeService::query_sys_notice_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

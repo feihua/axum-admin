@@ -1,9 +1,7 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_notice_model::Notice;
 use crate::vo::system::sys_notice_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
@@ -16,7 +14,7 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_notice(state: Arc<AppState>, mut item: NoticeReq) -> impl IntoResponse {
+    pub async fn add_sys_notice(state: Arc<AppState>, mut item: NoticeReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         let condition = value! {
             "notice_title": &item.notice_title,
@@ -26,7 +24,7 @@ impl NoticeService {
         }
 
         item.id = None;
-        Notice::insert(rb, &Notice::from(item)).await.map(|_| ok_result())?
+        Notice::insert(rb, &Notice::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
     }
 
     /*
@@ -34,9 +32,9 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn delete_sys_notice(state: Arc<AppState>, item: DeleteNoticeReq) -> impl IntoResponse {
+    pub async fn delete_sys_notice(state: Arc<AppState>, item: DeleteNoticeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        Notice::delete_by_map(rb, value! {"id": item.ids}).await.map(|_| ok_result())?
+        Notice::delete_by_map(rb, value! {"id": item.ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -44,7 +42,7 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_notice(state: Arc<AppState>, item: NoticeReq) -> impl IntoResponse {
+    pub async fn update_sys_notice(state: Arc<AppState>, item: NoticeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
         if id.is_none() {
@@ -65,7 +63,7 @@ impl NoticeService {
             return Err(AppError::BusinessError("公告标题已存在"));
         }
 
-        Notice::update_by_map(rb, &Notice::from(item), value! {"id": id}).await.map(|_| ok_result())?
+        Notice::update_by_map(rb, &Notice::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -73,14 +71,14 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_notice_status(state: Arc<AppState>, item: UpdateNoticeStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_notice_status(state: Arc<AppState>, item: UpdateNoticeStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let update_sql = format!("update sys_notice set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
         let mut param = vec![value!(item.status)];
         param.extend(item.ids.iter().map(|&id| value!(id)));
 
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -88,15 +86,15 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_notice_detail(state: Arc<AppState>, item: QueryNoticeDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_notice_detail(state: Arc<AppState>, item: QueryNoticeDetailReq) -> Result<NoticeResp, AppError> {
         let rb = &state.batis;
-        Notice::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("通知公告表不存在")),
-            |x| {
-                let notice: NoticeResp = x.into();
-                ok_result_data(notice)
-            },
-        )
+        match Notice::select_by_id(rb, &item.id).await? {
+            None => Err(AppError::BusinessError("通知公告表不存在")),
+            Some(x) => {
+                // let notice: NoticeResp = x.into();
+                Ok(x.into())
+            }
+        }
     }
 
     /*
@@ -104,12 +102,12 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_notice_list(state: Arc<AppState>, item: QueryNoticeListReq) -> impl IntoResponse {
+    pub async fn query_sys_notice_list(state: Arc<AppState>, item: QueryNoticeListReq) -> Result<(Vec<NoticeResp>, u64), AppError> {
         let rb = &state.batis;
         let page = &PageRequest::new(item.page_no, item.page_size);
 
         Notice::select_by_page(rb, page, &item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<NoticeResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<NoticeResp>>(), x.total)))?
     }
 }
