@@ -1,5 +1,4 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::RoleMenu;
@@ -9,7 +8,6 @@ use crate::model::system::sys_user_role_model::UserRole;
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserResp;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
@@ -21,7 +19,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn add_sys_role(state: Arc<AppState>, mut item: RoleReq) -> impl IntoResponse {
+    pub async fn add_sys_role(state: Arc<AppState>, mut item: RoleReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         if Role::select_by_map(rb, value! {"role_name": &item.role_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("角色名称已存在"));
@@ -32,7 +30,7 @@ impl RoleService {
         }
 
         item.id = None;
-        Role::insert(rb, &Role::from(item)).await.map(|_| ok_result())?
+        Role::insert(rb, &Role::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
     }
 
     /*
@@ -40,7 +38,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn delete_sys_role(state: Arc<AppState>, item: DeleteRoleReq) -> impl IntoResponse {
+    pub async fn delete_sys_role(state: Arc<AppState>, item: DeleteRoleReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let ids = item.ids;
 
@@ -60,7 +58,7 @@ impl RoleService {
 
         RoleMenu::delete_by_map(rb, value! {"role_id": &ids}).await?;
         RoleDept::delete_by_map(rb, value! {"role_id": &ids}).await?;
-        Role::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
+        Role::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -68,7 +66,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_role(state: Arc<AppState>, item: RoleReq) -> impl IntoResponse {
+    pub async fn update_sys_role(state: Arc<AppState>, item: RoleReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
         if id.is_none() {
@@ -91,7 +89,7 @@ impl RoleService {
             return Err(AppError::BusinessError("角色权限已存在"));
         }
 
-        Role::update_by_map(rb, &Role::from(item), value! {"id": id}).await.map(|_| ok_result())?
+        Role::update_by_map(rb, &Role::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -99,7 +97,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_role_status(state: Arc<AppState>, item: UpdateRoleStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_role_status(state: Arc<AppState>, item: UpdateRoleStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if item.ids.contains(&1) {
             return Err(AppError::BusinessError("不允许操作超级管理员角色"));
@@ -109,7 +107,7 @@ impl RoleService {
 
         let mut param = vec![value!(item.status)];
         param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -117,13 +115,13 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_role_detail(state: Arc<AppState>, item: QueryRoleDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_role_detail(state: Arc<AppState>, item: QueryRoleDetailReq) -> Result<RoleResp, AppError> {
         let rb = &state.batis;
         Role::select_by_id(rb, &item.id).await?.map_or_else(
             || Err(AppError::BusinessError("角色不存在")),
             |x| {
                 let data: RoleResp = x.into();
-                ok_result_data(data)
+                Ok(data)
             },
         )
     }
@@ -133,13 +131,13 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_role_list(state: Arc<AppState>, item: QueryRoleListReq) -> impl IntoResponse {
+    pub async fn query_sys_role_list(state: Arc<AppState>, item: QueryRoleListReq) -> Result<(Vec<RoleResp>, u64), AppError> {
         let rb = &state.batis;
         let page = &PageRequest::new(item.page_no, item.page_size);
 
         Role::select_by_page(rb, page, &item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>(), x.total)))?
     }
 
     /*
@@ -147,7 +145,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_role_menu(state: Arc<AppState>, item: QueryRoleMenuReq) -> impl IntoResponse {
+    pub async fn query_role_menu(state: Arc<AppState>, item: QueryRoleMenuReq) -> Result<QueryRoleMenuData, AppError> {
         let rb = &state.batis;
         // 查询所有菜单
         let menu_list_all = Menu::select_by_map(rb, value! {}).await?;
@@ -180,7 +178,7 @@ impl RoleService {
             }
         }
 
-        ok_result_data(QueryRoleMenuData { menu_ids, menu_list })
+        Ok(QueryRoleMenuData { menu_ids, menu_list })
     }
 
     /*
@@ -188,7 +186,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_role_menu(state: Arc<AppState>, item: UpdateRoleMenuReq) -> impl IntoResponse {
+    pub async fn update_role_menu(state: Arc<AppState>, item: UpdateRoleMenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let role_id = item.role_id;
 
@@ -200,7 +198,7 @@ impl RoleService {
 
         let role_menu: Vec<RoleMenu> = item.menu_ids.into_iter().map(|x| RoleMenu { id: None, menu_id: x, role_id }).collect();
 
-        RoleMenu::insert_batch(rb, &role_menu, role_menu.len() as u64).await.map(|_| ok_result())?
+        RoleMenu::insert_batch(rb, &role_menu, role_menu.len() as u64).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -208,7 +206,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_allocated_list(state: Arc<AppState>, item: AllocatedListReq) -> impl IntoResponse {
+    pub async fn query_allocated_list(state: Arc<AppState>, item: AllocatedListReq) -> Result<(Vec<UserResp>, u64), AppError> {
         let rb = &state.batis;
         let page_no = item.page_no;
         let page_size = item.page_size;
@@ -225,7 +223,7 @@ impl RoleService {
         }
 
         let total = User::count_allocated_list(rb, role_id, user_name, mobile).await?;
-        ok_result_page(list, total)
+        Ok((list, total))
     }
 
     /*
@@ -233,7 +231,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_unallocated_list(state: Arc<AppState>, item: UnallocatedListReq) -> impl IntoResponse {
+    pub async fn query_unallocated_list(state: Arc<AppState>, item: UnallocatedListReq) -> Result<(Vec<UserResp>, u64), AppError> {
         let rb = &state.batis;
         let page_no = item.page_no;
         let page_size = item.page_size;
@@ -250,7 +248,7 @@ impl RoleService {
         }
 
         let total = User::count_unallocated_list(rb, role_id, user_name, mobile).await?;
-        ok_result_page(list, total)
+        Ok((list, total))
     }
 
     /*
@@ -258,9 +256,9 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn cancel_auth_user(state: Arc<AppState>, item: CancelAuthUserReq) -> impl IntoResponse {
+    pub async fn cancel_auth_user(state: Arc<AppState>, item: CancelAuthUserReq) -> Result<i64, AppError> {
         let rb = &state.batis;
-        UserRole::delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id).await.map(|_| ok_result())?
+        UserRole::delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id).await.map(|x| Ok(x.unwrap_or_default()))?
     }
 
     /*
@@ -268,7 +266,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn batch_cancel_auth_user(state: Arc<AppState>, item: CancelAuthUserAllReq) -> impl IntoResponse {
+    pub async fn batch_cancel_auth_user(state: Arc<AppState>, item: CancelAuthUserAllReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let update_sql = format!(
             "delete from sys_user_role where role_id = ? and user_id in ({})",
@@ -277,7 +275,7 @@ impl RoleService {
 
         let mut param = vec![value!(item.role_id)];
         param.extend(item.user_ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -285,7 +283,7 @@ impl RoleService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn batch_auth_user(state: Arc<AppState>, item: SelectAuthUserAllReq) -> impl IntoResponse {
+    pub async fn batch_auth_user(state: Arc<AppState>, item: SelectAuthUserAllReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let role_id = item.role_id;
 
@@ -300,6 +298,6 @@ impl RoleService {
             })
         }
 
-        UserRole::insert_batch(rb, &user_role, item.user_ids.len() as u64).await.map(|_| ok_result())?
+        UserRole::insert_batch(rb, &user_role, item.user_ids.len() as u64).await.map(|x| Ok(x.rows_affected))?
     }
 }

@@ -1,3 +1,4 @@
+use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_role_service::RoleService;
 use crate::vo::system::sys_role_vo::*;
 use crate::AppState;
@@ -14,7 +15,7 @@ use std::sync::Arc;
 pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<RoleReq>) -> impl IntoResponse {
     info!("add sys_role params: {:?}", &item);
 
-    RoleService::add_sys_role(state, item).await
+    RoleService::add_sys_role(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
 /*
@@ -25,7 +26,7 @@ pub async fn add_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<R
 pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<DeleteRoleReq>) -> impl IntoResponse {
     info!("delete sys_role params: {:?}", &item);
 
-    RoleService::delete_sys_role(state, item).await
+    RoleService::delete_sys_role(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -36,7 +37,7 @@ pub async fn delete_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Json<RoleReq>) -> impl IntoResponse {
     info!("update sys_role params: {:?}", &item);
 
-    RoleService::update_sys_role(state, item).await
+    RoleService::update_sys_role(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -47,7 +48,7 @@ pub async fn update_sys_role(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_role_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleStatusReq>) -> impl IntoResponse {
     info!("update sys_role_status params: {:?}", &item);
 
-    RoleService::update_sys_role_status(state, item).await
+    RoleService::update_sys_role_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -58,7 +59,7 @@ pub async fn update_sys_role_status(State(state): State<Arc<AppState>>, Json(ite
 pub async fn query_sys_role_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleDetailReq>) -> impl IntoResponse {
     info!("query sys_role_detail params: {:?}", &item);
 
-    RoleService::query_sys_role_detail(state, item).await
+    RoleService::query_sys_role_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -69,7 +70,7 @@ pub async fn query_sys_role_detail(State(state): State<Arc<AppState>>, Json(item
 pub async fn query_sys_role_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleListReq>) -> impl IntoResponse {
     info!("query sys_role_list params: {:?}", &item);
 
-    RoleService::query_sys_role_list(state, item).await
+    RoleService::query_sys_role_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }
 
 /*
@@ -80,7 +81,7 @@ pub async fn query_sys_role_list(State(state): State<Arc<AppState>>, Json(item):
 pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<QueryRoleMenuReq>) -> impl IntoResponse {
     info!("query role_menu params: {:?}", &item);
 
-    RoleService::query_role_menu(state, item).await
+    RoleService::query_role_menu(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -91,7 +92,7 @@ pub async fn query_role_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Json<UpdateRoleMenuReq>) -> impl IntoResponse {
     info!("update role_menu params: {:?}", &item);
 
-    RoleService::update_role_menu(state, item).await
+    RoleService::update_role_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -102,7 +103,7 @@ pub async fn update_role_menu(State(state): State<Arc<AppState>>, Json(item): Js
 pub async fn query_allocated_list(State(state): State<Arc<AppState>>, Json(item): Json<AllocatedListReq>) -> impl IntoResponse {
     info!("query_allocated_list params: {:?}", &item);
 
-    RoleService::query_allocated_list(state, item).await
+    RoleService::query_allocated_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }
 
 /*
@@ -113,7 +114,7 @@ pub async fn query_allocated_list(State(state): State<Arc<AppState>>, Json(item)
 pub async fn query_unallocated_list(State(state): State<Arc<AppState>>, Json(item): Json<UnallocatedListReq>) -> impl IntoResponse {
     info!("query_unallocated_list params: {:?}", &item);
 
-    RoleService::query_unallocated_list(state, item).await
+    RoleService::query_unallocated_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }
 
 /*
@@ -124,7 +125,7 @@ pub async fn query_unallocated_list(State(state): State<Arc<AppState>>, Json(ite
 pub async fn cancel_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<CancelAuthUserReq>) -> impl IntoResponse {
     info!("cancel_auth_user params: {:?}", &item);
 
-    RoleService::cancel_auth_user(state, item).await
+    RoleService::cancel_auth_user(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -135,7 +136,7 @@ pub async fn cancel_auth_user(State(state): State<Arc<AppState>>, Json(item): Js
 pub async fn batch_cancel_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<CancelAuthUserAllReq>) -> impl IntoResponse {
     info!("cancel auth_user_all params: {:?}", &item);
 
-    RoleService::batch_cancel_auth_user(state, item).await
+    RoleService::batch_cancel_auth_user(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -146,5 +147,5 @@ pub async fn batch_cancel_auth_user(State(state): State<Arc<AppState>>, Json(ite
 pub async fn batch_auth_user(State(state): State<Arc<AppState>>, Json(item): Json<SelectAuthUserAllReq>) -> impl IntoResponse {
     info!("batch_auth_user params: {:?}", &item);
 
-    RoleService::batch_auth_user(state, item).await
+    RoleService::batch_auth_user(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }

@@ -1,3 +1,4 @@
+use crate::common::result::ok_result_data;
 use crate::service::system::sys_dept_service::DeptService;
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
@@ -15,7 +16,7 @@ use std::sync::Arc;
 pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     info!("add sys_dept params: {:?}", &item);
 
-    DeptService::add_sys_dept(state, item).await
+    DeptService::add_sys_dept(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
 /*
@@ -26,7 +27,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
 pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDeptReq>) -> impl IntoResponse {
     info!("delete sys_dept params: {:?}", &item);
 
-    DeptService::delete_sys_dept(state, item).await
+    DeptService::delete_sys_dept(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -37,7 +38,7 @@ pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeptReq>>) -> impl IntoResponse {
     info!("update sys_dept params: {:?}", &item);
 
-    DeptService::update_sys_dept(state, item).await
+    DeptService::update_sys_dept(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -48,7 +49,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item
 pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDeptStatusReq>) -> impl IntoResponse {
     info!("update sys_dept_status params: {:?}", &item);
 
-    DeptService::update_sys_dept_status(state, item).await
+    DeptService::update_sys_dept_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 /*
  *查询部门表详情
@@ -58,7 +59,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
 pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptDetailReq>) -> impl IntoResponse {
     info!("query sys_dept_detail params: {:?}", &item);
 
-    DeptService::query_sys_dept_detail(state, item).await
+    DeptService::query_sys_dept_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -69,5 +70,5 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
 pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptListReq>) -> impl IntoResponse {
     info!("query sys_dept_list params: {:?}", &item);
 
-    DeptService::query_sys_dept_list(state, item).await
+    DeptService::query_sys_dept_list(state, item).await.map(|record| ok_result_data(record))?
 }

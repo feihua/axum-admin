@@ -1,10 +1,8 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::model::system::sys_role_menu_model::RoleMenu;
 use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::PageRequest;
 use rbs::value;
 use std::sync::Arc;
@@ -17,7 +15,7 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn add_sys_menu(state: Arc<AppState>, mut item: MenuReq) -> impl IntoResponse {
+    pub async fn add_sys_menu(state: Arc<AppState>, mut item: MenuReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("菜单名称已存在"));
@@ -32,7 +30,7 @@ impl MenuService {
         }
 
         item.id = None;
-        Menu::insert(rb, &Menu::from(item)).await.map(|_| ok_result())?
+        Menu::insert(rb, &Menu::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
     }
 
     /*
@@ -40,7 +38,7 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn delete_sys_menu(state: Arc<AppState>, item: DeleteMenuReq) -> impl IntoResponse {
+    pub async fn delete_sys_menu(state: Arc<AppState>, item: DeleteMenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let ids = item.ids;
         for x in &ids {
@@ -53,7 +51,7 @@ impl MenuService {
             }
         }
 
-        Menu::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
+        Menu::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -61,7 +59,7 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_menu(state: Arc<AppState>, item: MenuReq) -> impl IntoResponse {
+    pub async fn update_sys_menu(state: Arc<AppState>, item: MenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
 
@@ -85,7 +83,7 @@ impl MenuService {
             }
         }
 
-        Menu::update_by_map(rb, &Menu::from(item), value! {"id": id}).await.map(|_| ok_result())?
+        Menu::update_by_map(rb, &Menu::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -93,14 +91,14 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_menu_status(state: Arc<AppState>, item: UpdateMenuStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_menu_status(state: Arc<AppState>, item: UpdateMenuStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let ids = item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ");
         let update_sql = format!("update sys_menu set status = ? where id in ({})", ids);
 
         let mut param = vec![value!(item.status)];
         param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -108,13 +106,13 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_menu_detail(state: Arc<AppState>, item: QueryMenuDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_menu_detail(state: Arc<AppState>, item: QueryMenuDetailReq) -> Result<MenuResp, AppError> {
         let rb = &state.batis;
         Menu::select_by_id(rb, &item.id).await?.map_or_else(
             || Err(AppError::BusinessError("菜单信息不存在")),
             |x| {
                 let data: MenuResp = x.into();
-                ok_result_data(data)
+                Ok(data)
             },
         )
     }
@@ -124,11 +122,9 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_menu_list(state: Arc<AppState>) -> impl IntoResponse {
+    pub async fn query_sys_menu_list(state: Arc<AppState>) -> Result<Vec<MenuResp>, AppError> {
         let rb = &state.batis;
-        Menu::select_by_map(rb, value! {})
-            .await
-            .map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
+        Menu::select_by_map(rb, value! {}).await.map(|x| Ok(x.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>()))?
     }
 
     /*
@@ -136,11 +132,11 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_menu_list_simple(state: Arc<AppState>) -> impl IntoResponse {
+    pub async fn query_sys_menu_list_simple(state: Arc<AppState>) -> Result<Vec<MenuSimpleResp>, AppError> {
         let rb = &state.batis;
         Menu::select_by_map(rb, value! {"menu_type!=": 3, "status": 1})
             .await
-            .map(|x| ok_result_data(x.into_iter().map(|x| MenuSimpleResp::from(x)).collect::<Vec<MenuSimpleResp>>()))?
+            .map(|x| Ok(x.into_iter().map(|x| MenuSimpleResp::from(x)).collect::<Vec<MenuSimpleResp>>()))?
     }
 
     /*
@@ -148,7 +144,7 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_menu_resource_list(state: Arc<AppState>, req: QueryMenuListReq) -> impl IntoResponse {
+    pub async fn query_sys_menu_resource_list(state: Arc<AppState>, req: QueryMenuListReq) -> Result<(Vec<MenuResp>, u64), AppError> {
         let rb = &state.batis;
         let item = &req;
 
@@ -156,6 +152,6 @@ impl MenuService {
 
         Menu::select_by_page(rb, page, item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<MenuResp>>(), x.total)))?
     }
 }

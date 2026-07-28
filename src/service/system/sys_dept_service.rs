@@ -1,9 +1,7 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data};
 use crate::model::system::sys_dept_model::Dept;
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
@@ -18,7 +16,7 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_dept(state: Arc<AppState>, item: DeptReq) -> impl IntoResponse {
+    pub async fn add_sys_dept(state: Arc<AppState>, item: DeptReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         let parent_id = &item.parent_id;
 
@@ -40,7 +38,7 @@ impl DeptService {
                     return Err(AppError::validation_error(&e));
                 }
                 sys_dept.id = None;
-                Dept::insert(rb, &sys_dept).await.map(|_| ok_result())?
+                Dept::insert(rb, &sys_dept).await.map(|x| Ok(x.last_insert_id.as_u64()))?
             }
         }
     }
@@ -50,7 +48,7 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn delete_sys_dept(state: Arc<AppState>, item: DeleteDeptReq) -> impl IntoResponse {
+    pub async fn delete_sys_dept(state: Arc<AppState>, item: DeleteDeptReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
         if Dept::select_dept_count(rb, &id).await? > 0 {
@@ -61,7 +59,7 @@ impl DeptService {
             return Err(AppError::BusinessError("部门存在用户,不允许删除"));
         }
 
-        Dept::delete_by_map(rb, value! {"id": id}).await.map(|_| ok_result())?
+        Dept::delete_by_map(rb, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -69,7 +67,7 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_dept(state: Arc<AppState>, mut item: DeptReq) -> impl IntoResponse {
+    pub async fn update_sys_dept(state: Arc<AppState>, mut item: DeptReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
 
@@ -127,7 +125,7 @@ impl DeptService {
         if let Err(e) = data.validate() {
             return Err(AppError::validation_error(&e));
         }
-        Dept::update_by_map(rb, &data, value! {"id":  id}).await.map(|_| ok_result())?
+        Dept::update_by_map(rb, &data, value! {"id":  id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -135,7 +133,7 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_dept_status(state: Arc<AppState>, item: UpdateDeptStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_dept_status(state: Arc<AppState>, item: UpdateDeptStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
 
         let mut ids = vec![item.id];
@@ -148,21 +146,21 @@ impl DeptService {
 
         let mut param = vec![value!(item.status)];
         param.extend(ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
     /*
      *查询部门表详情
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_dept_detail(state: Arc<AppState>, item: QueryDeptDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_dept_detail(state: Arc<AppState>, item: QueryDeptDetailReq) -> Result<DeptResp, AppError> {
         let rb = &state.batis;
 
         Dept::select_by_id(rb, &item.id).await?.map_or_else(
             || Err(AppError::BusinessError("部门不存在")),
             |x| {
                 let data: DeptResp = x.into();
-                ok_result_data(data)
+                Ok(data)
             },
         )
     }
@@ -172,11 +170,9 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_dept_list(state: Arc<AppState>, item: QueryDeptListReq) -> impl IntoResponse {
+    pub async fn query_sys_dept_list(state: Arc<AppState>, item: QueryDeptListReq) -> Result<Vec<DeptResp>, AppError> {
         let rb = &state.batis;
 
-        Dept::select_by_page(rb, &item)
-            .await
-            .map(|x| ok_result_data(x.into_iter().map(|x| x.into()).collect::<Vec<DeptResp>>()))?
+        Dept::select_by_page(rb, &item).await.map(|x| Ok(x.into_iter().map(|x| x.into()).collect::<Vec<DeptResp>>()))?
     }
 }

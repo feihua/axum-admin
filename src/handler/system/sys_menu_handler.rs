@@ -1,3 +1,4 @@
+use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_menu_service::MenuService;
 use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
@@ -14,7 +15,7 @@ use std::sync::Arc;
 pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
     info!("add sys_menu params: {:?}", &item);
 
-    MenuService::add_sys_menu(state, item).await
+    MenuService::add_sys_menu(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
 /*
@@ -25,7 +26,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<M
 pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<DeleteMenuReq>) -> impl IntoResponse {
     info!("delete sys_menu params: {:?}", &item);
 
-    MenuService::delete_sys_menu(state, item).await
+    MenuService::delete_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -36,7 +37,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
     info!("update sys_menu params: {:?}", &item);
 
-    MenuService::update_sys_menu(state, item).await
+    MenuService::update_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -47,7 +48,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuStatusReq>) -> impl IntoResponse {
     info!("update sys_menu_status params: {:?}", &item);
 
-    MenuService::update_sys_menu_status(state, item).await
+    MenuService::update_sys_menu_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -58,7 +59,7 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(ite
 pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuDetailReq>) -> impl IntoResponse {
     info!("query sys_menu_detail params: {:?}", &item);
 
-    MenuService::query_sys_menu_detail(state, item).await
+    MenuService::query_sys_menu_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -69,7 +70,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
 pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
     info!("query sys_menu_list params: {:?}", &item);
 
-    MenuService::query_sys_menu_list(state).await
+    MenuService::query_sys_menu_list(state).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -78,7 +79,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item):
  *date：2024/12/12 14:41:44
  */
 pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    MenuService::query_sys_menu_list_simple(state).await
+    MenuService::query_sys_menu_list_simple(state).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -89,5 +90,5 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
 pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Json(req): Json<QueryMenuListReq>) -> impl IntoResponse {
     info!("query sys_menu_list params: {:?}", &req);
 
-    MenuService::query_sys_menu_resource_list(state, req).await
+    MenuService::query_sys_menu_resource_list(state, req).await.map(|(list, total)| ok_result_page(list, total))?
 }

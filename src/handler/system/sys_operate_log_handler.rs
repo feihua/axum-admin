@@ -1,3 +1,4 @@
+use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_operate_log_service::OperateLogService;
 use crate::vo::system::sys_operate_log_vo::*;
 use crate::AppState;
@@ -14,7 +15,7 @@ use std::sync::Arc;
 pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Json(item): Json<DeleteOperateLogReq>) -> impl IntoResponse {
     info!("delete sys_operate_log params: {:?}", &item);
 
-    OperateLogService::delete_sys_operate_log(state, item).await
+    OperateLogService::delete_sys_operate_log(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -25,7 +26,7 @@ pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Json(ite
 pub async fn clean_sys_operate_log(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     info!("clean sys_operate_log");
 
-    OperateLogService::clean_sys_operate_log(state).await
+    OperateLogService::clean_sys_operate_log(state).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -36,7 +37,7 @@ pub async fn clean_sys_operate_log(State(state): State<Arc<AppState>>) -> impl I
 pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryOperateLogDetailReq>) -> impl IntoResponse {
     info!("query sys_operate_log_detail params: {:?}", &item);
 
-    OperateLogService::query_sys_operate_log_detail(state, item).await
+    OperateLogService::query_sys_operate_log_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 /*
  *查询操作日志记录列表
@@ -46,5 +47,5 @@ pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Js
 pub async fn query_sys_operate_log_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryOperateLogListReq>) -> impl IntoResponse {
     info!("query sys_operate_log_list params: {:?}", &item);
 
-    OperateLogService::query_sys_operate_log_list(state, item).await
+    OperateLogService::query_sys_operate_log_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

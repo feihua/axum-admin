@@ -1,3 +1,4 @@
+use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_post_service::PostService;
 use crate::vo::system::sys_post_vo::*;
 use crate::AppState;
@@ -14,7 +15,7 @@ use std::sync::Arc;
 pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<PostReq>) -> impl IntoResponse {
     info!("add sys_post params: {:?}", &item);
 
-    PostService::add_sys_post(state, item).await
+    PostService::add_sys_post(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
 /*
@@ -25,7 +26,7 @@ pub async fn add_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<P
 pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<DeletePostReq>) -> impl IntoResponse {
     info!("delete sys_post params: {:?}", &item);
 
-    PostService::delete_sys_post(state, item).await
+    PostService::delete_sys_post(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -36,7 +37,7 @@ pub async fn delete_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Json<PostReq>) -> impl IntoResponse {
     info!("update sys_post params: {:?}", &item);
 
-    PostService::update_sys_post(state, item).await
+    PostService::update_sys_post(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -47,7 +48,7 @@ pub async fn update_sys_post(State(state): State<Arc<AppState>>, Json(item): Jso
 pub async fn update_sys_post_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdatePostStatusReq>) -> impl IntoResponse {
     info!("update sys_post_status params: {:?}", &item);
 
-    PostService::update_sys_post_status(state, item).await
+    PostService::update_sys_post_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
 /*
@@ -58,7 +59,7 @@ pub async fn update_sys_post_status(State(state): State<Arc<AppState>>, Json(ite
 pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryPostDetailReq>) -> impl IntoResponse {
     info!("query sys_post_detail params: {:?}", &item);
 
-    PostService::query_sys_post_detail(state, item).await
+    PostService::query_sys_post_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
 /*
@@ -69,5 +70,5 @@ pub async fn query_sys_post_detail(State(state): State<Arc<AppState>>, Json(item
 pub async fn query_sys_post_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryPostListReq>) -> impl IntoResponse {
     info!("query sys_post_list params: {:?}", &item);
 
-    PostService::query_sys_post_list(state, item).await
+    PostService::query_sys_post_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

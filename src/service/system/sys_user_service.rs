@@ -1,5 +1,5 @@
+use crate::common::error::AppError::BusinessError;
 use crate::common::error::{AppError, AppResult};
-use crate::common::result::{err_result_msg, ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dept_model::Dept;
 use crate::model::system::sys_login_log_model::LoginLog;
 use crate::model::system::sys_menu_model::Menu;
@@ -13,7 +13,6 @@ use crate::vo::system::sys_dept_vo::DeptResp;
 use crate::vo::system::sys_role_vo::RoleResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use chrono::Local;
 use log::info;
 use rbatis::plugin::page::PageRequest;
@@ -32,7 +31,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn add_sys_user(state: Arc<AppState>, mut item: UserReq) -> impl IntoResponse {
+    pub async fn add_sys_user(state: Arc<AppState>, mut item: UserReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         if User::select_by_map(rb, value! {"user_name": &item.user_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("登录账号已存在"));
@@ -55,13 +54,11 @@ impl UserService {
 
         UserPost::insert_batch(rb, &user_post_list, user_post_list.len() as u64).await?;
 
-        match role_ids {
-            None => ok_result(),
-            Some(ids) => {
-                let user_role_list: Vec<UserRole> = ids.into_iter().map(|role_id| UserRole { id: None, user_id: id.i64(), role_id }).collect();
-                UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await.map(|_| ok_result())?
-            }
+        if let Some(ids) = role_ids {
+            let user_role_list: Vec<UserRole> = ids.into_iter().map(|role_id| UserRole { id: None, user_id: id.i64(), role_id }).collect();
+            UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await?;
         }
+        Ok(id.as_u64())
     }
 
     /*
@@ -69,7 +66,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn delete_sys_user(state: Arc<AppState>, item: DeleteUserReq, user_id: i64) -> impl IntoResponse {
+    pub async fn delete_sys_user(state: Arc<AppState>, item: DeleteUserReq, user_id: i64) -> Result<u64, AppError> {
         let rb = &state.batis;
         let mut conn = state.redis.get_connection()?;
 
@@ -89,7 +86,7 @@ impl UserService {
 
         UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
         UserPost::delete_by_map(rb, value! {"user_id": &ids}).await?;
-        User::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
+        User::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -97,7 +94,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_user(state: Arc<AppState>, item: UserReq) -> impl IntoResponse {
+    pub async fn update_sys_user(state: Arc<AppState>, item: UserReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let mut conn = state.redis.get_connection()?;
 
@@ -159,7 +156,7 @@ impl UserService {
             UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await?;
         }
 
-        User::update_by_map(rb, &User::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+        User::update_by_map(rb, &User::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -167,7 +164,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_user_status(state: Arc<AppState>, item: UpdateUserStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_user_status(state: Arc<AppState>, item: UpdateUserStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let mut conn = state.redis.get_connection()?;
 
@@ -186,7 +183,7 @@ impl UserService {
 
         let mut param = vec![value!(item.status)];
         param.extend(ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -194,7 +191,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn reset_sys_user_password(state: Arc<AppState>, item: ResetUserPwdReq) -> impl IntoResponse {
+    pub async fn reset_sys_user_password(state: Arc<AppState>, item: ResetUserPwdReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let mut conn = state.redis.get_connection()?;
 
@@ -212,7 +209,7 @@ impl UserService {
             Some(x) => {
                 let mut user = x;
                 user.password = item.password;
-                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|_| ok_result())?
+                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|x| Ok(x.rows_affected))?
             }
         }
     }
@@ -222,7 +219,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn update_sys_user_password(state: Arc<AppState>, item: UpdateUserPwdReq, user_id: i64) -> impl IntoResponse {
+    pub async fn update_sys_user_password(state: Arc<AppState>, item: UpdateUserPwdReq, user_id: i64) -> Result<u64, AppError> {
         let rb = &state.batis;
         match User::select_by_id(rb, &user_id).await? {
             None => Err(AppError::BusinessError("用户不存在")),
@@ -232,7 +229,7 @@ impl UserService {
                     return Err(AppError::BusinessError("旧密码不正确"));
                 }
                 user.password = item.re_pwd;
-                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|_| ok_result())?
+                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|x| Ok(x.rows_affected))?
             }
         }
     }
@@ -242,7 +239,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_user_detail(state: Arc<AppState>, item: QueryUserDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_user_detail(state: Arc<AppState>, item: QueryUserDetailReq) -> Result<UserResp, AppError> {
         let rb = &state.batis;
         let mut x = match User::select_by_id(rb, &item.id).await? {
             None => return Err(AppError::BusinessError("用户不存在")),
@@ -269,7 +266,7 @@ impl UserService {
         let role_ids = UserRole::select_by_map(rb, value! {"user_id": item.id}).await?.iter().map(|x| x.role_id).collect::<Vec<i64>>();
 
         x.role_ids = Some(role_ids);
-        ok_result_data(x)
+        Ok(x)
     }
 
     /*
@@ -277,13 +274,13 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_sys_user_list(state: Arc<AppState>, item: QueryUserListReq) -> impl IntoResponse {
+    pub async fn query_sys_user_list(state: Arc<AppState>, item: QueryUserListReq) -> Result<(Vec<UserResp>, u64), AppError> {
         let rb = &state.batis;
         let page = &PageRequest::new(item.page_no, item.page_size);
 
         User::select_by_page(rb, page, &item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<UserResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<UserResp>>(), x.total)))?
     }
 
     /*
@@ -291,7 +288,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn login(state: Arc<AppState>, item: UserLoginReq, user_agent: &str) -> impl IntoResponse {
+    pub async fn login(state: Arc<AppState>, item: UserLoginReq, user_agent: &str) -> Result<String, AppError> {
         let rb = &state.batis;
         info!("user agent: {:?}", user_agent);
         let agent = UserAgentUtil::new(user_agent);
@@ -303,7 +300,7 @@ impl UserService {
         match user_result.first().cloned() {
             None => {
                 Self::add_login_log(rb, item.account, 0, "用户不存在", agent).await;
-                Err(AppError::BusinessError("用户不存在"))
+                Err(BusinessError("用户不存在"))
             }
             Some(user) => {
                 let mut s_user = user.clone();
@@ -313,7 +310,7 @@ impl UserService {
 
                 if password.ne(&item.password) {
                     Self::add_login_log(rb, item.account, 0, "密码不正确", agent).await;
-                    return err_result_msg("密码不正确");
+                    return Err(BusinessError("密码不正确"));
                 }
 
                 let (btn_menu, is_super) = Self::query_btn_menu(&id, rb.clone()).await?;
@@ -342,7 +339,7 @@ impl UserService {
                 s_user.login_browser = agent.browser;
                 s_user.login_date = Some(DateTime::now());
                 User::update_by_map(rb, &s_user, value! {"id": &s_user.id}).await?;
-                ok_result_data(token)
+                Ok(token)
             }
         }
     }
@@ -406,7 +403,7 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn query_user_role(state: Arc<AppState>, item: QueryUserRoleReq) -> impl IntoResponse {
+    pub async fn query_user_role(state: Arc<AppState>, item: QueryUserRoleReq) -> Result<QueryUserRoleResp, AppError> {
         let rb = &state.batis;
         let role_list = Role::select_by_map(rb, value! {}).await.map(|x| x.into_iter().map(|x| x.into()).collect::<Vec<RoleResp>>())?;
         let sys_role_list = role_list.clone();
@@ -417,11 +414,11 @@ impl UserService {
             user_role_ids = vec1.into_iter().map(|x| x.id.unwrap_or_default()).collect::<Vec<i64>>();
         }
 
-        ok_result_data(QueryUserRoleResp { sys_role_list, user_role_ids })
+        Ok(QueryUserRoleResp { sys_role_list, user_role_ids })
     }
 
     // 更新用户角色
-    pub async fn update_user_role(state: Arc<AppState>, item: UpdateUserRoleReq) -> impl IntoResponse {
+    pub async fn update_user_role(state: Arc<AppState>, item: UpdateUserRoleReq) -> Result<u64, AppError> {
         let mut conn = state.redis.get_connection()?;
         let rb = &state.batis;
 
@@ -437,16 +434,16 @@ impl UserService {
 
         let list: Vec<UserRole> = item.role_ids.into_iter().map(|role_id| UserRole { id: None, role_id, user_id }).collect();
 
-        UserRole::insert_batch(rb, &list, list.len() as u64).await.map(|_| ok_result())?
+        UserRole::insert_batch(rb, &list, list.len() as u64).await.map(|x| Ok(x.rows_affected))?
     }
 
     // 查询用户菜单
-    pub async fn query_user_menu(state: Arc<AppState>, user_id: i64) -> impl IntoResponse {
+    pub async fn query_user_menu(state: Arc<AppState>, user_id: i64) -> Result<QueryUserMenuResp, AppError> {
         let mut conn = state.redis.get_connection()?;
         let rb = &state.batis;
         //根据id查询用户
         match User::select_by_id(rb, &user_id).await? {
-            None => Err(AppError::BusinessError("用户不存在")),
+            None => Err(BusinessError("用户不存在")),
             Some(user) => {
                 let key = format!("axum:admin:user:info:{}", user_id);
                 let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
@@ -503,7 +500,7 @@ impl UserService {
                     name: user.user_name,
                 };
 
-                ok_result_data(resp)
+                Ok(resp)
             }
         }
     }

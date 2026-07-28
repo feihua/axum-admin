@@ -90,10 +90,7 @@ impl NoticeService {
         let rb = &state.batis;
         match Notice::select_by_id(rb, &item.id).await? {
             None => Err(AppError::BusinessError("通知公告表不存在")),
-            Some(x) => {
-                // let notice: NoticeResp = x.into();
-                Ok(x.into())
-            }
+            Some(x) => Ok(x.into()),
         }
     }
 

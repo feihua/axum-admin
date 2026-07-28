@@ -1,10 +1,8 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_post_model::Post;
 use crate::model::system::sys_user_post_model::UserPost;
 use crate::vo::system::sys_post_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
@@ -16,7 +14,7 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_post(state: Arc<AppState>, mut item: PostReq) -> impl IntoResponse {
+    pub async fn add_sys_post(state: Arc<AppState>, mut item: PostReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         if Post::select_by_map(rb, value! {"post_name": &item.post_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("岗位名称已存在"));
@@ -27,7 +25,7 @@ impl PostService {
         }
 
         item.id = None;
-        Post::insert(rb, &Post::from(item)).await.map(|_| ok_result())?
+        Post::insert(rb, &Post::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
     }
 
     /*
@@ -35,7 +33,7 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn delete_sys_post(state: Arc<AppState>, item: DeletePostReq) -> impl IntoResponse {
+    pub async fn delete_sys_post(state: Arc<AppState>, item: DeletePostReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let ids = item.ids;
         for id in &ids {
@@ -44,7 +42,7 @@ impl PostService {
             }
         }
 
-        Post::delete_by_map(rb, value! {"id": ids}).await.map(|_| ok_result())?
+        Post::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -52,7 +50,7 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_post(state: Arc<AppState>, item: PostReq) -> impl IntoResponse {
+    pub async fn update_sys_post(state: Arc<AppState>, item: PostReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
 
@@ -72,7 +70,7 @@ impl PostService {
             return Err(AppError::BusinessError("岗位编码已存在"));
         }
 
-        Post::update_by_map(rb, &Post::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+        Post::update_by_map(rb, &Post::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -80,13 +78,13 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_post_status(state: Arc<AppState>, item: UpdatePostStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_post_status(state: Arc<AppState>, item: UpdatePostStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let update_sql = format!("update sys_post set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
         let mut param = vec![value!(item.status)];
         param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -94,13 +92,13 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_post_detail(state: Arc<AppState>, item: QueryPostDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_post_detail(state: Arc<AppState>, item: QueryPostDetailReq) -> Result<PostResp, AppError> {
         let rb = &state.batis;
         Post::select_by_id(rb, &item.id).await?.map_or_else(
             || Err(AppError::BusinessError("岗位不存在")),
             |x| {
                 let data: PostResp = x.into();
-                ok_result_data(data)
+                Ok(data)
             },
         )
     }
@@ -110,12 +108,12 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_post_list(state: Arc<AppState>, item: QueryPostListReq) -> impl IntoResponse {
+    pub async fn query_sys_post_list(state: Arc<AppState>, item: QueryPostListReq) -> Result<(Vec<PostResp>, u64), AppError> {
         let rb = &state.batis;
         let page = &PageRequest::new(item.page_no, item.page_size);
 
         Post::select_by_page(rb, page, &item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<PostResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<PostResp>>(), x.total)))?
     }
 }

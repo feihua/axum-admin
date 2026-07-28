@@ -1,9 +1,7 @@
 use crate::common::error::AppError;
-use crate::common::result::{ok_result, ok_result_data, ok_result_page};
 use crate::model::system::sys_dict_data_model::DictData;
 use crate::vo::system::sys_dict_data_vo::*;
 use crate::AppState;
-use axum::response::IntoResponse;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
@@ -16,7 +14,7 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_dict_data(state: Arc<AppState>, mut item: DictDataReq) -> impl IntoResponse {
+    pub async fn add_sys_dict_data(state: Arc<AppState>, mut item: DictDataReq) -> Result<Option<u64>, AppError> {
         let rb = &state.batis;
         let dict_type = &item.dict_type;
         let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label};
@@ -30,7 +28,7 @@ impl DictDataService {
         }
 
         item.id = None;
-        DictData::insert(rb, &DictData::from(item)).await.map(|_| ok_result())?
+        DictData::insert(rb, &DictData::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
     }
 
     /*
@@ -38,9 +36,9 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn delete_sys_dict_data(state: Arc<AppState>, item: DeleteDictDataReq) -> impl IntoResponse {
+    pub async fn delete_sys_dict_data(state: Arc<AppState>, item: DeleteDictDataReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        DictData::delete_by_map(rb, value! {"id": &item.ids}).await.map(|_| ok_result())?
+        DictData::delete_by_map(rb, value! {"id": &item.ids}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -48,7 +46,7 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_dict_data(state: Arc<AppState>, item: DictDataReq) -> impl IntoResponse {
+    pub async fn update_sys_dict_data(state: Arc<AppState>, item: DictDataReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let id = item.id;
 
@@ -71,7 +69,7 @@ impl DictDataService {
             return Err(AppError::BusinessError("字典键值已存在"));
         }
 
-        DictData::update_by_map(rb, &DictData::from(item), value! {"id": &id}).await.map(|_| ok_result())?
+        DictData::update_by_map(rb, &DictData::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -79,13 +77,13 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn update_sys_dict_data_status(state: Arc<AppState>, item: UpdateDictDataStatusReq) -> impl IntoResponse {
+    pub async fn update_sys_dict_data_status(state: Arc<AppState>, item: UpdateDictDataStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let update_sql = format!("update sys_dict_data set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
 
         let mut param = vec![value!(item.status)];
         param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|_| ok_result())?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
     }
 
     /*
@@ -93,13 +91,13 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_dict_data_detail(state: Arc<AppState>, item: QueryDictDataDetailReq) -> impl IntoResponse {
+    pub async fn query_sys_dict_data_detail(state: Arc<AppState>, item: QueryDictDataDetailReq) -> Result<DictDataResp, AppError> {
         let rb = &state.batis;
         DictData::select_by_id(rb, &item.id).await?.map_or_else(
             || Err(AppError::BusinessError("字典数据不存在")),
             |x| {
                 let data: DictDataResp = x.into();
-                ok_result_data(data)
+                Ok(data)
             },
         )
     }
@@ -109,12 +107,12 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn query_sys_dict_data_list(state: Arc<AppState>, item: QueryDictDataListReq) -> impl IntoResponse {
+    pub async fn query_sys_dict_data_list(state: Arc<AppState>, item: QueryDictDataListReq) -> Result<(Vec<DictDataResp>, u64), AppError> {
         let rb = &state.batis;
         let page = &PageRequest::new(item.page_no, item.page_size);
 
         DictData::select_by_page(rb, page, &item)
             .await
-            .map(|x| ok_result_page(x.records.into_iter().map(|x| x.into()).collect::<Vec<DictDataResp>>(), x.total))?
+            .map(|x| Ok((x.records.into_iter().map(|x| x.into()).collect::<Vec<DictDataResp>>(), x.total)))?
     }
 }
