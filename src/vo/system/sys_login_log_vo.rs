@@ -3,19 +3,21 @@
 use crate::common::result::serialize_datetime;
 use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 /*
 删除系统访问记录请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct DeleteLoginLogReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
 }
 
 /*
 查询系统访问记录详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct QueryLoginLogDetailReq {
     pub id: i64,
 }
@@ -23,10 +25,12 @@ pub struct QueryLoginLogDetailReq {
 /*
 查询系统访问记录列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryLoginLogListReq {
+    #[validate(range(min = 1))]
     pub page_no: u64,
+    #[validate(range(min = 1))]
     pub page_size: u64,
     pub login_name: Option<String>,     //登录账号
     pub ipaddr: Option<String>,         //登录IP地址
@@ -42,7 +46,7 @@ fn default_status() -> Option<i8> {
 /*
 查询系统访问记录列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct LoginLogResp {
     pub id: Option<i64>,        //访问ID

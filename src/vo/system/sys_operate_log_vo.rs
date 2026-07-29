@@ -4,18 +4,20 @@
 use crate::common::result::serialize_datetime;
 use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 /*
 删除操作日志记录请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct DeleteOperateLogReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
 }
 
 /*
 查询操作日志记录详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct QueryOperateLogDetailReq {
     pub id: i64,
 }
@@ -23,10 +25,12 @@ pub struct QueryOperateLogDetailReq {
 /*
 查询操作日志记录列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryOperateLogListReq {
+    #[validate(range(min = 1))]
     pub page_no: u64,
+    #[validate(range(min = 1))]
     pub page_size: u64,
     pub title: Option<String>,            //模块标题
     pub business_type: Option<i8>,        //业务类型（0其它 1新增 2修改 3删除）
@@ -47,7 +51,7 @@ fn default_status() -> Option<i8> {
 /*
 查询操作日志记录列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct OperateLogResp {
     pub id: Option<i64>,                  //日志主键

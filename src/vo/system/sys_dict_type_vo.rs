@@ -4,33 +4,39 @@
 use crate::common::result::serialize_datetime;
 use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 
 /*
 删除字典类型表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct DeleteDictTypeReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
 }
 
 /*
 更新字典类型表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct DictTypeReq {
-    pub id: Option<i64>,        //字典主键
-    pub dict_name: String,      //字典名称
-    pub dict_type: String,      //字典类型
-    pub status: i8,             //状态（0：停用，1:正常）
+    pub id: Option<i64>, //字典主键
+    #[validate(length(min = 2, max = 30, message = "字典名称标签不能为空且长度为2-12"))]
+    pub dict_name: String, //字典名称
+    #[validate(length(min = 2, max = 30, message = "字典类型不能为空且长度为2-12"))]
+    pub dict_type: String, //字典类型
+    #[validate(range(min = 0, max = 1, message = "状态（0：停用，1:正常）"))]
+    pub status: i8, //状态（0：停用，1:正常）
     pub remark: Option<String>, //备注
 }
 
 /*
 更新字典类型表状态请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct UpdateDictTypeStatusReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
     pub status: i8,
 }
@@ -38,7 +44,7 @@ pub struct UpdateDictTypeStatusReq {
 /*
 查询字典类型表详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct QueryDictTypeDetailReq {
     pub id: i64,
 }
@@ -46,10 +52,12 @@ pub struct QueryDictTypeDetailReq {
 /*
 查询字典类型表列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDictTypeListReq {
+    #[validate(range(min = 1))]
     pub page_no: u64,
+    #[validate(range(min = 1))]
     pub page_size: u64,
     pub dict_name: Option<String>, //字典名称
     pub dict_type: Option<String>, //字典类型
@@ -62,7 +70,7 @@ fn default_status() -> Option<i8> {
 /*
 查询字典类型表列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct DictTypeResp {
     pub id: Option<i64>,        //字典主键

@@ -24,7 +24,7 @@ pub async fn add_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)):
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDeptReq>) -> impl IntoResponse {
+pub async fn delete_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteDeptReq>>) -> impl IntoResponse {
     info!("delete sys_dept params: {:?}", &item);
 
     DeptService::delete_sys_dept(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -46,7 +46,7 @@ pub async fn update_sys_dept(State(state): State<Arc<AppState>>, Valid(Json(item
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDeptStatusReq>) -> impl IntoResponse {
+pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<UpdateDeptStatusReq>>) -> impl IntoResponse {
     info!("update sys_dept_status params: {:?}", &item);
 
     DeptService::update_sys_dept_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -56,7 +56,7 @@ pub async fn update_sys_dept_status(State(state): State<Arc<AppState>>, Json(ite
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptDetailReq>) -> impl IntoResponse {
+pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryDeptDetailReq>>) -> impl IntoResponse {
     info!("query sys_dept_detail params: {:?}", &item);
 
     DeptService::query_sys_dept_detail(state, item).await.map(|record| ok_result_data(record))?
@@ -67,7 +67,7 @@ pub async fn query_sys_dept_detail(State(state): State<Arc<AppState>>, Json(item
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDeptListReq>) -> impl IntoResponse {
+pub async fn query_sys_dept_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryDeptListReq>>) -> impl IntoResponse {
     info!("query sys_dept_list params: {:?}", &item);
 
     DeptService::query_sys_dept_list(state, item).await.map(|record| ok_result_data(record))?

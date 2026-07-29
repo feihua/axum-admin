@@ -10,7 +10,7 @@ use validator::Validate;
 /*
 删除部门表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct DeleteDeptReq {
     pub id: i64,
 }
@@ -28,20 +28,22 @@ pub struct DeptReq {
     #[validate(length(min = 2, max = 30, message = "部门名称不能为空且长度为2-30"))]
     pub dept_name: String, //部门名称
     pub ancestors: Option<String>, //祖级列表
-    pub sort: i32,       //显示顺序
+    #[validate(range(min = 1, message = "排序不能小于1"))]
+    pub sort: i32, //显示顺序
     #[validate(length(min = 2, max = 20, message = "负责人必填且长度为2-20"))]
     pub leader: String, //负责人
     #[validate(regex(path = *PHONE_NUMBER, message = "联系电话格式不正确，必须为11位数字"))]
     pub phone: String, //联系电话
     #[validate(email, length(max = 50, message = "邮箱格式不正确且长度不能超过50"))]
     pub email: String, //邮箱
-    pub status: i8,      //部状态（0：停用，1:正常）
+    #[validate(range(min = 0, max = 1, message = "状态（0：停用，1:正常）"))]
+    pub status: i8, //部状态（0：停用，1:正常）
 }
 
 /*
 更新部门表状态请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct UpdateDeptStatusReq {
     pub id: i64,
     pub status: i8,
@@ -50,7 +52,7 @@ pub struct UpdateDeptStatusReq {
 /*
 查询部门表详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct QueryDeptDetailReq {
     pub id: i64,
 }
@@ -58,7 +60,7 @@ pub struct QueryDeptDetailReq {
 /*
 查询部门表列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryDeptListReq {
     pub dept_name: Option<String>, //部门名称
@@ -74,7 +76,7 @@ fn default_status() -> Option<i8> {
 /*
 查询部门表列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct DeptResp {
     pub id: Option<i64>,           //部门id

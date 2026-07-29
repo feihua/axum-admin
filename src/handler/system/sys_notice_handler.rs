@@ -5,6 +5,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use axum_valid::Valid;
 use log::info;
 use std::sync::Arc;
 /*
@@ -12,7 +13,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<NoticeReq>) -> impl IntoResponse {
+pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<NoticeReq>>) -> impl IntoResponse {
     info!("add sys_notice params: {:?}", &item);
 
     NoticeService::add_sys_notice(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
@@ -23,7 +24,7 @@ pub async fn add_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<DeleteNoticeReq>) -> impl IntoResponse {
+pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteNoticeReq>>) -> impl IntoResponse {
     info!("delete sys_notice params: {:?}", &item);
 
     NoticeService::delete_sys_notice(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -34,7 +35,7 @@ pub async fn delete_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): Json<NoticeReq>) -> impl IntoResponse {
+pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<NoticeReq>>) -> impl IntoResponse {
     info!("update sys_notice params: {:?}", &item);
 
     NoticeService::update_sys_notice(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -45,7 +46,7 @@ pub async fn update_sys_notice(State(state): State<Arc<AppState>>, Json(item): J
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateNoticeStatusReq>) -> impl IntoResponse {
+pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<UpdateNoticeStatusReq>>) -> impl IntoResponse {
     info!("update sys_notice_status params: {:?}", &item);
 
     NoticeService::update_sys_notice_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -56,7 +57,7 @@ pub async fn update_sys_notice_status(State(state): State<Arc<AppState>>, Json(i
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeDetailReq>) -> impl IntoResponse {
+pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryNoticeDetailReq>>) -> impl IntoResponse {
     info!("query sys_notice_detail params: {:?}", &item);
 
     NoticeService::query_sys_notice_detail(state, item).await.map(|record| ok_result_data(record))?
@@ -67,7 +68,7 @@ pub async fn query_sys_notice_detail(State(state): State<Arc<AppState>>, Json(it
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryNoticeListReq>) -> impl IntoResponse {
+pub async fn query_sys_notice_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryNoticeListReq>>) -> impl IntoResponse {
     info!("query sys_notice_list params: {:?}", &item);
 
     NoticeService::query_sys_notice_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?

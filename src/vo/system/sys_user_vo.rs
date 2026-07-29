@@ -6,32 +6,41 @@ use crate::vo::system::sys_dept_vo::DeptResp;
 use crate::vo::system::sys_role_vo::RoleResp;
 use rbatis::rbdc::DateTime;
 use serde::{Deserialize, Serialize};
+use validator::Validate;
 /*
 删除用户信息请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct DeleteUserReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
 }
 
 /*
 更新用户信息请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct UserReq {
-    pub id: Option<i64>,          //主键
-    pub mobile: String,           //手机
-    pub user_name: String,        //用户账号
-    pub nick_name: String,        //用户昵称
+    pub id: Option<i64>, //主键
+    #[validate(length(min = 11, max = 11, message = "手机不能为空且长度为11"))]
+    pub mobile: String, //手机
+    #[validate(length(min = 2, max = 12, message = "用户账号不能为空且长度为2-12"))]
+    pub user_name: String, //用户账号
+    #[validate(length(min = 2, max = 12, message = "用户昵称不能为空且长度为2-12"))]
+    pub nick_name: String, //用户昵称
     pub password: Option<String>, //用户密码
-    pub email: String,            //用户邮箱
+    #[validate(email, length(max = 50, message = "邮箱格式不正确且长度不能超过50"))]
+    pub email: String, //用户邮箱
     #[serde(default = "default_avatar")]
     pub avatar: Option<String>, //头像路径
-    pub status: i8,               //状态(1:正常，0:禁用)
-    pub dept_id: i64,             //部门ID
-    pub remark: Option<String>,   //备注
-    pub post_ids: Vec<i64>,       //岗位ids
+    #[validate(range(min = 0, max = 1, message = "状态（0：停用，1:正常）"))]
+    pub status: i8, //状态(1:正常，0:禁用)
+    #[validate(range(min = 1, message = "部门ID不能小于0"))]
+    pub dept_id: i64, //部门ID
+    pub remark: Option<String>, //备注
+    #[validate(length(min = 1, message = "岗位ids不能为空"))]
+    pub post_ids: Vec<i64>, //岗位ids
     pub role_ids: Option<Vec<i64>>, //角色ids
 }
 fn default_avatar() -> Option<String> {
@@ -40,8 +49,9 @@ fn default_avatar() -> Option<String> {
 /*
 更新用户信息状态请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct UpdateUserStatusReq {
+    #[validate(length(min = 1, message = "id集合不能为空"))]
     pub ids: Vec<i64>,
     pub status: i8,
 }
@@ -49,7 +59,7 @@ pub struct UpdateUserStatusReq {
 /*
 查询用户信息详情请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 pub struct QueryUserDetailReq {
     pub id: i64,
 }
@@ -57,10 +67,12 @@ pub struct QueryUserDetailReq {
 /*
 查询用户信息列表请求参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryUserListReq {
+    #[validate(range(min = 1))]
     pub page_no: u64,
+    #[validate(range(min = 1))]
     pub page_size: u64,
     pub mobile: Option<String>,    //手机
     pub user_name: Option<String>, //姓名
@@ -74,7 +86,7 @@ fn default_status() -> Option<i8> {
 /*
 查询用户信息列表响应参数
 */
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct UserResp {
     pub id: Option<i64>,        //主键
@@ -105,7 +117,7 @@ pub struct UserResp {
 /*
 登录请求参数
 */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct UserLoginReq {
     pub account: String,  //手机
     pub password: String, //密码
@@ -141,7 +153,7 @@ pub struct MenuList {
 /*
 查询用户关联角色请求参数
 */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryUserRoleReq {
     pub user_id: i64,
@@ -160,7 +172,7 @@ pub struct QueryUserRoleResp {
 /*
 更新用户关联角色请求参数
 */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserRoleReq {
     pub user_id: i64,       //用户主键
@@ -170,7 +182,7 @@ pub struct UpdateUserRoleReq {
 /*
 重置密码
 */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 pub struct ResetUserPwdReq {
     pub id: i64,          //用户主键
     pub password: String, //用户密码
@@ -179,7 +191,7 @@ pub struct ResetUserPwdReq {
 /*
 重置密码
 */
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct UpdateUserPwdReq {
     pub pwd: String,    //用户密码

@@ -5,6 +5,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use axum_valid::Valid;
 use log::info;
 use std::sync::Arc;
 /*
@@ -12,7 +13,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
+pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DictTypeReq>>) -> impl IntoResponse {
     info!("add sys_dict_type params: {:?}", &item);
 
     DictTypeService::add_sys_dict_type(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
@@ -23,7 +24,7 @@ pub async fn add_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): J
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DeleteDictTypeReq>) -> impl IntoResponse {
+pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteDictTypeReq>>) -> impl IntoResponse {
     info!("delete sys_dict_type params: {:?}", &item);
 
     DictTypeService::delete_sys_dict_type(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -34,7 +35,7 @@ pub async fn delete_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item): Json<DictTypeReq>) -> impl IntoResponse {
+pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DictTypeReq>>) -> impl IntoResponse {
     info!("update sys_dict_type params: {:?}", &item);
 
     DictTypeService::update_sys_dict_type(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -45,7 +46,7 @@ pub async fn update_sys_dict_type(State(state): State<Arc<AppState>>, Json(item)
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateDictTypeStatusReq>) -> impl IntoResponse {
+pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<UpdateDictTypeStatusReq>>) -> impl IntoResponse {
     info!("update sys_dict_type_status params: {:?}", &item);
 
     DictTypeService::update_sys_dict_type_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -56,7 +57,7 @@ pub async fn update_sys_dict_type_status(State(state): State<Arc<AppState>>, Jso
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeDetailReq>) -> impl IntoResponse {
+pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryDictTypeDetailReq>>) -> impl IntoResponse {
     info!("query sys_dict_type_detail params: {:?}", &item);
 
     DictTypeService::query_sys_dict_type_detail(state, item).await.map(|record| ok_result_data(record))?
@@ -67,7 +68,7 @@ pub async fn query_sys_dict_type_detail(State(state): State<Arc<AppState>>, Json
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryDictTypeListReq>) -> impl IntoResponse {
+pub async fn query_sys_dict_type_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryDictTypeListReq>>) -> impl IntoResponse {
     info!("query sys_dict_type_list params: {:?}", &item);
 
     DictTypeService::query_sys_dict_type_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?

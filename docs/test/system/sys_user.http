@@ -18,11 +18,43 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "mobile": "123123123",
-  "userName": "22334",
+  "mobile": "1861303011",
+  "userName": "admin",
+  "nickName": "admin",
+  "userType": "00",
+  "email": "xx@qq.com",
+  "avatar": "",
   "status": 1,
-  "sort": 11,
-  "remark": "22334"
+  "deptId": 1,
+  "loginIp": "",
+  "loginDate": "2026-07-29 09:29:55",
+  "loginBrowser": "",
+  "loginOs": "",
+  "pwdUpdateDate": "",
+  "remark": "超级管理员",
+  "createTime": "2026-07-20 16:00:08",
+  "updateTime": "2026-07-21 07:05:28",
+  "deptInfo": {
+    "id": 1,
+    "key": "1",
+    "parentId": 0,
+    "ancestors": "0",
+    "deptName": "测试科技",
+    "title": "测试科技",
+    "sort": 1,
+    "leader": "admin",
+    "phone": "18613030352",
+    "email": "1002219331@qq.com",
+    "status": 1,
+    "createTime": "2025-09-11 10:19:38",
+    "updateTime": ""
+  },
+  "postIds": [
+    1
+  ],
+  "roleIds": [
+    1
+  ]
 }
 
 ###删除用户信息 deleteUser

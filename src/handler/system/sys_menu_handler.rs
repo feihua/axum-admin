@@ -5,6 +5,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use axum_valid::Valid;
 use log::info;
 use std::sync::Arc;
 /*
@@ -12,7 +13,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
+pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<MenuReq>>) -> impl IntoResponse {
     info!("add sys_menu params: {:?}", &item);
 
     MenuService::add_sys_menu(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
@@ -23,7 +24,7 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<M
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<DeleteMenuReq>) -> impl IntoResponse {
+pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteMenuReq>>) -> impl IntoResponse {
     info!("delete sys_menu params: {:?}", &item);
 
     MenuService::delete_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -34,7 +35,7 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Json<MenuReq>) -> impl IntoResponse {
+pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<MenuReq>>) -> impl IntoResponse {
     info!("update sys_menu params: {:?}", &item);
 
     MenuService::update_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -45,7 +46,7 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Json(item): Jso
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(item): Json<UpdateMenuStatusReq>) -> impl IntoResponse {
+pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<UpdateMenuStatusReq>>) -> impl IntoResponse {
     info!("update sys_menu_status params: {:?}", &item);
 
     MenuService::update_sys_menu_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -56,7 +57,7 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Json(ite
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuDetailReq>) -> impl IntoResponse {
+pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuDetailReq>>) -> impl IntoResponse {
     info!("query sys_menu_detail params: {:?}", &item);
 
     MenuService::query_sys_menu_detail(state, item).await.map(|record| ok_result_data(record))?
@@ -67,7 +68,7 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Json(item
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryMenuListReq>) -> impl IntoResponse {
+pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuListReq>>) -> impl IntoResponse {
     info!("query sys_menu_list params: {:?}", &item);
 
     MenuService::query_sys_menu_list(state).await.map(|record| ok_result_data(record))?
@@ -87,8 +88,8 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Json(req): Json<QueryMenuListReq>) -> impl IntoResponse {
-    info!("query sys_menu_list params: {:?}", &req);
+pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuListReq>>) -> impl IntoResponse {
+    info!("query sys_menu_list params: {:?}", &item);
 
-    MenuService::query_sys_menu_resource_list(state, req).await.map(|(list, total)| ok_result_page(list, total))?
+    MenuService::query_sys_menu_resource_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

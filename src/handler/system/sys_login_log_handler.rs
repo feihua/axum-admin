@@ -5,6 +5,7 @@ use crate::AppState;
 use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
+use axum_valid::Valid;
 use log::info;
 use std::sync::Arc;
 /*
@@ -12,7 +13,7 @@ use std::sync::Arc;
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Json(item): Json<DeleteLoginLogReq>) -> impl IntoResponse {
+pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteLoginLogReq>>) -> impl IntoResponse {
     info!("delete sys_login_log params: {:?}", &item);
 
     LoginLogService::delete_sys_login_log(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
@@ -34,7 +35,7 @@ pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl Int
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogDetailReq>) -> impl IntoResponse {
+pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryLoginLogDetailReq>>) -> impl IntoResponse {
     info!("query sys_login_log_detail params: {:?}", &item);
 
     LoginLogService::query_sys_login_log_detail(state, item).await.map(|record| ok_result_data(record))?
@@ -45,7 +46,7 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Json
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
-pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Json(item): Json<QueryLoginLogListReq>) -> impl IntoResponse {
+pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryLoginLogListReq>>) -> impl IntoResponse {
     info!("query sys_login_log_list params: {:?}", &item);
 
     LoginLogService::query_sys_login_log_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
