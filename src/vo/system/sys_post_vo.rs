@@ -57,9 +57,9 @@ pub struct QueryPostDetailReq {
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryPostListReq {
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_no: u64,
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_size: u64,
     pub post_code: Option<String>, //岗位编码
     pub post_name: Option<String>, //岗位名称

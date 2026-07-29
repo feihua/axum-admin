@@ -62,9 +62,9 @@ pub struct QueryMenuDetailReq {
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryMenuListReq {
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_no: u64,
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_size: u64,
     pub menu_name: Option<String>, //菜单名称
     pub menu_type: Option<i8>,     //菜单类型(1：目录   2：菜单   3：按钮)

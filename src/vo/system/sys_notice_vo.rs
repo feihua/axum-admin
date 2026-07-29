@@ -56,9 +56,9 @@ pub struct QueryNoticeDetailReq {
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryNoticeListReq {
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_no: u64,
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_size: u64,
     pub notice_title: Option<String>, //公告标题
     pub notice_type: Option<i8>,      //公告类型（1:通知,2:公告）

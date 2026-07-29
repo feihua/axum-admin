@@ -70,9 +70,9 @@ pub struct QueryUserDetailReq {
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryUserListReq {
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_no: u64,
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_size: u64,
     pub mobile: Option<String>,    //手机
     pub user_name: Option<String>, //姓名

@@ -28,9 +28,9 @@ pub struct QueryLoginLogDetailReq {
 #[derive(Debug, Serialize, Deserialize, Validate)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryLoginLogListReq {
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_no: u64,
-    #[validate(range(min = 1))]
+    #[validate(range(min = 1, message = "不能小于1"))]
     pub page_size: u64,
     pub login_name: Option<String>,     //登录账号
     pub ipaddr: Option<String>,         //登录IP地址
