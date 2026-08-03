@@ -107,6 +107,50 @@ impl Into<DictTypeResp> for DictType {
 
 impl DictType {
     /*
+     *添加字典类型
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn add(rb: &RBatis, item: &DictType) -> rbatis::Result<Option<u64>> {
+        DictType::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+    }
+
+    /*
+     *删除字典类型
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
+        DictType::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
+     *更新字典类型
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn update(rb: &RBatis, item: &DictType, id: i64) -> rbatis::Result<u64> {
+        DictType::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
+     *更新字典类型状态
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn update_status(rb: &RBatis, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
+        let update_sql = format!(
+            "update sys_dict_type set status = ? ,update_time = ? where id in ({})",
+            ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
+        );
+
+        let mut param = vec![value!(status), value!(DateTime::now())];
+        param.extend(ids.iter().map(|&id| value!(id)));
+
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
      *根据id查询字典类型表
      *author：刘飞华
      *date：2026/07/01 17:45:52

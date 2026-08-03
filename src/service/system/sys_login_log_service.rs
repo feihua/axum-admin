@@ -3,7 +3,6 @@ use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
 use crate::vo::system::sys_login_log_vo::*;
 use crate::AppState;
 use rbatis::plugin::page::PageRequest;
-use rbs::value;
 use std::sync::Arc;
 
 pub struct LoginLogService;
@@ -15,7 +14,7 @@ impl LoginLogService {
      */
     pub async fn delete_sys_login_log(state: Arc<AppState>, item: DeleteLoginLogReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        LoginLog::delete_by_map(rb, value! {"id": item.ids}).await.map(|x| Ok(x.rows_affected))?
+        LoginLog::delete(rb, item.ids).await.map(|x| Ok(x))?
     }
 
     /*

@@ -14,7 +14,7 @@ impl DictDataService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_dict_data(state: Arc<AppState>, mut item: DictDataReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_dict_data(state: Arc<AppState>, mut item: DictDataReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let dict_type = &item.dict_type;
         let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label};
@@ -28,7 +28,7 @@ impl DictDataService {
         }
 
         item.id = None;
-        DictData::insert(rb, &DictData::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        DictData::add(rb, &DictData::from(item)).await.map(|id| Ok(id.unwrap_or_default()))?
     }
 
     /*
@@ -38,7 +38,7 @@ impl DictDataService {
      */
     pub async fn delete_sys_dict_data(state: Arc<AppState>, item: DeleteDictDataReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        DictData::delete_by_map(rb, value! {"id": &item.ids}).await.map(|x| Ok(x.rows_affected))?
+        DictData::delete(rb, item.ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -69,7 +69,7 @@ impl DictDataService {
             return Err(AppError::BusinessError("字典键值已存在"));
         }
 
-        DictData::update_by_map(rb, &DictData::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
+        DictData::update(rb, &DictData::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -79,11 +79,7 @@ impl DictDataService {
      */
     pub async fn update_sys_dict_data_status(state: Arc<AppState>, item: UpdateDictDataStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let update_sql = format!("update sys_dict_data set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        DictData::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

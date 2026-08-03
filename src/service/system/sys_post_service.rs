@@ -14,7 +14,7 @@ impl PostService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_post(state: Arc<AppState>, mut item: PostReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_post(state: Arc<AppState>, mut item: PostReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if Post::select_by_map(rb, value! {"post_name": &item.post_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("岗位名称已存在"));
@@ -25,7 +25,7 @@ impl PostService {
         }
 
         item.id = None;
-        Post::insert(rb, &Post::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Post::add(rb, &Post::from(item)).await.map(|id| Ok(id.unwrap_or_default()))?
     }
 
     /*
@@ -42,7 +42,7 @@ impl PostService {
             }
         }
 
-        Post::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        Post::delete(rb, ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -70,7 +70,7 @@ impl PostService {
             return Err(AppError::BusinessError("岗位编码已存在"));
         }
 
-        Post::update_by_map(rb, &Post::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
+        Post::update(rb, &Post::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -80,11 +80,7 @@ impl PostService {
      */
     pub async fn update_sys_post_status(state: Arc<AppState>, item: UpdatePostStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let update_sql = format!("update sys_post set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        Post::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

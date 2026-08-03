@@ -92,6 +92,50 @@ pub async fn select_count_menu_by_parent_id(rb: &RBatis, parent_id: &i64) -> rba
 
 impl Menu {
     /*
+     *添加菜单信息
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn add(rb: &RBatis, item: &Menu) -> rbatis::Result<Option<u64>> {
+        Menu::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+    }
+
+    /*
+     *删除菜单信息
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
+        Menu::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
+     *更新菜单信息
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn update(rb: &RBatis, item: &Menu, id: i64) -> rbatis::Result<u64> {
+        Menu::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
+     *更新菜单信息状态
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn update_status(rb: &RBatis, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
+        let update_sql = format!(
+            "update sys_menu set status = ? ,update_time = ? where id in ({})",
+            ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
+        );
+
+        let mut param = vec![value!(status), value!(DateTime::now())];
+        param.extend(ids.iter().map(|&id| value!(id)));
+
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
      *根据id查询菜单信息
      *author：刘飞华
      *date：2026/07/01 17:49:14

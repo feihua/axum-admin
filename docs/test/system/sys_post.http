@@ -6,7 +6,7 @@ Authorization: Bearer {{token}}
 {
     "postCode": "abc12",
     "postName": "测试2",
-    "sort": 0,
+  "sort": 1,
     "status": 1,
     "remark": "123"
 
@@ -41,7 +41,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "ids": [13],
+  "ids": [
+    1
+  ],
   "status": 1
 }
 ###查询岗位信息表详情 queryPostDetail

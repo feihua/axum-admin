@@ -15,7 +15,7 @@ impl MenuService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn add_sys_menu(state: Arc<AppState>, mut item: MenuReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_menu(state: Arc<AppState>, mut item: MenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name}).await?.len() > 0 {
             return Err(AppError::BusinessError("菜单名称已存在"));
@@ -30,7 +30,7 @@ impl MenuService {
         }
 
         item.id = None;
-        Menu::insert(rb, &Menu::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Menu::add(rb, &Menu::from(item)).await.map(|id| Ok(id.unwrap_or_default()))?
     }
 
     /*
@@ -51,7 +51,7 @@ impl MenuService {
             }
         }
 
-        Menu::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        Menu::delete(rb, ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -83,7 +83,7 @@ impl MenuService {
             }
         }
 
-        Menu::update_by_map(rb, &Menu::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Menu::update(rb, &Menu::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -93,12 +93,7 @@ impl MenuService {
      */
     pub async fn update_sys_menu_status(state: Arc<AppState>, item: UpdateMenuStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let ids = item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ");
-        let update_sql = format!("update sys_menu set status = ? where id in ({})", ids);
-
-        let mut param = vec![value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        Menu::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

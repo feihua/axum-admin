@@ -14,7 +14,7 @@ impl NoticeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_notice(state: Arc<AppState>, mut item: NoticeReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_notice(state: Arc<AppState>, mut item: NoticeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let condition = value! {
             "notice_title": &item.notice_title,
@@ -24,7 +24,7 @@ impl NoticeService {
         }
 
         item.id = None;
-        Notice::insert(rb, &Notice::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Notice::add(rb, &Notice::from(item)).await.map(|id| Ok(id.unwrap_or_default()))?
     }
 
     /*
@@ -34,7 +34,7 @@ impl NoticeService {
      */
     pub async fn delete_sys_notice(state: Arc<AppState>, item: DeleteNoticeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        Notice::delete_by_map(rb, value! {"id": item.ids}).await.map(|x| Ok(x.rows_affected))?
+        Notice::delete(rb, item.ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -63,7 +63,7 @@ impl NoticeService {
             return Err(AppError::BusinessError("公告标题已存在"));
         }
 
-        Notice::update_by_map(rb, &Notice::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Notice::update(rb, &Notice::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -73,12 +73,7 @@ impl NoticeService {
      */
     pub async fn update_sys_notice_status(state: Arc<AppState>, item: UpdateNoticeStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let update_sql = format!("update sys_notice set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| value!(id)));
-
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        Notice::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

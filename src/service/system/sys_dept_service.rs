@@ -16,7 +16,7 @@ impl DeptService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_dept(state: Arc<AppState>, item: DeptReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_dept(state: Arc<AppState>, item: DeptReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let parent_id = &item.parent_id;
 
@@ -38,7 +38,7 @@ impl DeptService {
                     return Err(AppError::validation_error(&e));
                 }
                 sys_dept.id = None;
-                Dept::insert(rb, &sys_dept).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+                Dept::add(rb, &sys_dept).await.map(|id| Ok(id.unwrap_or_default()))?
             }
         }
     }
@@ -59,7 +59,7 @@ impl DeptService {
             return Err(AppError::BusinessError("部门存在用户,不允许删除"));
         }
 
-        Dept::delete_by_map(rb, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Dept::delete(rb, id).await.map(|x| Ok(x))?
     }
 
     /*
@@ -103,7 +103,7 @@ impl DeptService {
 
         for mut x in Dept::select_children_dept_by_id(rb, &id.unwrap_or_default()).await? {
             x.ancestors = Some(x.ancestors.unwrap_or_default().replace(old_ancestors.as_str(), ancestors.as_str()));
-            Dept::update_by_map(rb, &x, value! {"id": &x.id}).await?;
+            Dept::update(rb, &x, x.id.unwrap_or_default()).await?;
         }
 
         if item.status == 1 && ancestors != "0" {
@@ -125,7 +125,7 @@ impl DeptService {
         if let Err(e) = data.validate() {
             return Err(AppError::validation_error(&e));
         }
-        Dept::update_by_map(rb, &data, value! {"id":  id}).await.map(|x| Ok(x.rows_affected))?
+        Dept::update(rb, &data, id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -142,11 +142,7 @@ impl DeptService {
                 ids.extend(&x.ancestors.unwrap_or_default().split(",").map(|s| s.i64()).collect::<Vec<i64>>())
             }
         }
-        let update_sql = format!("update sys_dept set status = ? where id in ({})", ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        Dept::update_status(rb, ids, item.status).await.map(|x| Ok(x))?
     }
     /*
      *查询部门表详情

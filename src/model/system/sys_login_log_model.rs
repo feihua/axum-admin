@@ -73,6 +73,15 @@ pub async fn clean_login_log(rb: &RBatis) -> Option<i64> {
 
 impl LoginLog {
     /*
+     *删除系统访问记录
+     *author：刘飞华
+     *date：2026/07/01 17:49:14
+     */
+    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
+        LoginLog::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+    }
+
+    /*
      *根据id查询系统访问记录
      *author：刘飞华
      *date：2026/07/01 17:45:52

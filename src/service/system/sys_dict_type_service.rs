@@ -15,14 +15,14 @@ impl DictTypeService {
      *author：刘飞华
      *date：2024/12/25 11:36:48
      */
-    pub async fn add_sys_dict_type(state: Arc<AppState>, mut item: DictTypeReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_dict_type(state: Arc<AppState>, mut item: DictTypeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type}).await?.len() > 0 {
             return Err(AppError::BusinessError("字典类型已存在"));
         }
 
         item.id = None;
-        DictType::insert(rb, &DictType::from(item)).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        DictType::add(rb, &DictType::from(item)).await.map(|id| Ok(id.unwrap_or_default()))?
     }
 
     /*
@@ -44,7 +44,7 @@ impl DictTypeService {
             }
         }
 
-        DictType::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        DictType::delete(rb, ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -74,7 +74,7 @@ impl DictTypeService {
             DictData::update_dict_data_type(rb, &*item.dict_type, &dict_type).await?;
         }
 
-        DictType::update_by_map(rb, &DictType::from(item), value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        DictType::update(rb, &DictType::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -84,11 +84,7 @@ impl DictTypeService {
      */
     pub async fn update_sys_dict_type_status(state: Arc<AppState>, item: UpdateDictTypeStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let update_sql = format!("update sys_dict_type set status = ? where id in ({})", item.ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(item.ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        DictType::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

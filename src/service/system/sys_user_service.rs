@@ -31,24 +31,24 @@ impl UserService {
      *author：刘飞华
      *date：2024/12/12 14:41:44
      */
-    pub async fn add_sys_user(state: Arc<AppState>, mut item: UserReq) -> Result<Option<u64>, AppError> {
+    pub async fn add_sys_user(state: Arc<AppState>, mut item: UserReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if User::select_by_map(rb, value! {"user_name": &item.user_name}).await?.len() > 0 {
-            return Err(AppError::BusinessError("登录账号已存在"));
+            return Err(BusinessError("登录账号已存在"));
         }
 
         if User::select_by_map(rb, value! {"mobile": &item.mobile}).await?.len() > 0 {
-            return Err(AppError::BusinessError("手机号码已存在"));
+            return Err(BusinessError("手机号码已存在"));
         }
 
         if User::select_by_map(rb, value! {"email": &item.email}).await?.len() > 0 {
-            return Err(AppError::BusinessError("邮箱账号已存在"));
+            return Err(BusinessError("邮箱账号已存在"));
         }
 
         let post_ids = item.post_ids.clone();
         let role_ids = item.role_ids.clone();
         item.id = None;
-        let id = User::insert(rb, &User::from(item)).await?.last_insert_id;
+        let id = User::add(rb, &User::from(item)).await?.unwrap_or_default();
 
         let user_post_list: Vec<UserPost> = post_ids.into_iter().map(|post_id| UserPost { id: None, user_id: id.i64(), post_id }).collect();
 
@@ -58,7 +58,7 @@ impl UserService {
             let user_role_list: Vec<UserRole> = ids.into_iter().map(|role_id| UserRole { id: None, user_id: id.i64(), role_id }).collect();
             UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await?;
         }
-        Ok(id.as_u64())
+        Ok(id)
     }
 
     /*
@@ -72,7 +72,7 @@ impl UserService {
 
         let ids = item.ids;
         if ids.contains(&user_id) {
-            return Err(AppError::BusinessError("当前用户不能删除"));
+            return Err(BusinessError("当前用户不能删除"));
         }
 
         for id in &ids {
@@ -80,13 +80,13 @@ impl UserService {
             let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
             if is_admin {
-                return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+                return Err(BusinessError("不允许操作超级管理员用户"));
             }
         }
 
         UserRole::delete_by_map(rb, value! {"user_id": &ids}).await?;
         UserPost::delete_by_map(rb, value! {"user_id": &ids}).await?;
-        User::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        User::delete(rb, ids).await.map(|x| Ok(x))?
     }
 
     /*
@@ -100,31 +100,31 @@ impl UserService {
 
         let id = item.id;
         if id.is_none() {
-            return Err(AppError::BusinessError("主键不能为空"));
+            return Err(BusinessError("主键不能为空"));
         }
 
         let key = format!("axum:admin:user:info:{}", id.unwrap_or_default());
         let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
         if is_admin {
-            return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+            return Err(BusinessError("不允许操作超级管理员用户"));
         }
 
         let user = match User::select_by_id(rb, &id.unwrap_or_default()).await? {
-            None => return Err(AppError::BusinessError("用户不存在")),
+            None => return Err(BusinessError("用户不存在")),
             Some(x) => x,
         };
 
         if User::select_by_map(rb, value! {"user_name": &item.user_name,"id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("登录账号已存在"));
+            return Err(BusinessError("登录账号已存在"));
         }
 
         if User::select_by_map(rb, value! {"mobile": &item.mobile,"id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("手机号码已存在"));
+            return Err(BusinessError("手机号码已存在"));
         }
 
         if User::select_by_map(rb, value! {"email": &item.email,"id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("邮箱账号已存在"));
+            return Err(BusinessError("邮箱账号已存在"));
         }
 
         let post_ids = &item.post_ids;
@@ -156,7 +156,7 @@ impl UserService {
             UserRole::insert_batch(rb, &user_role_list, user_role_list.len() as u64).await?;
         }
 
-        User::update_by_map(rb, &User::from(item), value! {"id": &id}).await.map(|x| Ok(x.rows_affected))?
+        User::update(rb, &User::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
     }
 
     /*
@@ -175,15 +175,11 @@ impl UserService {
             let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
             if is_admin {
-                return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+                return Err(BusinessError("不允许操作超级管理员用户"));
             }
         }
 
-        let update_sql = format!("update sys_user set status = ? where id in ({})", &ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", "));
-
-        let mut param = vec![value!(item.status)];
-        param.extend(ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        User::update_status(rb, ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*
@@ -199,17 +195,17 @@ impl UserService {
         let is_admin: bool = conn.hget(&key, "isAdmin").unwrap_or_default();
 
         if is_admin {
-            return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+            return Err(BusinessError("不允许操作超级管理员用户"));
         }
 
         let sys_user_result = User::select_by_id(rb, &item.id).await?;
 
         match sys_user_result {
-            None => Err(AppError::BusinessError("用户不存在")),
+            None => Err(BusinessError("用户不存在")),
             Some(x) => {
                 let mut user = x;
                 user.password = item.password;
-                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|x| Ok(x.rows_affected))?
+                User::update(rb, &user, user.id.unwrap_or_default()).await.map(|x| Ok(x))?
             }
         }
     }
@@ -222,14 +218,14 @@ impl UserService {
     pub async fn update_sys_user_password(state: Arc<AppState>, item: UpdateUserPwdReq, user_id: i64) -> Result<u64, AppError> {
         let rb = &state.batis;
         match User::select_by_id(rb, &user_id).await? {
-            None => Err(AppError::BusinessError("用户不存在")),
+            None => Err(BusinessError("用户不存在")),
             Some(x) => {
                 let mut user = x;
                 if user.password != item.pwd {
-                    return Err(AppError::BusinessError("旧密码不正确"));
+                    return Err(BusinessError("旧密码不正确"));
                 }
                 user.password = item.re_pwd;
-                User::update_by_map(rb, &user, value! {"id": user.id}).await.map(|x| Ok(x.rows_affected))?
+                User::update(rb, &user, user.id.unwrap_or_default()).await.map(|x| Ok(x))?
             }
         }
     }
@@ -242,7 +238,7 @@ impl UserService {
     pub async fn query_sys_user_detail(state: Arc<AppState>, item: QueryUserDetailReq) -> Result<UserResp, AppError> {
         let rb = &state.batis;
         let mut x = match User::select_by_id(rb, &item.id).await? {
-            None => return Err(AppError::BusinessError("用户不存在")),
+            None => return Err(BusinessError("用户不存在")),
             Some(user) => {
                 let a: UserResp = user.into();
                 a
@@ -250,7 +246,7 @@ impl UserService {
         };
 
         let dept = match Dept::select_by_id(rb, &x.dept_id).await? {
-            None => return Err(AppError::BusinessError("部门不存在")),
+            None => return Err(BusinessError("部门不存在")),
 
             Some(y) => {
                 let a: DeptResp = y.into();
@@ -317,7 +313,7 @@ impl UserService {
 
                 if btn_menu.len() == 0 {
                     Self::add_login_log(rb, item.account, 0, "用户没有分配角色或者菜单,不能登录", agent).await;
-                    return Err(AppError::BusinessError("用户没有分配角色或者菜单,不能登录"));
+                    return Err(BusinessError("用户没有分配角色或者菜单,不能登录"));
                 }
 
                 let token = JwtToken::new(id, &username).create_token("123")?;
@@ -338,7 +334,7 @@ impl UserService {
                 s_user.login_os = agent.os;
                 s_user.login_browser = agent.browser;
                 s_user.login_date = Some(DateTime::now());
-                User::update_by_map(rb, &s_user, value! {"id": &s_user.id}).await?;
+                User::update(rb, &s_user, s_user.id.unwrap_or_default()).await?;
                 Ok(token)
             }
         }
@@ -427,7 +423,7 @@ impl UserService {
         let key = format!("axum:admin:user:info:{}", user_id);
 
         if conn.hget(&key, "isAdmin").unwrap_or_default() {
-            return Err(AppError::BusinessError("不允许操作超级管理员用户"));
+            return Err(BusinessError("不允许操作超级管理员用户"));
         }
 
         UserRole::delete_by_map(rb, value! {"user_id": user_id}).await?;
