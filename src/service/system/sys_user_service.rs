@@ -240,8 +240,8 @@ impl UserService {
         let mut x = match User::select_by_id(rb, &item.id).await? {
             None => return Err(BusinessError("用户不存在")),
             Some(user) => {
-                let a: UserResp = user.into();
-                a
+                let user: UserResp = user.into();
+                user
             }
         };
 

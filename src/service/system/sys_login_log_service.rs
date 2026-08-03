@@ -1,4 +1,5 @@
 use crate::common::error::AppError;
+use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_login_log_model::{clean_login_log, LoginLog};
 use crate::vo::system::sys_login_log_vo::*;
 use crate::AppState;
@@ -34,13 +35,12 @@ impl LoginLogService {
      */
     pub async fn query_sys_login_log_detail(state: Arc<AppState>, item: QueryLoginLogDetailReq) -> Result<LoginLogResp, AppError> {
         let rb = &state.batis;
-        LoginLog::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("系统访问记录不存在")),
-            |x| {
-                let data: LoginLogResp = x.into();
-                Ok(data)
-            },
-        )
+        let result = LoginLog::select_by_id(rb, &item.id).await?;
+
+        match result {
+            None => Err(BusinessError("系统访问记录不存在")),
+            Some(x) => Ok(x.into()),
+        }
     }
 
     /*

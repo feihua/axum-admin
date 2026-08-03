@@ -1,4 +1,5 @@
 use crate::common::error::AppError;
+use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_dict_data_model::DictData;
 use crate::vo::system::sys_dict_data_vo::*;
 use crate::AppState;
@@ -16,15 +17,15 @@ impl DictDataService {
      */
     pub async fn add_sys_dict_data(state: Arc<AppState>, mut item: DictDataReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let dict_type = &item.dict_type;
-        let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label};
+
+        let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label};
         if DictData::select_by_map(rb, condition).await?.len() > 0 {
-            return Err(AppError::BusinessError("字典标签已存在"));
+            return Err(BusinessError("字典标签已存在"));
         }
 
-        let condition1 = value! {"dict_type":dict_type,"dict_value":&item.dict_value};
+        let condition1 = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value};
         if DictData::select_by_map(rb, condition1).await?.len() > 0 {
-            return Err(AppError::BusinessError("字典键值已存在"));
+            return Err(BusinessError("字典键值已存在"));
         }
 
         item.id = None;
@@ -51,22 +52,21 @@ impl DictDataService {
         let id = item.id;
 
         if id.is_none() {
-            return Err(AppError::BusinessError("主键不能为空"));
+            return Err(BusinessError("主键不能为空"));
         }
 
         if DictData::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
-            return Err(AppError::BusinessError("字典数据不存在"));
+            return Err(BusinessError("字典数据不存在"));
         }
 
-        let dict_type = &item.dict_type;
-        let condition = value! {"dict_type":dict_type,"dict_label":&item.dict_label,"id !=":id};
+        let condition = value! {"dict_type":&item.dict_type,"dict_label":&item.dict_label,"id !=":id};
         if DictData::select_by_map(rb, condition).await?.len() > 0 {
-            return Err(AppError::BusinessError("字典标签已存在"));
+            return Err(BusinessError("字典标签已存在"));
         }
 
-        let condition1 = value! {"dict_type":dict_type,"dict_value":&item.dict_value,"id !=":id};
-        if DictData::select_by_map(rb, condition1).await?.len() > 0 {
-            return Err(AppError::BusinessError("字典键值已存在"));
+        let condition = value! {"dict_type":&item.dict_type,"dict_value":&item.dict_value,"id !=":id};
+        if DictData::select_by_map(rb, condition).await?.len() > 0 {
+            return Err(BusinessError("字典键值已存在"));
         }
 
         DictData::update(rb, &DictData::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
@@ -89,13 +89,12 @@ impl DictDataService {
      */
     pub async fn query_sys_dict_data_detail(state: Arc<AppState>, item: QueryDictDataDetailReq) -> Result<DictDataResp, AppError> {
         let rb = &state.batis;
-        DictData::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("字典数据不存在")),
-            |x| {
-                let data: DictDataResp = x.into();
-                Ok(data)
-            },
-        )
+        let result = DictData::select_by_id(rb, &item.id).await?;
+
+        match result {
+            None => Err(BusinessError("字典数据不存在")),
+            Some(x) => Ok(x.into()),
+        }
     }
 
     /*

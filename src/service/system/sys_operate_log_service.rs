@@ -1,4 +1,5 @@
 use crate::common::error::AppError;
+use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_operate_log_model::{clean_operate_log, OperateLog};
 use crate::vo::system::sys_operate_log_vo::*;
 use crate::AppState;
@@ -34,13 +35,12 @@ impl OperateLogService {
      */
     pub async fn query_sys_operate_log_detail(state: Arc<AppState>, item: QueryOperateLogDetailReq) -> Result<OperateLogResp, AppError> {
         let rb = &state.batis;
-        OperateLog::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("操作日志不存在")),
-            |x| {
-                let data: OperateLogResp = x.into();
-                Ok(data)
-            },
-        )
+        let result = OperateLog::select_by_id(rb, &item.id).await?;
+
+        match result {
+            None => Err(BusinessError("操作日志记录不存在")),
+            Some(x) => Ok(x.into()),
+        }
     }
     /*
      *查询操作日志记录列表

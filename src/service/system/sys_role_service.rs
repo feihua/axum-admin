@@ -1,4 +1,5 @@
 use crate::common::error::AppError;
+use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_dept_model::RoleDept;
 use crate::model::system::sys_role_menu_model::RoleMenu;
@@ -22,11 +23,11 @@ impl RoleService {
     pub async fn add_sys_role(state: Arc<AppState>, mut item: RoleReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if Role::select_by_map(rb, value! {"role_name": &item.role_name}).await?.len() > 0 {
-            return Err(AppError::BusinessError("角色名称已存在"));
+            return Err(BusinessError("角色名称已存在"));
         }
 
         if Role::select_by_map(rb, value! {"role_key": &item.role_key}).await?.len() > 0 {
-            return Err(AppError::BusinessError("角色权限已存在"));
+            return Err(BusinessError("角色权限已存在"));
         }
 
         item.id = None;
@@ -43,16 +44,16 @@ impl RoleService {
         let ids = item.ids;
 
         if ids.contains(&1) {
-            return Err(AppError::BusinessError("不允许操作超级管理员角色"));
+            return Err(BusinessError("不允许操作超级管理员角色"));
         }
 
         for id in &ids {
             if let None = Role::select_by_id(rb, id).await? {
-                return Err(AppError::BusinessError("角色不存在,不能删除"));
+                return Err(BusinessError("角色不存在,不能删除"));
             }
 
             if UserRole::count_user_role_by_role_id(rb, id).await? > 0 {
-                return Err(AppError::BusinessError("分配,不能删除"));
+                return Err(BusinessError("分配,不能删除"));
             }
         }
 
@@ -70,23 +71,23 @@ impl RoleService {
         let rb = &state.batis;
         let id = item.id;
         if id.is_none() {
-            return Err(AppError::BusinessError("主键不能为空"));
+            return Err(BusinessError("主键不能为空"));
         }
 
         if id == Some(1) {
-            return Err(AppError::BusinessError("不允许操作超级管理员角色"));
+            return Err(BusinessError("不允许操作超级管理员角色"));
         }
 
         if Role::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
-            return Err(AppError::BusinessError("角色不存在"));
+            return Err(BusinessError("角色不存在"));
         }
 
         if Role::select_by_map(rb, value! {"role_name": &item.role_name,"id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("角色名称已存在"));
+            return Err(BusinessError("角色名称已存在"));
         }
 
         if Role::select_by_map(rb, value! {"role_key": &item.role_key,"id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("角色权限已存在"));
+            return Err(BusinessError("角色权限已存在"));
         }
 
         Role::update(rb, &Role::from(item), id.unwrap_or_default()).await.map(|x| Ok(x))?
@@ -100,7 +101,7 @@ impl RoleService {
     pub async fn update_sys_role_status(state: Arc<AppState>, item: UpdateRoleStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if item.ids.contains(&1) {
-            return Err(AppError::BusinessError("不允许操作超级管理员角色"));
+            return Err(BusinessError("不允许操作超级管理员角色"));
         }
 
         Role::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
@@ -113,13 +114,12 @@ impl RoleService {
      */
     pub async fn query_sys_role_detail(state: Arc<AppState>, item: QueryRoleDetailReq) -> Result<RoleResp, AppError> {
         let rb = &state.batis;
-        Role::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("角色不存在")),
-            |x| {
-                let data: RoleResp = x.into();
-                Ok(data)
-            },
-        )
+        let result = Role::select_by_id(rb, &item.id).await?;
+
+        match result {
+            None => Err(BusinessError("角色信息不存在")),
+            Some(x) => Ok(x.into()),
+        }
     }
 
     /*
@@ -187,7 +187,7 @@ impl RoleService {
         let role_id = item.role_id;
 
         if role_id == 1 {
-            return Err(AppError::BusinessError("不允许操作超级管理员角色"));
+            return Err(BusinessError("不允许操作超级管理员角色"));
         }
 
         RoleMenu::delete_by_map(rb, value! {"role_id": role_id}).await?;

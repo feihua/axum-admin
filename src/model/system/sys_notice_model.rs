@@ -5,6 +5,7 @@
 use crate::vo::system::sys_notice_vo::NoticeReq;
 use crate::vo::system::sys_notice_vo::NoticeResp;
 use crate::vo::system::sys_notice_vo::QueryNoticeListReq;
+use log::error;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -76,7 +77,10 @@ impl Notice {
      *date：2026/07/01 17:49:14
      */
     pub async fn add(rb: &RBatis, item: &Notice) -> rbatis::Result<Option<u64>> {
-        Notice::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Notice::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
+            error!("Database error insert into sys_notice: {:?}", e);
+            e
+        })?
     }
 
     /*

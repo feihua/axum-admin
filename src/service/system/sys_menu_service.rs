@@ -1,4 +1,5 @@
 use crate::common::error::AppError;
+use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
 use crate::model::system::sys_role_menu_model::RoleMenu;
 use crate::vo::system::sys_menu_vo::*;
@@ -18,13 +19,13 @@ impl MenuService {
     pub async fn add_sys_menu(state: Arc<AppState>, mut item: MenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name}).await?.len() > 0 {
-            return Err(AppError::BusinessError("菜单名称已存在"));
+            return Err(BusinessError("菜单名称已存在"));
         }
 
         if let Some(url) = item.menu_url.clone() {
             if url != "".to_string() {
                 if Menu::select_by_map(rb, value! {"menu_url": url}).await?.len() > 0 {
-                    return Err(AppError::BusinessError("路由路径已存在"));
+                    return Err(BusinessError("路由路径已存在"));
                 }
             }
         }
@@ -43,11 +44,11 @@ impl MenuService {
         let ids = item.ids;
         for x in &ids {
             if select_count_menu_by_parent_id(rb, x).await? > 0 {
-                return Err(AppError::BusinessError("存在子菜单,不允许删除"));
+                return Err(BusinessError("存在子菜单,不允许删除"));
             }
 
             if RoleMenu::select_count_menu_by_menu_id(rb, x).await? > 0 {
-                return Err(AppError::BusinessError("菜单已分配,不允许删除"));
+                return Err(BusinessError("菜单已分配,不允许删除"));
             }
         }
 
@@ -64,21 +65,21 @@ impl MenuService {
         let id = item.id;
 
         if id.is_none() {
-            return Err(AppError::BusinessError("主键不能为空"));
+            return Err(BusinessError("主键不能为空"));
         }
 
         if Menu::select_by_id(rb, &id.unwrap_or_default()).await?.is_none() {
-            return Err(AppError::BusinessError("菜单信息不存在"));
+            return Err(BusinessError("菜单信息不存在"));
         }
 
         if Menu::select_by_map(rb, value! {"menu_name": &item.menu_name, "id !=": id}).await?.len() > 0 {
-            return Err(AppError::BusinessError("菜单名称已存在"));
+            return Err(BusinessError("菜单名称已存在"));
         }
 
         if let Some(url) = item.menu_url.clone() {
             if url != "".to_string() {
                 if Menu::select_by_map(rb, value! {"menu_url": url, "id !=": id}).await?.len() > 0 {
-                    return Err(AppError::BusinessError("路由路径已存在"));
+                    return Err(BusinessError("路由路径已存在"));
                 }
             }
         }
@@ -103,13 +104,12 @@ impl MenuService {
      */
     pub async fn query_sys_menu_detail(state: Arc<AppState>, item: QueryMenuDetailReq) -> Result<MenuResp, AppError> {
         let rb = &state.batis;
-        Menu::select_by_id(rb, &item.id).await?.map_or_else(
-            || Err(AppError::BusinessError("菜单信息不存在")),
-            |x| {
-                let data: MenuResp = x.into();
-                Ok(data)
-            },
-        )
+        let result = Menu::select_by_id(rb, &item.id).await?;
+
+        match result {
+            None => Err(BusinessError("菜单信息不存在")),
+            Some(x) => Ok(x.into()),
+        }
     }
 
     /*
