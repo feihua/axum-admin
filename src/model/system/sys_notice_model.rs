@@ -5,11 +5,11 @@
 use crate::vo::system::sys_notice_vo::NoticeReq;
 use crate::vo::system::sys_notice_vo::NoticeResp;
 use crate::vo::system::sys_notice_vo::QueryNoticeListReq;
-use log::error;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 /*
  *通知公告表
  *author：刘飞华

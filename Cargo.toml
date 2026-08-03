@@ -17,8 +17,9 @@ rbatis = { version = "4.0",features = ["debug_mode"]}
 rbdc-mysql={version="4"}
 rbdc-pool-fast={version="4"}
 
-log = "0.4"
-log4rs = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["local-time", "chrono"] }
+tracing-appender = "0.2.3"
 
 jsonwebtoken = { version = "11.0.0", features = ["rust_crypto"] }
 

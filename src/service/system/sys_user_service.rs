@@ -14,7 +14,6 @@ use crate::vo::system::sys_role_vo::RoleResp;
 use crate::vo::system::sys_user_vo::*;
 use crate::AppState;
 use chrono::Local;
-use log::info;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
@@ -23,6 +22,7 @@ use rbs::value;
 use redis::Commands;
 use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
+use tracing::{error, info};
 
 pub struct UserService;
 impl UserService {
@@ -366,7 +366,7 @@ impl UserService {
 
         match LoginLog::insert(rb, &sys_login_log).await {
             Ok(_u) => info!("add_login_log success: {:?}", sys_login_log),
-            Err(err) => log::error!("add_login_log error params: {:?}, error message: {:?}", sys_login_log, err),
+            Err(err) => error!("add_login_log error params: {:?}, error message: {:?}", sys_login_log, err),
         }
     }
 

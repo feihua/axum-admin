@@ -6,8 +6,8 @@ use axum::extract::State;
 use axum::response::IntoResponse;
 use axum::Json;
 use axum_valid::Valid;
-use log::info;
 use std::sync::Arc;
+use tracing::info;
 /*
  *添加岗位信息表
  *author：刘飞华

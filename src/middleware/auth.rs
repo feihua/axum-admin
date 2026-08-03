@@ -9,9 +9,10 @@ use axum::response::IntoResponse;
 use axum::{http, response, Json};
 use redis::{Client, Commands};
 use std::sync::Arc;
+use tracing::info;
 
 pub async fn auth(State(state): State<Arc<AppState>>, mut req: Request, next: Next) -> Result<response::Response, StatusCode> {
-    log::info!("req {:?}", req.uri());
+    info!("req {:?}", req.uri());
     let path = req.uri().to_string();
     if path.eq("/system/user/login") {
         return Ok(next.run(req).await);
