@@ -12,6 +12,7 @@ use crate::AppState;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;
+use tracing::error;
 
 pub struct RoleService;
 impl RoleService {
@@ -194,7 +195,10 @@ impl RoleService {
 
         let role_menu: Vec<RoleMenu> = item.menu_ids.into_iter().map(|x| RoleMenu { id: None, menu_id: x, role_id }).collect();
 
-        RoleMenu::insert_batch(rb, &role_menu, role_menu.len() as u64).await.map(|x| Ok(x.rows_affected))?
+        RoleMenu::insert_batch(rb, &role_menu, role_menu.len() as u64).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error insert_batch sys_role_menu: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -254,7 +258,13 @@ impl RoleService {
      */
     pub async fn cancel_auth_user(state: Arc<AppState>, item: CancelAuthUserReq) -> Result<i64, AppError> {
         let rb = &state.batis;
-        UserRole::delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id).await.map(|x| Ok(x.unwrap_or_default()))?
+        UserRole::delete_user_role_by_role_id_user_id(rb, item.role_id, item.user_id)
+            .await
+            .map(|x| Ok(x.unwrap_or_default()))
+            .map_err(|e| {
+                error!("Database error delete sys_user_role: {:?}", e);
+                e
+            })?
     }
 
     /*
@@ -271,7 +281,10 @@ impl RoleService {
 
         let mut param = vec![value!(item.role_id)];
         param.extend(item.user_ids.iter().map(|&id| value!(id)));
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error delete sys_user_role: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -294,6 +307,9 @@ impl RoleService {
             })
         }
 
-        UserRole::insert_batch(rb, &user_role, item.user_ids.len() as u64).await.map(|x| Ok(x.rows_affected))?
+        UserRole::insert_batch(rb, &user_role, item.user_ids.len() as u64).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error batch delete sys_user_role: {:?}", e);
+            e
+        })?
     }
 }

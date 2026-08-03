@@ -9,6 +9,7 @@ use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 /*
  *岗位信息
  *author：刘飞华
@@ -75,7 +76,10 @@ impl Post {
      *date：2026/07/01 17:49:14
      */
     pub async fn add(rb: &RBatis, item: &Post) -> rbatis::Result<Option<u64>> {
-        Post::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Post::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
+            error!("Database error insert into sys_post: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -84,7 +88,10 @@ impl Post {
      *date：2026/07/01 17:49:14
      */
     pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        Post::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        Post::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error delete sys_post: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -93,7 +100,10 @@ impl Post {
      *date：2026/07/01 17:49:14
      */
     pub async fn update(rb: &RBatis, item: &Post, id: i64) -> rbatis::Result<u64> {
-        Post::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Post::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update sys_post: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -110,7 +120,10 @@ impl Post {
         let mut param = vec![value!(status), value!(DateTime::now())];
         param.extend(ids.iter().map(|&id| value!(id)));
 
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update_status sys_post: {:?}", e);
+            e
+        })?
     }
 
     /*

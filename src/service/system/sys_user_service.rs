@@ -430,7 +430,10 @@ impl UserService {
 
         let list: Vec<UserRole> = item.role_ids.into_iter().map(|role_id| UserRole { id: None, role_id, user_id }).collect();
 
-        UserRole::insert_batch(rb, &list, list.len() as u64).await.map(|x| Ok(x.rows_affected))?
+        UserRole::insert_batch(rb, &list, list.len() as u64).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error insert_batch sys_user_role: {:?}", e);
+            e
+        })?
     }
 
     // 查询用户菜单

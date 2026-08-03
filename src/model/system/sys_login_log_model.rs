@@ -8,6 +8,7 @@ use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 /*
  *系统访问记录
  *author：刘飞华
@@ -78,7 +79,10 @@ impl LoginLog {
      *date：2026/07/01 17:49:14
      */
     pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        LoginLog::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        LoginLog::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error delete sys_login_log: {:?}", e);
+            e
+        })?
     }
 
     /*

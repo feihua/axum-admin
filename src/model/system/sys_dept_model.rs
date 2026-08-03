@@ -9,6 +9,7 @@ use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 use validator::Validate;
 /*
  *部门
@@ -90,7 +91,10 @@ impl Dept {
      *date：2026/07/01 17:49:14
      */
     pub async fn add(rb: &RBatis, item: &Dept) -> rbatis::Result<Option<u64>> {
-        Dept::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        Dept::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
+            error!("Database error insert into sys_dept: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -99,7 +103,10 @@ impl Dept {
      *date：2026/07/01 17:49:14
      */
     pub async fn delete(rb: &RBatis, id: i64) -> rbatis::Result<u64> {
-        Dept::delete_by_map(rb, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Dept::delete_by_map(rb, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error delete sys_dept: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -108,7 +115,10 @@ impl Dept {
      *date：2026/07/01 17:49:14
      */
     pub async fn update(rb: &RBatis, item: &Dept, id: i64) -> rbatis::Result<u64> {
-        Dept::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        Dept::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update sys_dept: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -125,7 +135,10 @@ impl Dept {
         let mut param = vec![value!(status), value!(DateTime::now())];
         param.extend(ids.iter().map(|&id| value!(id)));
 
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update_status sys_dept: {:?}", e);
+            e
+        })?
     }
 
     /*

@@ -9,6 +9,7 @@ use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
+use tracing::error;
 /*
  *字典类型
  *author：刘飞华
@@ -64,46 +65,6 @@ impl Into<DictTypeResp> for DictType {
         }
     }
 }
-// /*
-//  *根据id查询字典类型
-//  *author：刘飞华
-//  *date：2024/12/25 10:01:11
-//  */
-// impl_select!(DictType{select_by_id(id:&i64) -> Option => "`where id = #{id} limit 1`"}, "sys_dict_type");
-//
-// /*
-//  *根据dict_type查询字典类型
-//  *author：刘飞华
-//  *date：2024/12/25 10:01:11
-//  */
-// impl_select!(DictType{select_by_dict_type(dict_type:&str) -> Option => "`where dict_type = #{dict_type} limit 1`"}, "sys_dict_type");
-//
-// /*
-//  *分页查询字典类型
-//  *author：刘飞华
-//  *date：2024/12/25 10:01:11
-//  */
-// impl_select_page!(DictType{select_page() =>"
-//      if !sql.contains('count'):
-//        order by create_time desc"
-// },"sys_dict_type");
-
-/*
- *根据条件分页查询字典类型
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-// impl_select_page!(DictType{select_dict_type_list(req:&QueryDictTypeListReq) =>"
-//     where 1=1
-//      if req.dictName != null && req.dictName != '':
-//       ` and dict_name like concat('%', #{req.dictName}, '%') `
-//      if req.dictType != null && req.dictType != '':
-//       ` and dict_type like concat('%', #{req.dictType}, '%') `
-//      if req.status != 2:
-//       ` and status = #{req.status} `
-//      if !sql.contains('count'):
-//       ` order by create_time desc"
-// },"sys_dict_type");
 
 impl DictType {
     /*
@@ -112,7 +73,10 @@ impl DictType {
      *date：2026/07/01 17:49:14
      */
     pub async fn add(rb: &RBatis, item: &DictType) -> rbatis::Result<Option<u64>> {
-        DictType::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64()))?
+        DictType::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
+            error!("Database error insert into sys_dict_type: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -121,7 +85,10 @@ impl DictType {
      *date：2026/07/01 17:49:14
      */
     pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        DictType::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected))?
+        DictType::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error delete sys_dict_type: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -130,7 +97,10 @@ impl DictType {
      *date：2026/07/01 17:49:14
      */
     pub async fn update(rb: &RBatis, item: &DictType, id: i64) -> rbatis::Result<u64> {
-        DictType::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected))?
+        DictType::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update sys_dict_type: {:?}", e);
+            e
+        })?
     }
 
     /*
@@ -147,7 +117,10 @@ impl DictType {
         let mut param = vec![value!(status), value!(DateTime::now())];
         param.extend(ids.iter().map(|&id| value!(id)));
 
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected))?
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update_status sys_dict_type: {:?}", e);
+            e
+        })?
     }
 
     /*
