@@ -9,3 +9,8 @@ addr = "0.0.0.0:3000"
 url = "mysql://root:123456@127.0.0.1:3306/rustdb"
 [redis]
 url = "redis://:123456@127.0.0.1:6379"
+[jwt]
+secret_key = "123456"
+[log]
+directory = "logs"
+file_name_prefix = "app.log"
