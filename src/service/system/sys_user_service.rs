@@ -286,6 +286,7 @@ impl UserService {
      */
     pub async fn login(state: Arc<AppState>, item: UserLoginReq, user_agent: &str) -> Result<String, AppError> {
         let rb = &state.batis;
+        let jwt_config = &state.jwt;
         info!("user agent: {:?}", user_agent);
         let agent = UserAgentUtil::new(user_agent);
         let mut conn = state.redis.get_connection()?;
@@ -316,7 +317,7 @@ impl UserService {
                     return Err(BusinessError("用户没有分配角色或者菜单,不能登录"));
                 }
 
-                let token = JwtToken::new(id, &username).create_token("123")?;
+                let token = JwtToken::new(id, &username).create_token(&jwt_config.secret_key)?;
 
                 let key = format!("axum:admin:user:info:{:?}", s_user.id.unwrap_or_default());
                 // 存储用户权限信息

@@ -29,7 +29,7 @@ pub struct RedisConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct JwtConfig {
-    pub secret: String,
+    pub secret_key: String,
 }
 
 #[derive(Debug, Deserialize)]

@@ -13,6 +13,7 @@ pub mod vo;
 
 use axum::{middleware as md, Router};
 
+use crate::app_config::config::JwtConfig;
 use crate::app_config::load_config::init_config;
 use crate::app_config::load_log::init_log;
 use crate::route::system::sys_dept_route::build_sys_dept_route;
@@ -36,6 +37,7 @@ use utils::db::init_db;
 pub struct AppState {
     pub batis: RBatis,
     pub redis: Client,
+    pub jwt: JwtConfig,
 }
 
 #[tokio::main]
@@ -50,7 +52,11 @@ async fn main() {
     let rd = init_redis(config.redis.url.as_str()).await;
 
     // 创建共享应用状态，包含数据库连接池
-    let shared_state = Arc::new(AppState { batis: rb, redis: rd });
+    let shared_state = Arc::new(AppState {
+        batis: rb,
+        redis: rd,
+        jwt: config.jwt,
+    });
 
     // 构建应用路由，并合并多个子路由
     let app = Router::new().nest(
