@@ -80,7 +80,7 @@ impl DictDataService {
      */
     pub async fn update_sys_dict_data_status(state: Arc<AppState>, item: UpdateDictDataStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        DictData::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        DictData::update_status(rb, "sys_dict_data", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

@@ -180,7 +180,7 @@ impl UserService {
             }
         }
 
-        User::update_status(rb, ids, item.status).await.map(|x| Ok(x))?
+        User::update_status(rb, "sys_user", ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

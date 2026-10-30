@@ -82,7 +82,7 @@ impl PostService {
      */
     pub async fn update_sys_post_status(state: Arc<AppState>, item: UpdatePostStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        Post::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        Post::update_status(rb, "sys_post", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

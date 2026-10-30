@@ -75,7 +75,7 @@ impl NoticeService {
      */
     pub async fn update_sys_notice_status(state: Arc<AppState>, item: UpdateNoticeStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        Notice::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        Notice::update_status(rb, "sys_notice", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

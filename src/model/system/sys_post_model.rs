@@ -72,26 +72,6 @@ impl Into<PostResp> for Post {
 
 impl Post {
     /*
-     *更新岗位信息状态
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update_status(rb: &RBatis, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
-        let update_sql = format!(
-            "update sys_post set status = ? ,update_time = ? where id in ({})",
-            ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
-        );
-
-        let mut param = vec![value!(status), value!(DateTime::now())];
-        param.extend(ids.iter().map(|&id| value!(id)));
-
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update_status sys_post: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *根据条件分页查询岗位信息表
      *author：刘飞华
      *date：2026/07/01 17:49:14

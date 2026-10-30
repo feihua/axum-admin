@@ -106,7 +106,7 @@ impl RoleService {
             return Err(BusinessError("不允许操作超级管理员角色"));
         }
 
-        Role::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        Role::update_status(rb, "sys_role", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

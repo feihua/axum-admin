@@ -52,7 +52,22 @@ pub fn derive_curd(input: TokenStream) -> TokenStream {
      async fn select_by_field(rb: &RBatis, field: &str, value: &str) -> rbatis::Result<Option<#name>> {
         Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
     }
+     async fn update_status(rb: &RBatis, table_name: &str, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
 
+        let update_sql = format!(
+            "update {} set status = ? ,update_time = ? where id in ({})",
+            table_name,
+            ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
+        );
+
+        let mut param = vec![value!(status), value!(DateTime::now())];
+        param.extend(ids.iter().map(|&id| value!(id)));
+
+        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
+            error!("Database error update_status #name: {:?}", e);
+            e
+        })?
+    }
     }
 
     };

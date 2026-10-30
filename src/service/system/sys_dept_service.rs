@@ -144,7 +144,7 @@ impl DeptService {
                 ids.extend(&x.ancestors.unwrap_or_default().split(",").map(|s| s.i64()).collect::<Vec<i64>>())
             }
         }
-        Dept::update_status(rb, ids, item.status).await.map(|x| Ok(x))?
+        Dept::update_status(rb, "sys_dept", ids, item.status).await.map(|x| Ok(x))?
     }
     /*
      *查询部门表详情

@@ -86,7 +86,7 @@ impl DictTypeService {
      */
     pub async fn update_sys_dict_type_status(state: Arc<AppState>, item: UpdateDictTypeStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        DictType::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        DictType::update_status(rb, "sys_dict_type", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*

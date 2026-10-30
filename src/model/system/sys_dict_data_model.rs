@@ -85,26 +85,6 @@ impl Into<DictDataResp> for DictData {
 
 impl DictData {
     /*
-     *更新字典数据状态
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update_status(rb: &RBatis, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
-        let update_sql = format!(
-            "update sys_dict_data set status = ? ,update_time = ? where id in ({})",
-            ids.iter().map(|_| "?").collect::<Vec<&str>>().join(", ")
-        );
-
-        let mut param = vec![value!(status), value!(DateTime::now())];
-        param.extend(ids.iter().map(|&id| value!(id)));
-
-        rb.exec(&update_sql, param).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update_status sys_dict_data: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *根据条件分页查询字典数据表
      *author：刘飞华
      *date：2026/07/01 17:45:52

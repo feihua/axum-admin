@@ -95,7 +95,7 @@ impl MenuService {
      */
     pub async fn update_sys_menu_status(state: Arc<AppState>, item: UpdateMenuStatusReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        Menu::update_status(rb, item.ids, item.status).await.map(|x| Ok(x))?
+        Menu::update_status(rb, "sys_menu", item.ids, item.status).await.map(|x| Ok(x))?
     }
 
     /*
