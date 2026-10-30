@@ -36,5 +36,5 @@ regex = "1.11.1"
 config = "0.15.9"
 chrono = "0.4.38"
 
-curd_trait = { path = "./crates/curd_trait" }
-curd_macro = { path = "./crates/curd_macro" }
+curd_trait = "0.1.0"
+curd_macro = "0.1.0"

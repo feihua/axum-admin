@@ -2,6 +2,12 @@
 name = "curd_trait"
 version = "0.1.0"
 edition = "2024"
+description = "简化CRUD操作，基于rbatis"
+license = "Apache-2.0"
+repository = "https://github.com/feihua/axum-admin/tree/master/crates/curd_trait"
+readme = "README.md"
+keywords = ["web", "axum", "orm", "rbatis"]
+categories = ["web-programming", "web-programming::http-server"]
 
 [dependencies]
 rbatis = { version = "4.0", features = ["debug_mode"] }
