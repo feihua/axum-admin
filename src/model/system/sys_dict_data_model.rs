@@ -5,6 +5,7 @@
 use crate::vo::system::sys_dict_data_vo::DictDataReq;
 use crate::vo::system::sys_dict_data_vo::DictDataResp;
 use crate::vo::system::sys_dict_data_vo::QueryDictDataListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -15,7 +16,7 @@ use tracing::error;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct DictData {
     pub id: Option<i64>,               //字典编码
     pub dict_sort: i32,                //字典排序
@@ -84,42 +85,6 @@ impl Into<DictDataResp> for DictData {
 
 impl DictData {
     /*
-     *添加字典数据
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn add(rb: &RBatis, item: &DictData) -> rbatis::Result<Option<u64>> {
-        DictData::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
-            error!("Database error insert into sys_dict_data: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *删除字典数据
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        DictData::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_dict_data: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *更新字典数据
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update(rb: &RBatis, item: &DictData, id: i64) -> rbatis::Result<u64> {
-        DictData::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update sys_dict_data: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *更新字典数据状态
      *author：刘飞华
      *date：2026/07/01 17:49:14
@@ -137,14 +102,6 @@ impl DictData {
             error!("Database error update_status sys_dict_data: {:?}", e);
             e
         })?
-    }
-    /*
-     *根据id查询字典数据表
-     *author：刘飞华
-     *date：2026/07/01 17:45:52
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<DictData>> {
-        Ok(DictData::select_by_map(rb, value! {"id": id}).await?.first().cloned())
     }
 
     /*

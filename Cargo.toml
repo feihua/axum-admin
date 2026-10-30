@@ -1,3 +1,9 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/curd_macro",
+    "crates/curd_trait",
+]
 [package]
 name = "axum-admin"
 version = "0.1.0"
@@ -6,16 +12,16 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-axum ={ version = "0.8.4" }
-tokio ={ version = "1",features = ["full"]}
+axum = { version = "0.8.4" }
+tokio = { version = "1", features = ["full"] }
 axum-valid = "0.25.0"
 validator = { version = "0.20.0", features = ["derive"] }
 serde = { version = "1.0", features = ["derive"] }
 
-rbs = { version = "4"}
-rbatis = { version = "4.0",features = ["debug_mode"]}
-rbdc-mysql={version="4"}
-rbdc-pool-fast={version="4"}
+rbs = { version = "4" }
+rbatis = { version = "4.0", features = ["debug_mode"] }
+rbdc-mysql = { version = "4" }
+rbdc-pool-fast = { version = "4" }
 
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["local-time", "chrono"] }
@@ -29,3 +35,6 @@ thiserror = "2.0.3"
 regex = "1.11.1"
 config = "0.15.9"
 chrono = "0.4.38"
+
+curd_trait = { path = "./crates/curd_trait" }
+curd_macro = { path = "./crates/curd_macro" }

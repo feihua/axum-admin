@@ -3,6 +3,7 @@ use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_dept_model::Dept;
 use crate::vo::system::sys_dept_vo::*;
 use crate::AppState;
+use curd_trait::BaseCurd;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
 use rbs::value;
@@ -60,7 +61,7 @@ impl DeptService {
             return Err(BusinessError("部门存在用户,不允许删除"));
         }
 
-        Dept::delete(rb, id).await.map(|x| Ok(x))?
+        Dept::delete(rb, vec![id]).await.map(|x| Ok(x))?
     }
 
     /*

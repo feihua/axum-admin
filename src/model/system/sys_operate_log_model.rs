@@ -4,6 +4,7 @@
 
 use crate::vo::system::sys_operate_log_vo::OperateLogResp;
 use crate::vo::system::sys_operate_log_vo::QueryOperateLogListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -14,7 +15,7 @@ use tracing::error;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct OperateLog {
     pub id: Option<i64>,                  //日志主键
     pub title: Option<String>,            //模块标题
@@ -75,27 +76,6 @@ pub async fn clean_operate_log(rb: &RBatis) -> Option<i64> {
     impled!()
 }
 impl OperateLog {
-    /*
-     *删除操作日志记录
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        OperateLog::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_operate_log: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *根据id查询操作日志记录
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<OperateLog>> {
-        Ok(OperateLog::select_by_map(rb, value! {"id": id}).await?.first().cloned())
-    }
-
     /*
      *根据条件分页查询操作日志记录
      *author：刘飞华

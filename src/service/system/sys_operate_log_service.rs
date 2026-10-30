@@ -3,6 +3,7 @@ use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_operate_log_model::{clean_operate_log, OperateLog};
 use crate::vo::system::sys_operate_log_vo::*;
 use crate::AppState;
+use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use std::sync::Arc;
 

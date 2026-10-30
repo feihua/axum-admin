@@ -4,6 +4,7 @@
 
 use crate::vo::system::sys_login_log_vo::LoginLogResp;
 use crate::vo::system::sys_login_log_vo::QueryLoginLogListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -14,7 +15,7 @@ use tracing::error;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct LoginLog {
     pub id: Option<i64>,              //访问ID
     pub login_name: String,           //登录账号
@@ -73,27 +74,6 @@ pub async fn clean_login_log(rb: &RBatis) -> Option<i64> {
 }
 
 impl LoginLog {
-    /*
-     *删除系统访问记录
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        LoginLog::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_login_log: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *根据id查询系统访问记录
-     *author：刘飞华
-     *date：2026/07/01 17:45:52
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<LoginLog>> {
-        Ok(LoginLog::select_by_map(rb, value! {"id": id}).await?.first().cloned())
-    }
-
     /*
      *根据条件分页查询系统访问记录
      *author：刘飞华

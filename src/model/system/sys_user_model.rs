@@ -4,6 +4,7 @@
 use crate::vo::system::sys_user_vo::QueryUserListReq;
 use crate::vo::system::sys_user_vo::UserReq;
 use crate::vo::system::sys_user_vo::UserResp;
+use curd_macro::Curd;
 use rbatis::executor::Executor;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::rbdc::Error;
@@ -16,7 +17,7 @@ use tracing::error;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct User {
     pub id: Option<i64>,                   //主键
     pub mobile: String,                    //手机
@@ -107,42 +108,6 @@ impl Into<UserResp> for User {
 
 impl User {
     /*
-     *添加用户信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn add(rb: &RBatis, item: &User) -> rbatis::Result<Option<u64>> {
-        User::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
-            error!("Database error insert into sys_user: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *删除用户信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        User::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_user: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *更新用户信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update(rb: &RBatis, item: &User, id: i64) -> rbatis::Result<u64> {
-        User::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update sys_user: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *更新用户信息状态
      *author：刘飞华
      *date：2026/07/01 17:49:14
@@ -170,15 +135,6 @@ impl User {
     )]
     pub async fn select_by_account(rb: &dyn Executor, account: &str) -> rbatis::Result<Vec<User>> {
         impled!()
-    }
-
-    /*
-     *根据id查询用户信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<User>> {
-        Ok(User::select_by_map(rb, value! {"id": id}).await?.first().cloned())
     }
 
     /*

@@ -4,6 +4,7 @@ use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu}
 use crate::model::system::sys_role_menu_model::RoleMenu;
 use crate::vo::system::sys_menu_vo::*;
 use crate::AppState;
+use curd_trait::BaseCurd;
 use rbatis::PageRequest;
 use rbs::value;
 use std::sync::Arc;

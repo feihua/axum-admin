@@ -5,17 +5,19 @@
 use crate::vo::system::sys_notice_vo::NoticeReq;
 use crate::vo::system::sys_notice_vo::NoticeResp;
 use crate::vo::system::sys_notice_vo::QueryNoticeListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
 use serde::{Deserialize, Serialize};
 use tracing::error;
+
 /*
  *通知公告表
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct Notice {
     pub id: Option<i64>,               //公告ID
     pub notice_title: String,          //公告标题
@@ -72,42 +74,6 @@ rbatis::crud!(Notice {}, "sys_notice");
 
 impl Notice {
     /*
-     *添加通知公告
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn add(rb: &RBatis, item: &Notice) -> rbatis::Result<Option<u64>> {
-        Notice::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
-            error!("Database error insert into sys_notice: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *删除通知公告
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        Notice::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_notice: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *更新通知公告
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update(rb: &RBatis, item: &Notice, id: i64) -> rbatis::Result<u64> {
-        Notice::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update sys_notice: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *更新通知公告状态
      *author：刘飞华
      *date：2026/07/01 17:49:14
@@ -125,15 +91,6 @@ impl Notice {
             error!("Database error update_status sys_notice: {:?}", e);
             e
         })?
-    }
-
-    /*
-     *根据id查询通知公告表
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Notice>> {
-        Ok(Notice::select_by_map(rb, value! {"id": id}).await?.first().cloned())
     }
 
     /*

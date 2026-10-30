@@ -9,6 +9,7 @@ use crate::model::system::sys_user_role_model::UserRole;
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserResp;
 use crate::AppState;
+use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
 use std::sync::Arc;

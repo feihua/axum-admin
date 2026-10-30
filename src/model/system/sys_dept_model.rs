@@ -5,6 +5,7 @@
 use crate::vo::system::sys_dept_vo::DeptReq;
 use crate::vo::system::sys_dept_vo::DeptResp;
 use crate::vo::system::sys_dept_vo::QueryDeptListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -16,7 +17,7 @@ use validator::Validate;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize, Validate)]
+#[derive(Clone, Debug, Serialize, Deserialize, Validate, Curd)]
 pub struct Dept {
     pub id: Option<i64>,               //部门id
     pub parent_id: i64,                //父部门id
@@ -86,42 +87,6 @@ impl Into<DeptResp> for Dept {
 
 impl Dept {
     /*
-     *添加部门信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn add(rb: &RBatis, item: &Dept) -> rbatis::Result<Option<u64>> {
-        Dept::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
-            error!("Database error insert into sys_dept: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *删除部门信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, id: i64) -> rbatis::Result<u64> {
-        Dept::delete_by_map(rb, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_dept: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *更新部门信息
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update(rb: &RBatis, item: &Dept, id: i64) -> rbatis::Result<u64> {
-        Dept::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update sys_dept: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *更新部门信息状态
      *author：刘飞华
      *date：2026/07/01 17:49:14
@@ -141,14 +106,6 @@ impl Dept {
         })?
     }
 
-    /*
-     *根据id查询部门表
-     *author：刘飞华
-     *date：2026/07/01 17:45:52
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<Dept>> {
-        Ok(Dept::select_by_map(rb, value! {"id": id}).await?.first().cloned())
-    }
     /*
      *根据条件分页查询部门表
      *author：刘飞华

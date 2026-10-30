@@ -5,6 +5,7 @@
 use crate::vo::system::sys_dict_type_vo::DictTypeReq;
 use crate::vo::system::sys_dict_type_vo::DictTypeResp;
 use crate::vo::system::sys_dict_type_vo::QueryDictTypeListReq;
+use curd_macro::Curd;
 use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
 use rbs::value;
@@ -15,7 +16,7 @@ use tracing::error;
  *author：刘飞华
  *date：2024/12/25 10:01:11
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct DictType {
     pub id: Option<i64>,               //字典主键
     pub dict_name: String,             //字典名称
@@ -68,42 +69,6 @@ impl Into<DictTypeResp> for DictType {
 
 impl DictType {
     /*
-     *添加字典类型
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn add(rb: &RBatis, item: &DictType) -> rbatis::Result<Option<u64>> {
-        DictType::insert(rb, item).await.map(|x| Ok(x.last_insert_id.as_u64())).map_err(|e| {
-            error!("Database error insert into sys_dict_type: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *删除字典类型
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64> {
-        DictType::delete_by_map(rb, value! {"id": ids}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error delete sys_dict_type: {:?}", e);
-            e
-        })?
-    }
-
-    /*
-     *更新字典类型
-     *author：刘飞华
-     *date：2026/07/01 17:49:14
-     */
-    pub async fn update(rb: &RBatis, item: &DictType, id: i64) -> rbatis::Result<u64> {
-        DictType::update_by_map(rb, item, value! {"id": id}).await.map(|x| Ok(x.rows_affected)).map_err(|e| {
-            error!("Database error update sys_dict_type: {:?}", e);
-            e
-        })?
-    }
-
-    /*
      *更新字典类型状态
      *author：刘飞华
      *date：2026/07/01 17:49:14
@@ -121,15 +86,6 @@ impl DictType {
             error!("Database error update_status sys_dict_type: {:?}", e);
             e
         })?
-    }
-
-    /*
-     *根据id查询字典类型表
-     *author：刘飞华
-     *date：2026/07/01 17:45:52
-     */
-    pub async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<DictType>> {
-        Ok(DictType::select_by_map(rb, value! {"id": id}).await?.first().cloned())
     }
 
     /*
