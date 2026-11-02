@@ -1,6 +1,6 @@
-#简化rbatis orm 操作
+# Simplify rbatis orm operations
 
-## 1.添加Curd宏
+## 1.Add Curd Macro
 
 ```rust
 #[derive(Clone, Debug, Serialize, Deserialize, Curd)]
@@ -17,26 +17,39 @@ pub struct Notice {
 
 ```
 
-**添加Curd宏会生成以下方法**
+**Automatically generated implementation of the Curd trait for Notice**
 
 ```text
-//add notice
+/// Insert a new item into the database.
 async fn add(rb: &RBatis, item: &T) -> rbatis::Result<Option<u64>>;
 
-//delete notice
+/// Delete items from the database by their IDs.
 async fn delete(rb: &RBatis, ids: Vec<i64>) -> rbatis::Result<u64>;
 
-//update notice
+/// Update an item in the database by its ID.
 async fn update(rb: &RBatis, item: &T, id: i64) -> rbatis::Result<u64>;
 
-//select by id
+/// Update the status of items in the database by their IDs.
+async fn update_status(rb: &RBatis, table_name: &str, ids: Vec<i64>, status: i8) -> rbatis::Result<u64>;
+
+/// Select an item from the database by a specific field and value.
 async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<T>>;
 
-//update status
-async fn update_status(rb: &RBatis, table_name: &str, ids: Vec<i64>, status: i8) -> rbatis::Result<u64>;
+/// Select an item from the database by a specific field and value.
+async fn select_by_int8_field(rb: &RBatis, field: &str, value: &i8) -> rbatis::Result<Option<T>>;
+
+/// Select an item from the database by a specific field and value.
+async fn select_by_int32_field(rb: &RBatis, field: &str, value: &i32) -> rbatis::Result<Option<T>>;
+
+/// Select an item from the database by a specific field and value.
+async fn select_by_int64_field(rb: &RBatis, field: &str, value: &i64) -> rbatis::Result<Option<T>>;
+
+/// Select an item from the database by a specific field and value.
+async fn select_by_field(rb: &RBatis, field: &str, value: &str) -> rbatis::Result<Option<T>>;
+
 ```
 
-## 2.使用
+## 2.Use Curd Macro
 
 ```rust
 
@@ -50,7 +63,7 @@ impl NoticeService {
             "notice_title": &item.notice_title,
         };
         if Notice::select_by_map(rb, condition).await?.len() > 0 {
-            return Err(BusinessError("公告标题已存在"));
+            return Err(BusinessError("公告标题已存在！"));
         }
 
         item.id = None;
@@ -106,7 +119,7 @@ impl NoticeService {
 
 ```
 
-## 3.更多具体操作
+## 3.More specific operations
 
-更多具体操作请参考[axum-admin](https://github.com/feihua/axum-admin)
+More specific operations please refer to [axum-admin](https://github.com/feihua/axum-admin)
 

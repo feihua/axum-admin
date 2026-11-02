@@ -4,10 +4,25 @@ members = [
     "crates/curd_macro",
     "crates/curd_trait",
 ]
+
+[workspace.package]
+version = "0.1.1"
+edition = "2024"
+license = "Apache-2.0"
+description = "A simple axum admin template"
+authors = ["feihua"]
+repository = "https://github.com/feihua/axum-admin"
+keywords = ["axum", "admin", "template"]
+categories = ["web-programming", "web-programming::http-server"]
+license-file = "LICENSE"
+
+
 [package]
 name = "axum-admin"
-version = "0.1.0"
-edition = "2021"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -36,5 +51,5 @@ regex = "1.11.1"
 config = "0.15.9"
 chrono = "0.4.38"
 
-curd_trait = "0.1.0"
-curd_macro = "0.1.0"
+curd_trait = "0.1.1"
+curd_macro = "0.1.1"

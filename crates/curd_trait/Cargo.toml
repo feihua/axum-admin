@@ -1,9 +1,10 @@
 [package]
 name = "curd_trait"
-version = "0.1.0"
-edition = "2024"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
 description = "简化CRUD操作，基于rbatis"
-license = "Apache-2.0"
 repository = "https://github.com/feihua/axum-admin/tree/master/crates/curd_trait"
 readme = "README.md"
 keywords = ["web", "axum", "orm", "rbatis"]
