@@ -51,5 +51,5 @@ regex = "1.11.1"
 config = "0.15.9"
 chrono = "0.4.38"
 
-curd_trait = "0.1.1"
-curd_macro = "0.1.1"
+curd_trait = "0.1.2"
+curd_macro = "0.1.2"

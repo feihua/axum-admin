@@ -1,8 +1,8 @@
+use crate::AppState;
 use crate::common::error::AppError;
 use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_notice_model::Notice;
 use crate::vo::system::sys_notice_vo::*;
-use crate::AppState;
 use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
@@ -18,10 +18,8 @@ impl NoticeService {
      */
     pub async fn add_sys_notice(state: Arc<AppState>, mut item: NoticeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        let condition = value! {
-            "notice_title": &item.notice_title,
-        };
-        if Notice::select_by_map(rb, condition).await?.len() > 0 {
+
+        if Notice::exists_by_field(rb, "notice_title", &item.notice_title).await? {
             return Err(BusinessError("公告标题已存在"));
         }
 
@@ -85,7 +83,7 @@ impl NoticeService {
      */
     pub async fn query_sys_notice_detail(state: Arc<AppState>, item: QueryNoticeDetailReq) -> Result<NoticeResp, AppError> {
         let rb = &state.batis;
-        match Notice::select_by_int64_field(rb, "id", &item.id).await? {
+        match Notice::select_by_field(rb, "id", &item.id).await? {
             None => Err(BusinessError("通知公告表不存在")),
             Some(x) => Ok(x.into()),
         }

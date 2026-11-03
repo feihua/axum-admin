@@ -1,3 +1,4 @@
+use crate::AppState;
 use crate::common::error::AppError::BusinessError;
 use crate::common::error::{AppError, AppResult};
 use crate::model::system::sys_dept_model::Dept;
@@ -12,13 +13,12 @@ use crate::utils::user_agent_util::UserAgentUtil;
 use crate::vo::system::sys_dept_vo::DeptResp;
 use crate::vo::system::sys_role_vo::RoleResp;
 use crate::vo::system::sys_user_vo::*;
-use crate::AppState;
 use chrono::Local;
 use curd_trait::BaseCurd;
+use rbatis::RBatis;
 use rbatis::plugin::page::PageRequest;
 use rbatis::rbatis_codegen::ops::AsProxy;
 use rbatis::rbdc::DateTime;
-use rbatis::RBatis;
 use rbs::value;
 use redis::Commands;
 use std::collections::{HashMap, HashSet};
@@ -34,15 +34,15 @@ impl UserService {
      */
     pub async fn add_sys_user(state: Arc<AppState>, mut item: UserReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        if User::select_by_map(rb, value! {"user_name": &item.user_name}).await?.len() > 0 {
+        if User::exists_by_field(rb, "user_name", &item.user_name).await? {
             return Err(BusinessError("登录账号已存在"));
         }
 
-        if User::select_by_map(rb, value! {"mobile": &item.mobile}).await?.len() > 0 {
+        if User::exists_by_field(rb, "mobile", &item.mobile).await? {
             return Err(BusinessError("手机号码已存在"));
         }
 
-        if User::select_by_map(rb, value! {"email": &item.email}).await?.len() > 0 {
+        if User::exists_by_field(rb, "email", &item.email).await? {
             return Err(BusinessError("邮箱账号已存在"));
         }
 

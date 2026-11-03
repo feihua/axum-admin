@@ -1,9 +1,9 @@
+use crate::AppState;
 use crate::common::error::AppError;
 use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_dict_data_model::DictData;
 use crate::model::system::sys_dict_type_model::DictType;
 use crate::vo::system::sys_dict_type_vo::*;
-use crate::AppState;
 use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
@@ -19,7 +19,7 @@ impl DictTypeService {
      */
     pub async fn add_sys_dict_type(state: Arc<AppState>, mut item: DictTypeReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        if DictType::select_by_map(rb, value! {"dict_type": &item.dict_type}).await?.len() > 0 {
+        if DictType::exists_by_field(rb, "dict_type", &item.dict_type).await? {
             return Err(BusinessError("字典类型已存在"));
         }
 
@@ -41,7 +41,7 @@ impl DictTypeService {
                 Some(p) => p.dict_type,
             };
 
-            if DictData::count_dict_data_by_type(rb, &dict_type).await? > 0 {
+            if DictData::exists_by_field(rb, "dict_type", &dict_type).await? {
                 return Err(BusinessError("已分配,不能删除"));
             }
         }

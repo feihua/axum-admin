@@ -1,6 +1,7 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use curd_macro::Curd;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 
@@ -9,7 +10,7 @@ use serde::{Deserialize, Serialize};
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct UserRole {
     pub id: Option<i64>, //主键
     pub user_id: i64,    //用户ID
@@ -31,16 +32,6 @@ impl UserRole {
      */
     #[sql("select count(1) from sys_user_role where role_id = 1 and user_id = ?")]
     pub async fn is_admin(rb: &RBatis, user_id: &i64) -> rbatis::Result<i64> {
-        impled!()
-    }
-
-    /*
-     *通过角色id查询角色使用数量
-     *author：刘飞华
-     *date：2024/12/12 14:41:44
-     */
-    #[sql("select count(1) from sys_user_role where role_id = ?")]
-    pub async fn count_user_role_by_role_id(rb: &RBatis, role_id: &i64) -> rbatis::Result<i64> {
         impled!()
     }
 

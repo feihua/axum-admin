@@ -19,14 +19,14 @@ pub trait BaseCurd<T> {
     /// Select an item from the database by its ID.
     async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<T>>;
 
-    /// Select an item from the database by a specific field and value.
-    async fn select_by_int8_field(rb: &RBatis, field: &str, value: &i8) -> rbatis::Result<Option<T>>;
-    /// Select an item from the database by a specific field and value.
-    async fn select_by_int32_field(rb: &RBatis, field: &str, value: &i32) -> rbatis::Result<Option<T>>;
-    /// Select an item from the database by a specific field and value.
-    async fn select_by_int64_field(rb: &RBatis, field: &str, value: &i64) -> rbatis::Result<Option<T>>;
-    /// Select an item from the database by a specific field and value.
-    async fn select_by_field(rb: &RBatis, field: &str, value: &str) -> rbatis::Result<Option<T>>;
+    /// Select an item from the database by a field and value.
+    async fn select_by_field<V: Serialize + Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<Option<T>>;
+
+    /// Count the number of items in the database that match a field and value.
+    async fn count_by_field<V: Serialize + Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<usize>;
+
+    /// Check if an item exists in the database by a field and value.
+    async fn exists_by_field<V: Serialize + Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<bool>;
 
 }
 

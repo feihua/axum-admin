@@ -1,9 +1,9 @@
+use crate::AppState;
 use crate::common::error::AppError;
 use crate::common::error::AppError::BusinessError;
-use crate::model::system::sys_menu_model::{select_count_menu_by_parent_id, Menu};
+use crate::model::system::sys_menu_model::Menu;
 use crate::model::system::sys_role_menu_model::RoleMenu;
 use crate::vo::system::sys_menu_vo::*;
-use crate::AppState;
 use curd_trait::BaseCurd;
 use rbatis::PageRequest;
 use rbs::value;
@@ -25,7 +25,7 @@ impl MenuService {
 
         if let Some(url) = item.menu_url.clone() {
             if url != "".to_string() {
-                if Menu::select_by_map(rb, value! {"menu_url": url}).await?.len() > 0 {
+                if Menu::exists_by_field(rb, "menu_url", &url).await? {
                     return Err(BusinessError("路由路径已存在"));
                 }
             }
@@ -43,12 +43,12 @@ impl MenuService {
     pub async fn delete_sys_menu(state: Arc<AppState>, item: DeleteMenuReq) -> Result<u64, AppError> {
         let rb = &state.batis;
         let ids = item.ids;
-        for x in &ids {
-            if select_count_menu_by_parent_id(rb, x).await? > 0 {
+        for id in &ids {
+            if Menu::exists_by_field(rb, "parent_id", id).await? {
                 return Err(BusinessError("存在子菜单,不允许删除"));
             }
 
-            if RoleMenu::select_count_menu_by_menu_id(rb, x).await? > 0 {
+            if RoleMenu::exists_by_field(rb, "menu_id", id).await? {
                 return Err(BusinessError("菜单已分配,不允许删除"));
             }
         }

@@ -1,9 +1,9 @@
+use crate::AppState;
 use crate::common::error::AppError;
 use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_post_model::Post;
 use crate::model::system::sys_user_post_model::UserPost;
 use crate::vo::system::sys_post_vo::*;
-use crate::AppState;
 use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
@@ -18,11 +18,11 @@ impl PostService {
      */
     pub async fn add_sys_post(state: Arc<AppState>, mut item: PostReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        if Post::select_by_map(rb, value! {"post_name": &item.post_name}).await?.len() > 0 {
+        if Post::exists_by_field(rb, "post_name", &item.post_name).await? {
             return Err(BusinessError("岗位名称已存在"));
         }
 
-        if Post::select_by_map(rb, value! {"post_code": &item.post_code}).await?.len() > 0 {
+        if Post::exists_by_field(rb, "post_code", &item.post_code).await? {
             return Err(BusinessError("岗位编码已存在"));
         }
 
@@ -39,7 +39,7 @@ impl PostService {
         let rb = &state.batis;
         let ids = item.ids;
         for id in &ids {
-            if UserPost::count_user_post_by_id(rb, id).await? > 0 {
+            if UserPost::exists_by_field(rb, "post_id", id).await? {
                 return Err(BusinessError("已分配,不能删除"));
             }
         }

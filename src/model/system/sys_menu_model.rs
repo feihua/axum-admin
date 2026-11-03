@@ -4,11 +4,8 @@
 use crate::vo::system::sys_menu_vo::MenuResp;
 use crate::vo::system::sys_menu_vo::{MenuReq, QueryMenuListReq};
 use curd_macro::Curd;
-use rbatis::rbdc::datetime::DateTime;
 use rbatis::RBatis;
-use rbs::value;
 use serde::{Deserialize, Serialize};
-use tracing::error;
 /*
  *菜单信息
  *author：刘飞华
@@ -81,16 +78,6 @@ impl Into<MenuResp> for Menu {
  *date：2024/12/12 14:41:44
  */
 rbatis::crud!(Menu {}, "sys_menu");
-
-/*
- *查询菜单数量
- *author：刘飞华
- *date：2024/12/25 10:01:11
- */
-#[sql("select count(1) from sys_menu where parent_id= ?")]
-pub async fn select_count_menu_by_parent_id(rb: &RBatis, parent_id: &i64) -> rbatis::Result<i64> {
-    impled!()
-}
 
 impl Menu {
     /*

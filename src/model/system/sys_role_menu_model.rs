@@ -1,6 +1,7 @@
 // author：刘飞华
 // createTime：2024/12/12 14:41:44
 
+use curd_macro::Curd;
 use rbatis::RBatis;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -10,7 +11,7 @@ use std::collections::HashMap;
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Curd)]
 pub struct RoleMenu {
     pub id: Option<i64>, //主键
     pub role_id: i64,    //角色ID
@@ -32,16 +33,6 @@ impl RoleMenu {
      */
     #[sql("select menu_id from sys_role_menu where role_id = ?")]
     pub async fn query_menu_by_role(rb: &RBatis, role_id: i64) -> rbatis::Result<Vec<HashMap<String, i64>>> {
-        impled!()
-    }
-
-    /*
-     *查询菜单使用数量
-     *author：刘飞华
-     *date：2024/12/25 10:01:11
-     */
-    #[sql("select count(1) from sys_role_menu where menu_id= ?")]
-    pub async fn select_count_menu_by_menu_id(rb: &RBatis, menu_id: &i64) -> rbatis::Result<i64> {
         impled!()
     }
 }

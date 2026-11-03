@@ -10,6 +10,9 @@ pub fn derive_curd(input: TokenStream) -> TokenStream {
     let generated_code = quote! {
     use curd_trait::BaseCurd;
     use rbatis::async_trait;
+    use rbs::value;
+    use tracing::error;
+    use rbatis::rbdc::datetime::DateTime;
 
     /// Automatically generated implementation of the Curd trait for #name.
     #[async_trait]
@@ -38,31 +41,6 @@ pub fn derive_curd(input: TokenStream) -> TokenStream {
             e
         })?
     }
-
-        /// Select an item from the database by its ID.
-     async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<#name>> {
-        Ok(#name::select_by_map(rb, value! {"id": id}).await?.first().cloned())
-    }
-
-        /// Select an item from the database by a specific field and value.
-     async fn select_by_int8_field(rb: &RBatis, field: &str, value: &i8) -> rbatis::Result<Option<#name>> {
-        Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
-    }
-
-        /// Select an item from the database by a specific field and value.
-     async fn select_by_int32_field(rb: &RBatis, field: &str, value: &i32) -> rbatis::Result<Option<#name>> {
-        Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
-    }
-
-        /// Select an item from the database by a specific field and value.
-     async fn select_by_int64_field(rb: &RBatis, field: &str, value: &i64) -> rbatis::Result<Option<#name>> {
-        Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
-    }
-
-        /// Select an item from the database by a specific field and value.
-     async fn select_by_field(rb: &RBatis, field: &str, value: &str) -> rbatis::Result<Option<#name>> {
-        Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
-    }
         /// Update the status of items in the database by their IDs.
      async fn update_status(rb: &RBatis, table_name: &str, ids: Vec<i64>, status: i8) -> rbatis::Result<u64> {
 
@@ -80,6 +58,27 @@ pub fn derive_curd(input: TokenStream) -> TokenStream {
             e
         })?
     }
+
+        /// Select an item from the database by its ID.
+     async fn select_by_id(rb: &RBatis, id: &i64) -> rbatis::Result<Option<#name>> {
+        Ok(#name::select_by_map(rb, value! {"id": id}).await?.first().cloned())
+    }
+
+        /// Select an item from the database by a specific field and value.
+    async fn select_by_field<V:Serialize+Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<Option<#name>>{
+        Ok(#name::select_by_map(rb, value! {field: value}).await?.first().cloned())
+    }
+
+    /// Count the number of items in the database that match a field and value.
+    async fn count_by_field<V:Serialize+Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<usize>{
+        Ok(#name::select_by_map(rb, value! {field: value}).await?.len())
+    }
+
+    /// Check if an item exists in the database by a field and value.
+    async fn exists_by_field<V:Serialize+Sync>(rb: &RBatis, field: &str, value: &V) -> rbatis::Result<bool>{
+        Ok(#name::select_by_map(rb, value! {field: value}).await?.len()>0)
+    }
+
     }
 
     };

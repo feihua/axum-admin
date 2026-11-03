@@ -12,3 +12,4 @@ categories = ["web-programming", "web-programming::http-server"]
 
 [dependencies]
 rbatis = { version = "4.0", features = ["debug_mode"] }
+serde = { version = "1.0", features = ["derive"] }

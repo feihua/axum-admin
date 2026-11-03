@@ -1,3 +1,4 @@
+use crate::AppState;
 use crate::common::error::AppError;
 use crate::common::error::AppError::BusinessError;
 use crate::model::system::sys_menu_model::Menu;
@@ -8,7 +9,6 @@ use crate::model::system::sys_user_model::User;
 use crate::model::system::sys_user_role_model::UserRole;
 use crate::vo::system::sys_role_vo::*;
 use crate::vo::system::sys_user_vo::UserResp;
-use crate::AppState;
 use curd_trait::BaseCurd;
 use rbatis::plugin::page::PageRequest;
 use rbs::value;
@@ -24,11 +24,11 @@ impl RoleService {
      */
     pub async fn add_sys_role(state: Arc<AppState>, mut item: RoleReq) -> Result<u64, AppError> {
         let rb = &state.batis;
-        if Role::select_by_map(rb, value! {"role_name": &item.role_name}).await?.len() > 0 {
+        if Role::exists_by_field(rb, "role_name", &item.role_name).await? {
             return Err(BusinessError("角色名称已存在"));
         }
 
-        if Role::select_by_map(rb, value! {"role_key": &item.role_key}).await?.len() > 0 {
+        if Role::exists_by_field(rb, "role_key", &item.role_key).await? {
             return Err(BusinessError("角色权限已存在"));
         }
 
@@ -54,7 +54,7 @@ impl RoleService {
                 return Err(BusinessError("角色不存在,不能删除"));
             }
 
-            if UserRole::count_user_role_by_role_id(rb, id).await? > 0 {
+            if UserRole::exists_by_field(rb, "role_id", id).await? {
                 return Err(BusinessError("分配,不能删除"));
             }
         }
