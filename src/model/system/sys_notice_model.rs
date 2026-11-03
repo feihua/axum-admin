@@ -83,8 +83,8 @@ impl Notice {
             <if test="req.noticeTitle != '' && req.noticeTitle != null">
                 ` and notice_title like concat('%', #{req.noticeTitle}, '%')`
             </if>
-            <if test="req.noticeType != 0">
-                ` and notice_type = #{req.noticeType}`
+            <if test="req.noticeType != '' && req.noticeType != null">
+                ` and notice_type like concat('%', #{req.noticeType}, '%')`
             </if>
             <if test="req.status != 2">
                 ` and status = #{req.status}`

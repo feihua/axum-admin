@@ -95,9 +95,6 @@ impl Dept {
             <if test="req.parentId != 0">
                 ` and parent_id = #{req.parentId}`
             </if>
-            <if test="req.ancestors != '' && req.ancestors != null">
-                ` and ancestors like concat('%', #{req.ancestors}, '%')`
-            </if>
             <if test="req.deptName != '' && req.deptName != null">
                 ` and dept_name like concat('%', #{req.deptName}, '%')`
             </if>
@@ -112,9 +109,6 @@ impl Dept {
             </if>
             <if test="req.status != 2">
                 ` and status = #{req.status}`
-            </if>
-            <if test="req.delFlag != 2">
-                ` and del_flag = #{req.delFlag}`
             </if>
             </where>
         </select>
