@@ -16,10 +16,18 @@ https://github.com/feihua/antd-admin.git
 
 # 本地启动
 
-```
-1.创建数据库并导入sql脚本
-2.修改comfig.toml中的数据库连接地址
-3.启动 cargo run .\src\main.rs
+```shell
+git clone https://github.com/feihua/axum-admin.git
+cd axum-admin
+
+修改config.toml配置
+[db]
+url = "mysql://root:123456@127.0.0.1:3306/axum"
+[redis]
+url = "redis://:123456@127.0.0.1:6379"
+
+启动 cargo run 
+
 ```
 
 # 系统截图

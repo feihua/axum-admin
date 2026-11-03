@@ -11,11 +11,12 @@ pub mod service;
 pub mod utils;
 pub mod vo;
 
-use axum::{middleware as md, Router};
+use axum::{Router, middleware as md};
 
 use crate::app_config::config::JwtConfig;
 use crate::app_config::load_config::init_config;
 use crate::app_config::load_log::init_log;
+use crate::model::tables_init::{sync_tables, sync_tables_data};
 use crate::route::system::sys_dept_route::build_sys_dept_route;
 use crate::route::system::sys_dict_data_route::build_sys_dict_data_route;
 use crate::route::system::sys_dict_type_route::build_sys_dict_type_route;
@@ -50,6 +51,11 @@ async fn main() {
     // 初始化数据库连接
     let rb = init_db(config.db.url.as_str()).await;
     let rd = init_redis(config.redis.url.as_str()).await;
+
+    // 同步数据库表结构
+    sync_tables(&rb).await;
+    // 同步数据库表数据
+    sync_tables_data(&rb).await;
 
     // 创建共享应用状态，包含数据库连接池
     let shared_state = Arc::new(AppState {
