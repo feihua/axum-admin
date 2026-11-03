@@ -111,8 +111,8 @@ dependencies = [
  "axum-valid",
  "chrono",
  "config",
-    "curd_macro 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
-    "curd_trait 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "curd_macro 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "curd_trait 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonwebtoken",
  "rbatis",
  "rbdc-mysql",
@@ -442,7 +442,7 @@ dependencies = [
 
 [[package]]
 name = "curd_macro"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -451,9 +451,9 @@ dependencies = [
 
 [[package]]
 name = "curd_macro"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c8196656391d0fe1b753641241fd52cae0680fed5d388ae2930d4ca44bcb6be"
+checksum = "62b1ff36b18665ba3252a5808f840fd14927ffab9affa50434b89a0919f885fc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -462,19 +462,20 @@ dependencies = [
 
 [[package]]
 name = "curd_trait"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "rbatis",
-    "serde",
+ "serde",
 ]
 
 [[package]]
 name = "curd_trait"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "889f79bdfe2408b89d809844890278c1568337d7d56cc3e4ad83531f548b3ba8"
+checksum = "4c39c591cfe188be3fe332c052d44f84f9e3151c156053d5d720cf452b6efb58"
 dependencies = [
  "rbatis",
+ "serde",
 ]
 
 [[package]]
