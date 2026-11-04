@@ -1,21 +1,21 @@
+use crate::AppState;
 use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_operate_log_service::OperateLogService;
 use crate::vo::system::sys_operate_log_vo::*;
-use crate::AppState;
+use axum::Json;
 use axum::extract::State;
 use axum::response::IntoResponse;
-use axum::Json;
 use axum_valid::Valid;
 use std::sync::Arc;
-use tracing::info;
+
+use print_log_macro::log;
 /*
  *删除操作日志记录
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteOperateLogReq>>) -> impl IntoResponse {
-    info!("delete sys_operate_log params: {:?}", &item);
-
     OperateLogService::delete_sys_operate_log(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -24,9 +24,8 @@ pub async fn delete_sys_operate_log(State(state): State<Arc<AppState>>, Valid(Js
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn clean_sys_operate_log(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    info!("clean sys_operate_log");
-
     OperateLogService::clean_sys_operate_log(state).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -35,9 +34,8 @@ pub async fn clean_sys_operate_log(State(state): State<Arc<AppState>>) -> impl I
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryOperateLogDetailReq>>) -> impl IntoResponse {
-    info!("query sys_operate_log_detail params: {:?}", &item);
-
     OperateLogService::query_sys_operate_log_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 /*
@@ -45,8 +43,7 @@ pub async fn query_sys_operate_log_detail(State(state): State<Arc<AppState>>, Va
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn query_sys_operate_log_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryOperateLogListReq>>) -> impl IntoResponse {
-    info!("query sys_operate_log_list params: {:?}", &item);
-
     OperateLogService::query_sys_operate_log_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

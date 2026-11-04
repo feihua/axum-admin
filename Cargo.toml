@@ -2,7 +2,7 @@
 resolver = "2"
 members = [
     "crates/curd_macro",
-    "crates/curd_trait",
+    "crates/curd_trait", "crates/print_log_macro",
 ]
 
 [workspace.package]
@@ -53,3 +53,4 @@ chrono = "0.4.38"
 
 curd_trait = "0.1.2"
 curd_macro = "0.1.2"
+print_log_macro = { path = "crates/print_log_macro" }

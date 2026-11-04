@@ -1,21 +1,21 @@
+use crate::AppState;
 use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_menu_service::MenuService;
 use crate::vo::system::sys_menu_vo::*;
-use crate::AppState;
+use axum::Json;
 use axum::extract::State;
 use axum::response::IntoResponse;
-use axum::Json;
 use axum_valid::Valid;
 use std::sync::Arc;
-use tracing::info;
+
+use print_log_macro::log;
 /*
  *添加菜单信息
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<MenuReq>>) -> impl IntoResponse {
-    info!("add sys_menu params: {:?}", &item);
-
     MenuService::add_sys_menu(state, item).await.map(|last_insert_id| ok_result_data(last_insert_id))?
 }
 
@@ -24,9 +24,8 @@ pub async fn add_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)):
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteMenuReq>>) -> impl IntoResponse {
-    info!("delete sys_menu params: {:?}", &item);
-
     MenuService::delete_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -35,9 +34,8 @@ pub async fn delete_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<MenuReq>>) -> impl IntoResponse {
-    info!("update sys_menu params: {:?}", &item);
-
     MenuService::update_sys_menu(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -46,9 +44,8 @@ pub async fn update_sys_menu(State(state): State<Arc<AppState>>, Valid(Json(item
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<UpdateMenuStatusReq>>) -> impl IntoResponse {
-    info!("update sys_menu_status params: {:?}", &item);
-
     MenuService::update_sys_menu_status(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -57,9 +54,8 @@ pub async fn update_sys_menu_status(State(state): State<Arc<AppState>>, Valid(Js
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuDetailReq>>) -> impl IntoResponse {
-    info!("query sys_menu_detail params: {:?}", &item);
-
     MenuService::query_sys_menu_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
@@ -68,9 +64,8 @@ pub async fn query_sys_menu_detail(State(state): State<Arc<AppState>>, Valid(Jso
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuListReq>>) -> impl IntoResponse {
-    info!("query sys_menu_list params: {:?}", &item);
-
     MenuService::query_sys_menu_list(state).await.map(|record| ok_result_data(record))?
 }
 
@@ -79,6 +74,7 @@ pub async fn query_sys_menu_list(State(state): State<Arc<AppState>>, Valid(Json(
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> impl IntoResponse {
     MenuService::query_sys_menu_list_simple(state).await.map(|record| ok_result_data(record))?
 }
@@ -88,8 +84,7 @@ pub async fn query_sys_menu_list_simple(State(state): State<Arc<AppState>>) -> i
  *author：刘飞华
  *date：2024/12/12 14:41:44
  */
+#[log]
 pub async fn query_sys_menu_resource_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryMenuListReq>>) -> impl IntoResponse {
-    info!("query sys_menu_list params: {:?}", &item);
-
     MenuService::query_sys_menu_resource_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }

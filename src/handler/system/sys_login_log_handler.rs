@@ -1,21 +1,21 @@
+use crate::AppState;
 use crate::common::result::{ok_result_data, ok_result_page};
 use crate::service::system::sys_login_log_service::LoginLogService;
 use crate::vo::system::sys_login_log_vo::*;
-use crate::AppState;
+use axum::Json;
 use axum::extract::State;
 use axum::response::IntoResponse;
-use axum::Json;
 use axum_valid::Valid;
 use std::sync::Arc;
-use tracing::info;
+
+use print_log_macro::log;
 /*
  *删除系统访问记录
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<DeleteLoginLogReq>>) -> impl IntoResponse {
-    info!("delete sys_login_log params: {:?}", &item);
-
     LoginLogService::delete_sys_login_log(state, item).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -24,9 +24,8 @@ pub async fn delete_sys_login_log(State(state): State<Arc<AppState>>, Valid(Json
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl IntoResponse {
-    info!("clean sys_login_log ");
-
     LoginLogService::clean_sys_login_log(state).await.map(|rows_affected| ok_result_data(rows_affected))?
 }
 
@@ -35,9 +34,8 @@ pub async fn clean_sys_login_log(State(state): State<Arc<AppState>>) -> impl Int
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryLoginLogDetailReq>>) -> impl IntoResponse {
-    info!("query sys_login_log_detail params: {:?}", &item);
-
     LoginLogService::query_sys_login_log_detail(state, item).await.map(|record| ok_result_data(record))?
 }
 
@@ -46,8 +44,7 @@ pub async fn query_sys_login_log_detail(State(state): State<Arc<AppState>>, Vali
  *author：刘飞华
  *date：2024/12/25 11:36:48
  */
+#[log]
 pub async fn query_sys_login_log_list(State(state): State<Arc<AppState>>, Valid(Json(item)): Valid<Json<QueryLoginLogListReq>>) -> impl IntoResponse {
-    info!("query sys_login_log_list params: {:?}", &item);
-
     LoginLogService::query_sys_login_log_list(state, item).await.map(|(list, total)| ok_result_page(list, total))?
 }
