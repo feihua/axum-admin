@@ -121,6 +121,7 @@ dependencies = [
  "rbs",
  "redis",
  "regex",
+ "route_macro",
  "serde",
  "thiserror",
  "tokio",
@@ -2116,6 +2117,15 @@ dependencies = [
  "serde_derive",
  "typeid",
  "unicode-ident",
+]
+
+[[package]]
+name = "route_macro"
+version = "0.1.1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
 ]
 
 [[package]]

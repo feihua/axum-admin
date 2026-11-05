@@ -1,7 +1,7 @@
-use crate::handler::system::sys_operate_log_handler;
 use crate::AppState;
-use axum::routing::{get, post};
+use crate::handler::system::sys_operate_log_handler;
 use axum::Router;
+use route_macro::routes;
 use std::sync::Arc;
 /*
  *构建操作日志记录路由
@@ -9,10 +9,10 @@ use std::sync::Arc;
  *date：2024/12/25 14:07:37
  */
 pub fn build_sys_operate_log_route() -> Router<Arc<AppState>> {
-    Router::new()
-        .route("/system/operateLog/deleteOperateLog", post(sys_operate_log_handler::delete_sys_operate_log))
-        .route("/system/operateLog/cleanOperateLog", get(sys_operate_log_handler::clean_sys_operate_log))
-        .route("/system/operateLog/queryOperateLogDetail", post(sys_operate_log_handler::query_sys_operate_log_detail))
-        .route("/system/operateLog/queryOperateLogList", post(sys_operate_log_handler::query_sys_operate_log_list))
-    //记得在main.rs中添加路由build_sys_operate_log_route()
+    routes! {
+        "/system/operateLog/deleteOperateLog"=>post(sys_operate_log_handler::delete_sys_operate_log),
+        "/system/operateLog/cleanOperateLog"=>get(sys_operate_log_handler::clean_sys_operate_log),
+        "/system/operateLog/queryOperateLogDetail"=>post(sys_operate_log_handler::query_sys_operate_log_detail),
+        "/system/operateLog/queryOperateLogList"=>post(sys_operate_log_handler::query_sys_operate_log_list),
+    }
 }
