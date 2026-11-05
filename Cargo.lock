@@ -114,14 +114,14 @@ dependencies = [
  "curd_macro 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "curd_trait 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "jsonwebtoken",
- "print_log_macro",
+ "print_log_macro 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rbatis",
  "rbdc-mysql",
  "rbdc-pool-fast",
  "rbs",
  "redis",
  "regex",
- "route_macro",
+ "route_macro 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "thiserror",
  "tokio",
@@ -1795,6 +1795,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "print_log_macro"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0539415c27f5818958df73a8c471b386fc50c43565d10f9db16cd7007f21234d"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
 name = "proc-macro-error-attr3"
 version = "3.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2122,6 +2133,17 @@ dependencies = [
 [[package]]
 name = "route_macro"
 version = "0.1.1"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "route_macro"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bcd4a293e621032de266a4f1ad2c3c999670890f60dc442da73394fa0bf7aef2"
 dependencies = [
  "proc-macro2",
  "quote",
